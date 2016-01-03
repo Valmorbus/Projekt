@@ -43,6 +43,8 @@ public class Main extends Application {
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 15), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				
+				Thread thread = new Thread(()->{
 				scene.setOnKeyPressed(e -> {
 
 					switch (e.getCode()) {
@@ -78,6 +80,8 @@ public class Main extends Application {
 
 					}
 				});
+				});
+				thread.start();
 				double x = player.getGraphics().getTranslateX();
 				double y = player.getGraphics().getTranslateY();
 
@@ -88,10 +92,8 @@ public class Main extends Application {
 						double bulletY = bullet.getR().getTranslateY();
 						bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 15);
 						bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 15);
-						
 					}				
 				}
-
 				player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 2);
 				player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 2);
 
