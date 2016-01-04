@@ -3,15 +3,16 @@ package projectv2;
 
 
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 
 public class Bullet {
 	double directionX; 
 	double directionY;
-	Rectangle r = new Rectangle(15, 15);
+	Circle c = new Circle(15, 15, 15);
 	
 	Bullet(){
-		r.setFill(Color.RED);
+		c.setFill(Color.RED);
 		
 	}
 
@@ -39,12 +40,12 @@ public class Bullet {
 		this.directionY = directionY;
 	}
 
-	public Rectangle getR() {
-		return r;
+	public Circle getR() {
+		return c;
 	}
 
-	public void setR(Rectangle r) {
-		this.r = r;
+	public void setR(Circle c) {
+		this.c = c;
 	}
 	
 	
