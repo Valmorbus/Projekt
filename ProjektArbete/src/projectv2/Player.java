@@ -23,6 +23,7 @@ public class Player {
 	public Player (Image image){
 		this.image = image;
 		this.graphics.setImage(image);
+		this.lives = 3;
 	}
 
 

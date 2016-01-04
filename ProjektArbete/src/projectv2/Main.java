@@ -20,17 +20,20 @@ public class Main extends Application {
 	private Timeline playerLoop;
 	private Bullet bullet;
 	private List<Bullet> bulletArray = new LinkedList<Bullet>();
+	Scene scene;
+	Player player;
+	Pane root;
 
 	@Override
 	public void start(Stage primaryStage) {
-		Pane root = new Pane();
+		root = new Pane();
 
 		// BackgroundImage bground =
 
-		Player player = new Player(image);
+		player = new Player(image);
 		root.setStyle("-fx-background-color: black;");
 
-		Scene scene = new Scene(root);
+		scene = new Scene(root);
 
 		// scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(scene);
@@ -39,14 +42,11 @@ public class Main extends Application {
 		root.getChildren().add(player.getGraphics());
 		player.getGraphics().setTranslateX(100);
 		player.getGraphics().setTranslateY(350);
-		
-		
 
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 15), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				
-				Thread thread = new Thread(()->{
+
 				scene.setOnKeyPressed(e -> {
 
 					switch (e.getCode()) {
@@ -69,12 +69,12 @@ public class Main extends Application {
 						bullet = new Bullet();
 						root.getChildren().add(bullet.getR());
 						bullet.getR().setTranslateX(player.getGraphics().getTranslateX()
-								+ (player.getGraphics().getImage().getWidth() / 2));
+								+ (player.getGraphics().getImage().getWidth()) / 2);
 						bullet.getR().setTranslateY(player.getGraphics().getTranslateY()
 								+ (player.getGraphics().getImage().getHeight() / 2));
 						bullet.getR().setRotate(player.getGraphics().getRotate());
 						bulletArray.add(bullet);
-
+						moveBulletFirst(bullet);
 					}
 
 					default:
@@ -82,25 +82,25 @@ public class Main extends Application {
 
 					}
 				});
-				});
-				thread.start();
+
 				double x = player.getGraphics().getTranslateX();
 				double y = player.getGraphics().getTranslateY();
 
 				if (bullet != null) {
 					for (Bullet bullet : bulletArray) {
+						moveBullet(bullet);
+						moveBullet(bullet);
+						checkHit();
+					}
 					
-						double bulletX = bullet.getR().getTranslateX();
-						double bulletY = bullet.getR().getTranslateY();
-						bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 15);
-						bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 15);
-					}				
 				}
+
 				player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 2);
 				player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 2);
 
 			}
 		}));
+
 		playerLoop.setCycleCount(-1);
 		playerLoop.play();
 	}
@@ -108,6 +108,45 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-	
+
+	private void checkHit() {
+
+		if (bulletArray.get(0).getR().getTranslateX() <= -scene.getWidth()
+				|| bulletArray.get(0).getR().getTranslateX() >= scene.getWidth()
+				|| bulletArray.get(0).getR().getTranslateY() <= -scene.getHeight()
+				|| bulletArray.get(0).getR().getTranslateY() >= scene.getHeight()) {
+			root.getChildren().remove(bulletArray.get(0).getR());
+			bulletArray.remove(0);
+			System.out.println(bulletArray.get(0));
+		
+		}
+
+		else if (bulletArray.get(0).getR().getBoundsInParent().intersects(player.getGraphics().getBoundsInParent())) {
+			System.out.println("hit");
+			player.setLives(player.getLives() - 1);
+			System.out.println(player.getLives());
+
+			root.getChildren().remove(bulletArray.get(0).getR());
+			bulletArray.remove(0);
+		}
+
+	}
+
+	private void moveBullet(Bullet bullet) {
+
+		double bulletX = bullet.getR().getTranslateX();
+		double bulletY = bullet.getR().getTranslateY();
+		bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 25);
+		bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 25);
+
+	}
+
+	private void moveBulletFirst(Bullet bullet) {
+		double bulletX = bullet.getR().getTranslateX();
+		double bulletY = bullet.getR().getTranslateY();
+		bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 75);
+		bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 75);
+	}
+
 	// skapa client här
 }
