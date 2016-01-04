@@ -39,6 +39,8 @@ public class Main extends Application {
 		root.getChildren().add(player.getGraphics());
 		player.getGraphics().setTranslateX(100);
 		player.getGraphics().setTranslateY(350);
+		
+		
 
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 15), new EventHandler<ActionEvent>() {
 			@Override
@@ -106,4 +108,6 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
+	
+	// skapa client här
 }
