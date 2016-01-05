@@ -3,6 +3,10 @@ package projectv2;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -19,38 +23,57 @@ public class Server extends Thread {
 	int j = 1;
 	Random random = new Random();
 	private ArrayList<Player> users = new ArrayList<Player>();
+	
+	DatagramSocket ds;
+	
 
 	public static void main(String[] args) {
 		Thread thread = new Thread(() -> {
-			new Server().connectToClient();
+			new Server().acceptClient();
 		});
 		thread.start();
 	}
 
-	private void connectToClient() {
+	private void acceptClient() {
 		try {
-			ServerSocket server = new ServerSocket(8035);
+			//ServerSocket server = new ServerSocket(8001);
+			ds = new DatagramSocket(0);
 			System.out.println("Server start");
+			
 
-			while (true) {
+			//while (true) {
 
 				Socket playerSocket;
 				try {
-					playerSocket = server.accept();
+					//playerSocket = server.accept();
+					
+					byte[] bArray = new byte[1024];
+					DatagramPacket packet = new DatagramPacket(bArray, bArray.length,InetAddress.getByName("localhost"), 8000);
+					bArray[0] = (byte) 1337;
+					
+					ds.send(packet);
+					
 					System.out.println("connected");
+					byte playerId = 124;
+					
+					
+					
+					/*
 					in = new DataInputStream(playerSocket.getInputStream());
 					System.out.println(in.readDouble());
 					System.out.println(in.readDouble());
 					out = new DataOutputStream(playerSocket.getOutputStream());
-					System.out.println("out " + out);
 					System.out.println("här");
-					users.add(new Player());
+					users.add(new Player());*/
+					
+					
+					
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}
+				//}
 
-				run();
+				//run();
 				// Scanner sc = new Scanner(System.in);
 				// out.writeDouble(sc.nextDouble());
 				// out.flush();
@@ -72,6 +95,7 @@ public class Server extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 
 	}
 
@@ -79,21 +103,19 @@ public class Server extends Thread {
 	public void run() {
 		double d = 150;
 		double c = 150;
+		
 		while (true) {
 
 			try {
-				d += 0.05;
-				c += 0.005;
-				out.writeDouble(d);
-				out.flush();
-				out.writeDouble(c);
-				out.flush();
+				System.out.println(in.readDouble());
 				// System.out.println(d);
 				for (int i = 0; i < users.size(); i++) {
-					out.writeDouble(users.get(i).getGraphics().getTranslateX());
+					out.writeDouble(d);
 					out.flush();
-					out.writeDouble(users.get(i).getGraphics().getTranslateY());
+					out.writeDouble(c);
 					out.flush();
+					d++;
+					c++;
 				}
 
 			} catch (IOException e) {

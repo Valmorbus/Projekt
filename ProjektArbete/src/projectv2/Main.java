@@ -57,7 +57,7 @@ public class Main extends Application implements Runnable {
 		});
 		thread.start();
 
-		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 15), new EventHandler<ActionEvent>() {
+		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 
@@ -193,7 +193,7 @@ public class Main extends Application implements Runnable {
 	// skapa client här
 	private void connectToServer() {
 		try {
-			Socket socket = new Socket("LocalHost", 8035);
+			Socket socket = new Socket("LocalHost", 8001);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 
