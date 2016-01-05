@@ -18,7 +18,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class Main extends Application implements Runnable {
+public class Main extends Application {
 
 	Image image = new Image("projectv2/untitled.png");
 	private Timeline playerLoop;
@@ -30,32 +30,27 @@ public class Main extends Application implements Runnable {
 	Pane root;
 	DataInputStream in;
 	DataOutputStream out;
+	GameClient gc;
 
 	@Override
 	public void start(Stage primaryStage) {
 		root = new Pane();
 
-		// BackgroundImage bground =
-
 		player = new Player(image);
 		root.setStyle("-fx-background-color: black;");
-
 		scene = new Scene(root);
 
-		// scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 		root.getChildren().add(player.getGraphics());
-		root.getChildren().add(player2.getGraphics());
+		// root.getChildren().add(player2.getGraphics());
 		player.getGraphics().setTranslateX(100);
 		player.getGraphics().setTranslateY(350);
 
-		Thread thread = new Thread(() -> {
-			connectToServer();
-			System.out.println("här");
-		});
-		thread.start();
+		gc = new GameClient("localhost");
+		gc.start();
+		gc.sendData("ping".getBytes());
 
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
@@ -65,77 +60,34 @@ public class Main extends Application implements Runnable {
 
 					switch (e.getCode()) {
 					case RIGHT: {
-						double x = player.getGraphics().getTranslateX();
-						double y = player.getGraphics().getTranslateY();
-						player.getGraphics().setRotate(player.getGraphics().getRotate() + 5);
-						player.getGraphics()
-								.setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 10);
-						player.getGraphics()
-								.setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 10);
+						movePlayer(5, 10);
 						break;
 					}
 					case LEFT: {
-						double x = player.getGraphics().getTranslateX();
-						double y = player.getGraphics().getTranslateY();
-						player.getGraphics().setRotate(player.getGraphics().getRotate() - 5);
-						player.getGraphics()
-								.setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 10);
-						player.getGraphics()
-								.setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 10);
+						movePlayer(-5, 10);
 						break;
 					}
 					case UP: {
-						double x = player.getGraphics().getTranslateX();
-						double y = player.getGraphics().getTranslateY();
-						player.getGraphics()
-								.setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 10);
-						player.getGraphics()
-								.setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 10);
+						movePlayer(0, 20);
 						break;
 					}
-
-					default:
-						break;
-
-					}
-				});
-				scene.setOnKeyReleased(e -> {
-					switch (e.getCode()) {
 					case SPACE: {
-						bullet = new Bullet();
-						root.getChildren().add(bullet.getR());
-						bullet.getR().setTranslateX(player.getGraphics().getTranslateX()
-								+ (player.getGraphics().getImage().getWidth()) / 2);
-						bullet.getR().setTranslateY(player.getGraphics().getTranslateY()
-								+ (player.getGraphics().getImage().getHeight() / 2));
-						bullet.getR().setRotate(player.getGraphics().getRotate());
-						bulletArray.add(bullet);
-
-						moveBulletFirst(bullet);
-
-					}
-					default:
+						shoot();
 						break;
-
+					}
 					}
 				});
-
-				double x = player.getGraphics().getTranslateX();
-				double y = player.getGraphics().getTranslateY();
-
 				if (bullet != null) {
 					for (int i = 0; i < bulletArray.size(); i++) {
 						moveBullet(bulletArray.get(i));
-						moveBullet(bulletArray.get(i));
+						// moveBullet(bulletArray.get(i));
 
 						checkHit();
 					}
 
 				}
-
-				player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 3);
-				player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 3);
-			
+				movePlayer(0, 1.5);
+				movePlayer(0, 1.5);
 			}
 		}));
 
@@ -156,8 +108,6 @@ public class Main extends Application implements Runnable {
 						|| bulletArray.get(i).getR().getTranslateY() >= scene.getHeight()) {
 					root.getChildren().remove(bulletArray.get(i).getR());
 					bulletArray.remove(bulletArray.get(i));
-					// System.out.println(bulletArray.get(0));
-
 				}
 
 				else if (bulletArray.get(i).getR().getBoundsInParent()
@@ -190,39 +140,27 @@ public class Main extends Application implements Runnable {
 		bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 100);
 	}
 
-	// skapa client här
-	private void connectToServer() {
-		try {
-			Socket socket = new Socket("LocalHost", 8001);
-			in = new DataInputStream(socket.getInputStream());
-			out = new DataOutputStream(socket.getOutputStream());
+	private void movePlayer(int turn, double speed) {
+		double x = player.getGraphics().getTranslateX();
+		double y = player.getGraphics().getTranslateY();
+		player.getGraphics().setRotate(player.getGraphics().getRotate() + turn);
+		player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
+		player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
 
-			while (true) {
-				out.writeDouble(player.getGraphics().getTranslateX());
-				out.flush();
-				out.writeDouble(player.getGraphics().getTranslateY());
-				out.flush();
-				run();
-				
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
-	@Override
-	public void run() {
-		while (true){
-		try {
-			player2.getGraphics().setTranslateX(in.readDouble());
-			player2.getGraphics().setTranslateY(in.readDouble());
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	private void shoot() {
+		if (bulletArray.size() <= 5) {
+			bullet = new Bullet();
+			root.getChildren().add(bullet.getR());
+			bullet.getR().setTranslateX(
+					player.getGraphics().getTranslateX() + (player.getGraphics().getImage().getWidth()) / 2);
+			bullet.getR().setTranslateY(
+					player.getGraphics().getTranslateY() + (player.getGraphics().getImage().getHeight() / 2));
+			bullet.getR().setRotate(player.getGraphics().getRotate());
+			bulletArray.add(bullet);
+
+			moveBulletFirst(bullet);
 		}
 	}
-
 }

@@ -1,30 +1,28 @@
 package projectv2;
 
-
-
+import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 
-public class Bullet {
-	double directionX; 
+public class Bullet extends GameObject {
+	double directionX;
 	double directionY;
 	Circle c = new Circle(15, 15, 50);
 	Ellipse e = new Ellipse(15, 2.5);
-	
-	Bullet(){
+
+	Bullet() {
 		e.setFill(Color.RED);
-		e.setEffect(value)
-		
+		e.setEffect(new Glow(1));
+
 	}
 
 	public Bullet(double directionX, double directionY) {
 		super();
 		this.directionX = directionX;
 		this.directionY = directionY;
-		
-		
+
 	}
 
 	public double getDirectionX() {
@@ -50,8 +48,5 @@ public class Bullet {
 	public void setR(Ellipse e) {
 		this.e = e;
 	}
-	
-	
-	
 
 }
