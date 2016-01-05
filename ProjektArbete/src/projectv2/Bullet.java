@@ -4,15 +4,18 @@ package projectv2;
 
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.shape.Rectangle;
 
 public class Bullet {
 	double directionX; 
 	double directionY;
-	Circle c = new Circle(15, 15, 15);
+	Circle c = new Circle(15, 15, 50);
+	Ellipse e = new Ellipse(15, 2.5);
 	
 	Bullet(){
-		c.setFill(Color.RED);
+		e.setFill(Color.RED);
+		
 		
 	}
 
@@ -40,12 +43,12 @@ public class Bullet {
 		this.directionY = directionY;
 	}
 
-	public Circle getR() {
-		return c;
+	public Ellipse getR() {
+		return e;
 	}
 
-	public void setR(Circle c) {
-		this.c = c;
+	public void setR(Ellipse e) {
+		this.e = e;
 	}
 	
 	

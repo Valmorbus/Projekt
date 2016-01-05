@@ -14,7 +14,7 @@ public class Player {
 	
 	public Player(int lives, String name) {
 		super();
-		this.image = new Image("C:/Users/borgs_000/workspace/ProjektArbete/src/projectv2/images.jpg");
+		this.image = new Image("projectv2/untitled.png");
 		this.graphics.setImage(image);
 		this.triangle = new Polygon(15, 30, 3);
 		this.lives = lives;
@@ -23,7 +23,12 @@ public class Player {
 	public Player (Image image){
 		this.image = image;
 		this.graphics.setImage(image);
-		this.lives = 3;
+		this.lives = 100;
+	}
+	public Player(){
+		this.image = image;
+		this.graphics.setImage(image);
+		this.lives = 100;
 	}
 
 

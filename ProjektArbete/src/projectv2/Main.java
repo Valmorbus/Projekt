@@ -18,9 +18,9 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class Main extends Application {
+public class Main extends Application implements Runnable {
 
-	Image image = new Image("projectv2/images.jpg");
+	Image image = new Image("projectv2/untitled.png");
 	private Timeline playerLoop;
 	private Bullet bullet;
 	private List<Bullet> bulletArray = new LinkedList<Bullet>();
@@ -29,6 +29,7 @@ public class Main extends Application {
 	Player player2 = new Player(image);
 	Pane root;
 	DataInputStream in;
+	DataOutputStream out;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -134,7 +135,7 @@ public class Main extends Application {
 
 				player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * 3);
 				player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * 3);
-
+			
 			}
 		}));
 
@@ -192,22 +193,35 @@ public class Main extends Application {
 	// skapa client här
 	private void connectToServer() {
 		try {
-			Socket socket = new Socket("LocalHost", 8016);
+			Socket socket = new Socket("LocalHost", 8030);
 			in = new DataInputStream(socket.getInputStream());
-			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			out = new DataOutputStream(socket.getOutputStream());
 
 			while (true) {
 				out.writeDouble(player.getGraphics().getTranslateX());
 				out.flush();
 				out.writeDouble(player.getGraphics().getTranslateY());
 				out.flush();
-				player2.getGraphics().setTranslateX(in.readDouble());
-				player2.getGraphics().setTranslateY(in.readDouble());
+				run();
+				
 			}
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void run() {
+		while (true){
+		try {
+			//player2.getGraphics().setTranslateX(in.readDouble());
+			//player2.getGraphics().setTranslateY(in.readDouble());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		}
 	}
 

@@ -5,15 +5,20 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Scanner;
 
 import javafx.application.Platform;
 
-public class Server {
+public class Server extends Thread{
 	private DataOutputStream out;
 	private DataInputStream in;
 	private Users[] user = new Users[4];
 	int i = 150;
 	int j = 1;
+	Random random = new Random();
+	private ArrayList<Player> users = new ArrayList<Player>();
 	
 	
 	
@@ -25,7 +30,8 @@ public class Server {
 	}
 	private void connectToClient(){
 		try {
-			ServerSocket server = new ServerSocket(8016);
+			ServerSocket server = new ServerSocket(8030);
+			System.out.println("Server start");
 			
 			while (true){
 				Socket playerSocket = server.accept();
@@ -36,10 +42,15 @@ public class Server {
 				out = new DataOutputStream(playerSocket.getOutputStream());
 				System.out.println("out " +out);
 				System.out.println("här");
-				out.writeDouble(i+j);
-				out.flush();
-				out.writeDouble(i+j);
-				out.flush();
+				users.add(new Player());
+				
+				
+				
+				
+				run();
+				//Scanner sc = new Scanner(System.in);
+				//out.writeDouble(sc.nextDouble());
+				//out.flush();
 				
 				/*for (int i = 0; i < user.length; i++) {
 					System.out.println("Connection from " +playerSocket.getInetAddress());
@@ -62,6 +73,36 @@ public class Server {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	
 	}
+	 @Override
+     public void run()
+     {
+		 double d = 150;
+		 double c = 150;
+		 while (true){
+			 
+		 try {
+			 d+=0.05;
+			 c+=0.005;
+			out.writeDouble(d);
+			out.flush();
+			out.writeDouble(c);
+			out.flush();
+			//System.out.println(d);
+			for(int i=0; i <users.size(); i++)
+			{
+				out.writeDouble(users.get(i).getGraphics().getTranslateX());
+				out.flush();
+				out.writeDouble(users.get(i).getGraphics().getTranslateY());
+				out.flush();
+			}
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}}
+	
+     }
 
 }
