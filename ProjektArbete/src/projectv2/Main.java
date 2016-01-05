@@ -193,7 +193,7 @@ public class Main extends Application implements Runnable {
 	// skapa client här
 	private void connectToServer() {
 		try {
-			Socket socket = new Socket("LocalHost", 8030);
+			Socket socket = new Socket("LocalHost", 8035);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 
@@ -216,8 +216,8 @@ public class Main extends Application implements Runnable {
 	public void run() {
 		while (true){
 		try {
-			//player2.getGraphics().setTranslateX(in.readDouble());
-			//player2.getGraphics().setTranslateY(in.readDouble());
+			player2.getGraphics().setTranslateX(in.readDouble());
+			player2.getGraphics().setTranslateY(in.readDouble());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
