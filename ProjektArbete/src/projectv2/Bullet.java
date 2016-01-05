@@ -15,7 +15,7 @@ public class Bullet {
 	
 	Bullet(){
 		e.setFill(Color.RED);
-		
+		e.setEffect(value)
 		
 	}
 
