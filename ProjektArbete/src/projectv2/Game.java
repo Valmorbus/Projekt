@@ -3,6 +3,7 @@ package projectv2;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -14,62 +15,62 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.GameClient;
+import net.GameServer;
 import packets.Packet00Login;
 
 public class Game {
-	public Game(){
-		
+	public Game() {
+
 	}
-	
-	//Image image = new Image("projectv2/untitled.png");
+
+	// Image image = new Image("projectv2/untitled.png");
 	private Timeline playerLoop;
 	private Bullet bullet;
 	private List<Bullet> bulletArray = new LinkedList<Bullet>();
-	private ArrayList<Player> gameObjects = new ArrayList<Player>();
+	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
 	Scene scene;
-	Player player;
+	public Player player;
 	Pane root;
 	GameClient gc;
-	
-	
+
 	public synchronized void runGame(Stage primaryStage) {
 		root = new Pane();
-		player = new Player();
+		player = new Player("player1");
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
-		Player player2 = new Player();
+		// Player player2 = new Player("Player2");
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 		root.getChildren().add(player.getGraphics());
 		// root.getChildren().add(player2.getGraphics());
-		
-		
+
+		Scanner sc = new Scanner(System.in);
+		System.out.println("run server");
+		if (sc.nextLine().equalsIgnoreCase("y")) {
+			GameServer gs = new GameServer();
+			gs.start();
+		}
+
 		gc = new GameClient("localhost");
 		gc.start();
 
 		Packet00Login loginPacket = new Packet00Login("00ghjälp");
 		loginPacket.writeData(gc);
-		
-		//gc.sendData("ping".getBytes());
+
+		// gc.sendData("ping".getBytes());
 		if (!gameObjects.isEmpty())
-		for (Player mp : gameObjects) {
-			mp.setImage(new Image("projectv2/untitled.png"));
-			root.getChildren().add(mp.getGraphics());
-			mp.getGraphics().setTranslateX(150);
-			mp.getGraphics().setTranslateY(400);
-		}
+			for (Player mp : gameObjects) {
+				root.getChildren().add(mp.getGraphics());
+				mp.getGraphics().setTranslateX(150);
+				mp.getGraphics().setTranslateY(400);
+			}
 		player.getGraphics().setTranslateX(100);
 		player.getGraphics().setTranslateY(350);
-		
-		
 
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if (!gameObjects.isEmpty())
-					for (Player mp : gameObjects) 
-						System.out.println(mp.toString());
 
 				scene.setOnKeyPressed(e -> {
 
@@ -92,14 +93,15 @@ public class Game {
 					}
 					}
 				});
-			
+
 				if (bullet != null) {
 					for (int i = 0; i < bulletArray.size(); i++) {
 						moveBullet(bulletArray.get(i));
 						checkHit();
 					}
 				}
-				movePlayer(1.5);
+				// movePlayer(1.5);
+				
 			}
 		}));
 		playerLoop.setCycleCount(-1);
@@ -153,6 +155,7 @@ public class Game {
 		player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
 
 	}
+
 	private void movePlayer(double speed) {
 		double x = player.getGraphics().getTranslateX();
 		double y = player.getGraphics().getTranslateY();
@@ -175,23 +178,15 @@ public class Game {
 			moveBulletFirst(bullet);
 		}
 	}
-	public void addPlayer(PlayerMP player2){
-		System.out.println("before");
-			
-		try{
-			System.out.println(player2.port + " " + player2.ipAdress);
-			this.gameObjects.add(player2);
-			System.out.println("worked");
-			this.player = player2;
-		} catch(Exception e){
+
+	public void addPlayer(PlayerMP player2) {
+		try {
+			PlayerMP p = player2;
+			gameObjects.add(p);
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-			
-		
-		
+
 	}
 }
-
-
-
-

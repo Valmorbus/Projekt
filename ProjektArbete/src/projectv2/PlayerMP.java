@@ -3,11 +3,13 @@ package projectv2;
 import java.net.InetAddress;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 public class PlayerMP extends Player {
 
 	public InetAddress ipAdress;
 	public int port;
+	private ImageView graphics = new ImageView();
 	//private Image image = new Image("projectv2/untitled.png");
 
 	public PlayerMP() {
@@ -19,8 +21,8 @@ public class PlayerMP extends Player {
 		super();
 		this.ipAdress = ipAdress;
 		this.port = port;
-		//this.graphics = super.graphics;
-		//this.image = new Image("/Untitled.png");
+		this.image = new Image("/Untitled.png");
+		this.graphics.setImage(image);
 		// TODO Auto-generated constructor stub
 	}
 	

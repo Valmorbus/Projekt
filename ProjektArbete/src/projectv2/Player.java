@@ -9,7 +9,7 @@ import javafx.scene.shape.Polygon;
 
 public class Player extends GameObject {
 	private int lives;
-	private String Name;
+	private String name;
 	protected ImageView graphics = new ImageView();
 	protected Image image;
 	private Polygon triangle;
@@ -22,7 +22,7 @@ public class Player extends GameObject {
 		this.graphics.setImage(image);
 		this.triangle = new Polygon(15, 30, 3);
 		this.lives = lives;
-		Name = name;
+		this.name = name;
 	}
 
 	public Player(Image image) {
@@ -31,7 +31,8 @@ public class Player extends GameObject {
 		this.lives = 100;
 	}
 
-	public Player() {
+	public Player(String name) {
+		this.name =name;
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
@@ -44,6 +45,9 @@ public class Player extends GameObject {
 		this.ipAdress = ipAdress;
 		this.port = port;
 	}
+	public Player(){
+		
+	}
 
 	public int getLives() {
 		return lives;
@@ -54,11 +58,11 @@ public class Player extends GameObject {
 	}
 
 	public String getName() {
-		return Name;
+		return name;
 	}
 
 	public void setName(String name) {
-		Name = name;
+		this.name = name;
 	}
 
 	public ImageView getGraphics() {

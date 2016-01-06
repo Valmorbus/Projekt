@@ -24,11 +24,11 @@ public class GameServer extends Thread {
 	PlayerMP player;
 	//Player player;
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 
 		GameServer gs = new GameServer();
 		gs.start();
-	}
+	}*/
 
 	public GameServer() {
 		try {
@@ -96,15 +96,13 @@ public class GameServer extends Thread {
 			break;
 		case LOGIN:
 			Packet00Login packet = new Packet00Login(data);
-			System.out.println("connected " + adress.getHostAddress().toString() + " Has connected");
+			System.out.println("connected " + adress.getHostAddress().toString() + " Has connected ");
 			player = new PlayerMP(adress, port);
 			if (player != null) {
 				this.connectedPlayers.add(player);
 				game.addPlayer(player);
-				System.out.println("liftof");
-				//game.player = player;
+				game.player = player;
 			}
-			System.out.println("liftof");
 			break;
 		case DISCONNECT:
 			break;
