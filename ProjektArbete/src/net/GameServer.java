@@ -20,7 +20,7 @@ public class GameServer extends Thread {
 	// private InetAddress ipAdress;
 	private DatagramSocket socket;
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
-	Game game = new Game();
+	Game game;
 	PlayerMP player;
 	//Player player;
 
@@ -30,8 +30,9 @@ public class GameServer extends Thread {
 		gs.start();
 	}*/
 
-	public GameServer() {
-		try {
+	public GameServer(Game game) {
+		this.game = game;
+		try {	
 			this.socket = new DatagramSocket(5005);
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
@@ -102,7 +103,7 @@ public class GameServer extends Thread {
 			if (player != null) {
 				this.connectedPlayers.add(player);
 				game.addPlayer(player);
-				game.player = player;
+				this.game.player = player;
 				System.out.println(connectedPlayers.size());
 			}
 			break;

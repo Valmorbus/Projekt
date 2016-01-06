@@ -7,28 +7,30 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import projectv2.Game;
 import projectv2.Main;
 
 public class GameClient extends Thread {
 
 	private InetAddress ipAdress;
 	private DatagramSocket socket;
-	private Main main;
+	private Game game;
 	private int port = 3340;
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 
 		GameClient gc = new GameClient("localhost");
 
 		gc.start();
 
 		gc.sendData("ping".getBytes());
-	}
+	}*/
 
-	public GameClient(String ipAdress) {
+	public GameClient(Game game, String ipAdress) {
 		try {
 			this.socket = new DatagramSocket();
 			this.ipAdress = InetAddress.getByName(ipAdress);
+			this.game = game;
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
