@@ -1,7 +1,5 @@
 package projectv2;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,7 +10,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -179,10 +176,9 @@ public class Game {
 		}
 	}
 	public void addPlayer(PlayerMP player2){
+		System.out.println("before");
 			System.out.println(player2.port + " " + player2.ipAdress);
 			this.gameObjects.add(player2);
-			System.out.println("before");
-			
 			System.out.println("worked");
 			this.player = player2;
 		
