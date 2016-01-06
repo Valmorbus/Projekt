@@ -97,11 +97,13 @@ public class GameServer extends Thread {
 		case LOGIN:
 			Packet00Login packet = new Packet00Login(data);
 			System.out.println("connected " + adress.getHostAddress().toString() + " Has connected ");
+			
 			player = new PlayerMP(adress, port);
 			if (player != null) {
 				this.connectedPlayers.add(player);
 				game.addPlayer(player);
 				game.player = player;
+				System.out.println(connectedPlayers.size());
 			}
 			break;
 		case DISCONNECT:

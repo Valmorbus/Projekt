@@ -30,20 +30,21 @@ public class Game {
 	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
 	Scene scene;
 	public Player player;
+	
 	Pane root;
 	GameClient gc;
 
 	public synchronized void runGame(Stage primaryStage) {
 		root = new Pane();
-		player = new Player("player1");
+		player = new Player();
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
-		// Player player2 = new Player("Player2");
+		
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 		root.getChildren().add(player.getGraphics());
-		// root.getChildren().add(player2.getGraphics());
+		
 
 		Scanner sc = new Scanner(System.in);
 		System.out.println("run server");
@@ -60,10 +61,11 @@ public class Game {
 
 		// gc.sendData("ping".getBytes());
 		if (!gameObjects.isEmpty())
-			for (Player mp : gameObjects) {
+			for (PlayerMP mp : gameObjects) {
 				root.getChildren().add(mp.getGraphics());
 				mp.getGraphics().setTranslateX(150);
 				mp.getGraphics().setTranslateY(400);
+				System.out.println("doin it");
 			}
 		player.getGraphics().setTranslateX(100);
 		player.getGraphics().setTranslateY(350);
@@ -71,6 +73,7 @@ public class Game {
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
+				
 
 				scene.setOnKeyPressed(e -> {
 
@@ -93,7 +96,13 @@ public class Game {
 					}
 					}
 				});
-
+				if (!gameObjects.isEmpty())
+					for (PlayerMP mp : gameObjects) {
+						root.getChildren().add(mp.getGraphics());
+						mp.getGraphics().setTranslateX(150);
+						mp.getGraphics().setTranslateY(400);
+						System.out.println("doin it");
+					}
 				if (bullet != null) {
 					for (int i = 0; i < bulletArray.size(); i++) {
 						moveBullet(bulletArray.get(i));
@@ -101,7 +110,7 @@ public class Game {
 					}
 				}
 				// movePlayer(1.5);
-				
+
 			}
 		}));
 		playerLoop.setCycleCount(-1);
@@ -180,13 +189,13 @@ public class Game {
 	}
 
 	public void addPlayer(PlayerMP player2) {
-		try {
-			PlayerMP p = player2;
-			gameObjects.add(p);
+	
+			gameObjects.add(player2);
+			System.out.println(gameObjects.size());
+			// root.getChildren().add(p3.getGraphics());
+			//p3.getGraphics().setTranslateX(400);
+			//p3.getGraphics().setTranslateY(400);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
+		
 	}
 }

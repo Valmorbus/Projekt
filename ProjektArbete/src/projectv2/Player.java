@@ -31,8 +31,7 @@ public class Player extends GameObject {
 		this.lives = 100;
 	}
 
-	public Player(String name) {
-		this.name =name;
+	public Player() {
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
@@ -45,10 +44,7 @@ public class Player extends GameObject {
 		this.ipAdress = ipAdress;
 		this.port = port;
 	}
-	public Player(){
-		
-	}
-
+	
 	public int getLives() {
 		return lives;
 	}
