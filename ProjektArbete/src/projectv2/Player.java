@@ -38,7 +38,7 @@ public class Player extends GameObject {
 		
 	}
 	public Player(InetAddress ipAdress, int port) {
-		this.image = new Image("resource/Untitled.png"); // "resource/Untitled.png";
+		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
 		this.ipAdress = ipAdress;

@@ -1,4 +1,4 @@
-package projectv2;
+package net;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,6 +6,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+
+import projectv2.Main;
 
 public class GameClient extends Thread {
 

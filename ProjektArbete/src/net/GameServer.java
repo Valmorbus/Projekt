@@ -1,4 +1,4 @@
-package projectv2;
+package net;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import packets.Packet;
 import packets.Packet.PacketTypes;
+import projectv2.Game;
+import projectv2.PlayerMP;
 import packets.Packet00Login;
 
 import javafx.scene.image.Image;
@@ -44,7 +46,7 @@ public class GameServer extends Thread {
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
 				socket.receive(packet);
-				/*
+				/* 
 				 * String message = new String(packet.getData());
 				 * System.out.println("Client " +
 				 * packet.getAddress().getHostAddress() +" " + packet.getPort()

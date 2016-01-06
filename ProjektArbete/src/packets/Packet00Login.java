@@ -1,7 +1,7 @@
 package packets;
 
-import projectv2.GameClient;
-import projectv2.GameServer;
+import net.GameClient;
+import net.GameServer;
 
 public class Packet00Login extends Packet{
 	

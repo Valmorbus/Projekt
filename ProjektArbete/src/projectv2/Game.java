@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import net.GameClient;
 import packets.Packet00Login;
 
 public class Game {
@@ -180,12 +181,10 @@ public class Game {
 	public void addPlayer(PlayerMP player2){
 			System.out.println(player2.port + " " + player2.ipAdress);
 			this.gameObjects.add(player2);
-			//player2 = (PlayerMP) new Player(new Image("/Untitled.png"));
 			System.out.println("before");
 			
 			System.out.println("worked");
 			this.player = player2;
-			player.setGraphics(new Image("/Untitled.png"));
 		
 		
 	}
