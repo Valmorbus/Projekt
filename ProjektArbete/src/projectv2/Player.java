@@ -18,7 +18,7 @@ public class Player extends GameObject {
 
 	public Player(int lives, String name) {
 		super();
-		this.image = new Image("/ProjektArbete/resource/Untitled.png");
+		this.image = new Image("/Untitled.png");
 		this.graphics.setImage(image);
 		this.triangle = new Polygon(15, 30, 3);
 		this.lives = lives;

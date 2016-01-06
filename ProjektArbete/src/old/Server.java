@@ -1,4 +1,4 @@
-package projectv2;
+package old;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,6 +14,7 @@ import java.util.Random;
 import java.util.Scanner;
 
 import javafx.application.Platform;
+import projectv2.Player;
 
 public class Server extends Thread {
 	private DataOutputStream out;

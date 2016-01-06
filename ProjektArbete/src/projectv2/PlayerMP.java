@@ -20,7 +20,7 @@ public class PlayerMP extends Player {
 		this.ipAdress = ipAdress;
 		this.port = port;
 		this.graphics = super.graphics;
-		this.image = null;
+		this.image = new Image("/Untitled.png");
 		// TODO Auto-generated constructor stub
 	}
 	
