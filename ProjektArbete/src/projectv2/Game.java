@@ -34,16 +34,16 @@ public class Game {
 	GameClient gc;
 	
 	
-	public synchronized  void runGame(Stage primaryStage) {
+	public synchronized void runGame(Stage primaryStage) {
 		root = new Pane();
 		player = new Player();
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
-
+		Player player2 = new Player();
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
-		//root.getChildren().add(player.getGraphics());
+		root.getChildren().add(player.getGraphics());
 		// root.getChildren().add(player2.getGraphics());
 		
 		
@@ -94,6 +94,7 @@ public class Game {
 					}
 					}
 				});
+			
 				if (bullet != null) {
 					for (int i = 0; i < bulletArray.size(); i++) {
 						moveBullet(bulletArray.get(i));
@@ -180,9 +181,11 @@ public class Game {
 			System.out.println(player2.port + " " + player2.ipAdress);
 			this.gameObjects.add(player2);
 			//player2 = (PlayerMP) new Player(new Image("/Untitled.png"));
-			player2.setGraphics(new Image("/Untitled.png"));
+			System.out.println("before");
+			
 			System.out.println("worked");
 			this.player = player2;
+			player.setGraphics(new Image("/Untitled.png"));
 		
 		
 	}

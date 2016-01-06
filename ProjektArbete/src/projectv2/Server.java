@@ -18,7 +18,6 @@ import javafx.application.Platform;
 public class Server extends Thread {
 	private DataOutputStream out;
 	private DataInputStream in;
-	private Users[] user = new Users[4];
 	int i = 150;
 	int j = 1;
 	Random random = new Random();
