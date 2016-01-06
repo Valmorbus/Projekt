@@ -177,10 +177,16 @@ public class Game {
 	}
 	public void addPlayer(PlayerMP player2){
 		System.out.println("before");
+			
+		try{
 			System.out.println(player2.port + " " + player2.ipAdress);
 			this.gameObjects.add(player2);
 			System.out.println("worked");
 			this.player = player2;
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+			
 		
 		
 	}
