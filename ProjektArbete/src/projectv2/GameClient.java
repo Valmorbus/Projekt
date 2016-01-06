@@ -59,7 +59,7 @@ public class GameClient extends Thread {
 	}
 
 	public void sendData(byte[] data) {
-		DatagramPacket packet = new DatagramPacket(data, data.length, ipAdress, 5001);
+		DatagramPacket packet = new DatagramPacket(data, data.length, ipAdress, 5005);
 		try {
 			socket.send(packet);
 		} catch (IOException e) {

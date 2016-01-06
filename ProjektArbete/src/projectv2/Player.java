@@ -1,5 +1,8 @@
 package projectv2;
 
+import java.net.InetAddress;
+import java.net.URL;
+
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.shape.Polygon;
@@ -7,13 +10,15 @@ import javafx.scene.shape.Polygon;
 public class Player extends GameObject {
 	private int lives;
 	private String Name;
-	private ImageView graphics = new ImageView();
-	private Image image;
+	protected ImageView graphics = new ImageView();
+	protected Image image;
 	private Polygon triangle;
+	public InetAddress ipAdress;
+	public int port;
 
 	public Player(int lives, String name) {
 		super();
-		this.image = new Image("projectv2/untitled.png");
+		this.image = new Image("/ProjektArbete/resource/Untitled.png");
 		this.graphics.setImage(image);
 		this.triangle = new Polygon(15, 30, 3);
 		this.lives = lives;
@@ -27,9 +32,17 @@ public class Player extends GameObject {
 	}
 
 	public Player() {
-		this.image = image;
+		//this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
+		
+	}
+	public Player(InetAddress ipAdress, int port) {
+		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
+		this.graphics.setImage(image);
+		this.lives = 100;
+		this.ipAdress = ipAdress;
+		this.port = port;
 	}
 
 	public int getLives() {
@@ -52,12 +65,21 @@ public class Player extends GameObject {
 		return graphics;
 	}
 
-	public void setGraphics(ImageView graphics) {
-		this.graphics = graphics;
+	public void setGraphics(Image graphics) {
+		this.graphics.setImage(graphics);
 	}
 
 	public Polygon getTriangle() {
 		return this.triangle;
 	}
+
+	public Image getImage() {
+		return image;
+	}
+
+	public void setImage(Image image) {
+		this.image = image;
+	}
+	
 
 }
