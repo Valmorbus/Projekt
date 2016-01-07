@@ -12,7 +12,7 @@ import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.PlayerMP;
 import packets.Packet00Login;
-
+import javafx.application.Platform;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -99,13 +99,18 @@ public class GameServer extends Thread {
 			Packet00Login packet = new Packet00Login(data);
 			System.out.println("connected " + adress.getHostAddress().toString() + " Has connected ");
 			
-			player = new PlayerMP(adress, port);
-			if (player != null) {
-				this.connectedPlayers.add(player);
-				game.addPlayer(player);
-				this.game.player = player;
-				System.out.println(connectedPlayers.size());
-			}
+				player = new PlayerMP(adress, port);
+				if (player != null) {
+					this.connectedPlayers.add(player);
+					game.addPlayer(player);
+					game.player = player;
+					System.out.println(connectedPlayers.size());
+				}
+			
+				
+			
+			
+			
 			break;
 		case DISCONNECT:
 			break;

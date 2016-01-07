@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -97,7 +98,7 @@ public class Game extends Thread{
 						checkHit();
 					}
 				}
-				// movePlayer(1.5);
+				movePlayer(1.5);
 
 			}
 		}));
@@ -180,10 +181,16 @@ public class Game extends Thread{
 
 		gameObjects.add(player2);
 		System.out.println(gameObjects.size());
-		movePlayer(100);
-		//root.getChildren().add(player2.getGraphics());
-		//player2.getGraphics().setTranslateX(400);
-		//player2.getGraphics().setTranslateY(400);
+		Platform.runLater(()->{
+			player.getGraphics().setTranslateX(500);
+			root.getChildren().add(player2.getGraphics());
+			player2.getGraphics().setTranslateX(400);
+			player2.getGraphics().setTranslateY(400);
+		});
+		//
+		//
+		//
+		//
 
 	}
 	
