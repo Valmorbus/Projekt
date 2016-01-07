@@ -17,7 +17,6 @@ public class Player extends GameObject {
 	public int port;
 
 	public Player(int lives, String name) {
-		super();
 		this.image = new Image("/Untitled.png");
 		this.graphics.setImage(image);
 		this.triangle = new Polygon(15, 30, 3);
@@ -45,6 +44,16 @@ public class Player extends GameObject {
 		this.port = port;
 	}
 	
+	
+	public Player(double posX, double posyY, double rotate, double speed, InetAddress ipAdress, int port) {
+		super(posX, posyY, rotate, speed);
+		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
+		this.graphics.setImage(image);
+		this.lives = 100;
+		this.ipAdress = ipAdress;
+		this.port = port;
+	}
+
 	public int getLives() {
 		return lives;
 	}

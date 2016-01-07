@@ -60,7 +60,7 @@ public class Game extends Thread{
 			gs = new GameServer(this);
 			gs.start();
 		}
-		Packet00Login loginPacket = new Packet00Login((00+player.getName()).getBytes());
+		Packet00Login loginPacket = new Packet00Login(("00"+player.getName()).getBytes());
 		
 		gc = new GameClient(this, "localhost");
 		gc.start();
@@ -161,7 +161,7 @@ public class Game extends Thread{
 		player.getGraphics().setRotate(player.getGraphics().getRotate() + turn);
 		player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
 		player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
-
+		update(speed);
 	}
 
 	private void movePlayer(double speed) {
@@ -169,7 +169,7 @@ public class Game extends Thread{
 		double y = player.getGraphics().getTranslateY();
 		player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
 		player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
-
+		update(speed);
 	}
 
 	private void shoot() {
@@ -188,13 +188,12 @@ public class Game extends Thread{
 	}
 
 	public void addPlayer(PlayerMP player2) {
-		System.out.println("add");
+		
 		gameObjects.add(player2);
 		System.out.println(gameObjects.size() +" player id "+ player2.getName());
 		System.out.println(player.ipAdress +" " +player.port);
 		System.out.println(player2.ipAdress + " " +player2.port);
 		Platform.runLater(()->{
-			System.out.println(gameObjects.size() +" player id "+ player.getName());
 			root.getChildren().add(player2.getGraphics());
 
 			//player.getGraphics().setTranslateX(500);
@@ -207,6 +206,12 @@ public class Game extends Thread{
 		//
 		//
 
+	}
+	public void update(double speed){
+		player.setRotate(player.getGraphics().getRotate());
+		player.setPosX(player.getGraphics().getTranslateX());
+		player.setPosyY(player.getGraphics().getTranslateY());
+		player.setSpeed(speed);
 	}
 	
 }

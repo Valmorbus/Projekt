@@ -17,6 +17,13 @@ public class PlayerMP extends Player {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+	
+
+	public PlayerMP(String name, double posX, double posyY, double rotate, double speed, InetAddress ipAdress, int port) {
+		super(posX, posyY, rotate, speed, ipAdress, port);
+		this.name = name;
+	}
+
 
 	public PlayerMP(String name, InetAddress ipAdress, int port) {
 		super();

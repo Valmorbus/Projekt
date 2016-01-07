@@ -6,6 +6,18 @@ public abstract class GameObject {
 	private double rotate;
 	private double speed;
 	private short owningPlayer;
+	
+	public GameObject(){
+		
+	}
+
+	public GameObject(double posX, double posyY, double rotate, double speed) {
+		super();
+		this.posX = posX;
+		this.posyY = posyY;
+		this.rotate = rotate;
+		this.speed = speed;
+	}
 
 	public double getPosX() {
 		return posX;
