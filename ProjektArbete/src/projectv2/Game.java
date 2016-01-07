@@ -108,7 +108,7 @@ public class Game extends Thread{
 						checkHit();
 					}
 				}
-				movePlayer(1.5);
+				//movePlayer(1.5);
 
 			}
 		}));
@@ -191,14 +191,16 @@ public class Game extends Thread{
 		System.out.println("add");
 		gameObjects.add(player2);
 		System.out.println(gameObjects.size() +" player id "+ player2.getName());
+		System.out.println(player.ipAdress +" " +player.port);
+		System.out.println(player2.ipAdress + " " +player2.port);
 		Platform.runLater(()->{
 			System.out.println(gameObjects.size() +" player id "+ player.getName());
 			root.getChildren().add(player2.getGraphics());
 
 			//player.getGraphics().setTranslateX(500);
 			//root.getChildren().add(player2.getGraphics());
-			player2.getGraphics().setTranslateX(400);
-			player2.getGraphics().setTranslateY(400);
+			//player2.getGraphics().setTranslateX(400);
+			//player2.getGraphics().setTranslateY(400);
 		});
 		//
 		//
