@@ -10,6 +10,7 @@ public class PlayerMP extends Player {
 	public InetAddress ipAdress;
 	public int port;
 	private ImageView graphics = new ImageView();
+	private String name;
 	//private Image image = new Image("projectv2/untitled.png");
 
 	public PlayerMP() {
@@ -17,12 +18,13 @@ public class PlayerMP extends Player {
 		// TODO Auto-generated constructor stub
 	}
 
-	public PlayerMP(InetAddress ipAdress, int port) {
+	public PlayerMP(String name, InetAddress ipAdress, int port) {
 		super();
 		this.ipAdress = ipAdress;
 		this.port = port;
 		this.image = new Image("/Untitled.png");
 		this.graphics.setImage(image);
+		this.name = name;
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -34,6 +36,15 @@ public class PlayerMP extends Player {
 	public void tick(){
 		
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
 	
 
 }

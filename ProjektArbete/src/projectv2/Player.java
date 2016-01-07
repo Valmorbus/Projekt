@@ -9,7 +9,7 @@ import javafx.scene.shape.Polygon;
 
 public class Player extends GameObject {
 	private int lives;
-	private String name;
+	protected String name;
 	protected ImageView graphics = new ImageView();
 	protected Image image;
 	private Polygon triangle;

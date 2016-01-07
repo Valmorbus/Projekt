@@ -7,24 +7,29 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import packets.Packet;
+import packets.Packet00Login;
+import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.Main;
+import projectv2.PlayerMP;
 
 public class GameClient extends Thread {
 
 	private InetAddress ipAdress;
 	private DatagramSocket socket;
 	private Game game;
-	private int port = 3340;
+	// private int port = 3340;
 
-	/*public static void main(String[] args) {
-
-		GameClient gc = new GameClient("localhost");
-
-		gc.start();
-
-		gc.sendData("ping".getBytes());
-	}*/
+	/*
+	 * public static void main(String[] args) {
+	 * 
+	 * GameClient gc = new GameClient("localhost");
+	 * 
+	 * gc.start();
+	 * 
+	 * gc.sendData("ping".getBytes()); }
+	 */
 
 	public GameClient(Game game, String ipAdress) {
 		try {
@@ -52,14 +57,32 @@ public class GameClient extends Thread {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			String message = new String(packet.getData());
-			// System.out.println("Client" + message);
-			System.out.println("Server " + message);
-			if (message.trim().equalsIgnoreCase("pong")) {
-				System.out.println("Server " + message);
-			}
+
+			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
+
 		}
 
+	}
+
+	private void parsePacket(byte[] data, InetAddress adress, int port) {
+		String message = new String(data).trim();
+		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
+		Packet packet = null;
+		switch (type) {
+		case INVALID:
+			break;
+		case LOGIN:
+			System.out.println("logon");
+			packet = new Packet00Login(data);
+			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
+			game.addPlayer(player);
+
+			break;
+		case DISCONNECT:
+			break;
+		default:
+			break;
+		}
 	}
 
 	public void sendData(byte[] data) {

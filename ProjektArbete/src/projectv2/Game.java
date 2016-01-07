@@ -11,13 +11,16 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.GameClient;
 import net.GameServer;
+import packets.Packet;
 import packets.Packet00Login;
+import packets.Packet.PacketTypes;
 
 public class Game extends Thread{
 	public Game() {
@@ -30,39 +33,46 @@ public class Game extends Thread{
 	private List<Bullet> bulletArray = new LinkedList<Bullet>();
 	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
 	Scene scene;
-	public Player player;
-	
-
+	public PlayerMP player;
 	Pane root;
 	GameClient gc;
+	GameServer gs; 
+	//Label label;
 
 	public synchronized void runGame(Stage primaryStage) {
+		System.out.println("name: ");
+		Scanner sc = new Scanner(System.in);
+		String userName = sc.nextLine();
 		root = new Pane();
-		player = new Player();
+		player = new PlayerMP(userName, null, 0);
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
+		
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
 
 		root.getChildren().add(player.getGraphics());
 
-		Scanner sc = new Scanner(System.in);
+		
 		System.out.println("run server");
 		if (sc.nextLine().equalsIgnoreCase("y")) {
-			GameServer gs = new GameServer(this);
+			gs = new GameServer(this);
 			gs.start();
 		}
-
+		Packet00Login loginPacket = new Packet00Login((00+player.getName()).getBytes());
+		
 		gc = new GameClient(this, "localhost");
 		gc.start();
-
-		Packet00Login loginPacket = new Packet00Login("00ghjälp");
+		
+		
+		if (gs != null){
+			gs.addConnection((PlayerMP)player, loginPacket);
+		}
 		loginPacket.writeData(gc);
+		
 
-		// gc.sendData("ping".getBytes());
-		
-		
+		//loginPacket.writeData(gc);
 		
 		player.getGraphics().setTranslateX(100);
 		player.getGraphics().setTranslateY(350);
@@ -178,12 +188,15 @@ public class Game extends Thread{
 	}
 
 	public void addPlayer(PlayerMP player2) {
-
+		System.out.println("add");
 		gameObjects.add(player2);
-		System.out.println(gameObjects.size());
+		System.out.println(gameObjects.size() +" player id "+ player2.getName());
 		Platform.runLater(()->{
-			player.getGraphics().setTranslateX(500);
+			System.out.println(gameObjects.size() +" player id "+ player.getName());
 			root.getChildren().add(player2.getGraphics());
+
+			//player.getGraphics().setTranslateX(500);
+			//root.getChildren().add(player2.getGraphics());
 			player2.getGraphics().setTranslateX(400);
 			player2.getGraphics().setTranslateY(400);
 		});
