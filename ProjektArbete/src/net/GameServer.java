@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import packets.Packet;
 import packets.Packet.PacketTypes;
 import packets.Packet00Login;
+import packets.Packet01Disconnect;
 import projectv2.Game;
 import projectv2.PlayerMP;
 
@@ -54,7 +55,7 @@ public class GameServer extends Thread {
 				e.printStackTrace();
 			}
 			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
-		
+
 		}
 
 	}
@@ -85,14 +86,17 @@ public class GameServer extends Thread {
 		switch (type) {
 		case INVALID:
 			break;
-		case LOGIN:
+		case LOGIN: {
 			packet = new Packet00Login(data);
-			System.out.println("connected " + adress.getHostAddress().toString() + " port " + port + " Has connected " +((Packet00Login) packet).getUsername());
+			System.out
+					.println("User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
+							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());
 			player = new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
-			System.out.println(((Packet00Login) packet).getUsername()+" name");
+
+			// kolla upp, verkar bli en för mycket
 			this.connectedPlayers.add(player);
 			addConnection(player, (Packet00Login) packet);
-
+		}
 			/*
 			 * if (player != null) { this.connectedPlayers.add(player);
 			 * game.addPlayer(player); game.player = player;
@@ -100,7 +104,13 @@ public class GameServer extends Thread {
 			 */
 
 			break;
-		case DISCONNECT:
+		case DISCONNECT: {
+			packet = new Packet01Disconnect(data);
+			System.out.println(
+					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
+							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
+			removeConnection((Packet01Disconnect) packet);
+		}
 			break;
 		default:
 			break;
@@ -109,7 +119,7 @@ public class GameServer extends Thread {
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
 		boolean alreadyConnected = false;
-		
+
 		for (PlayerMP p : connectedPlayers) {
 			if (player2.getName().equalsIgnoreCase(p.getName())) {
 				if (p.ipAdress == null) {
@@ -119,29 +129,50 @@ public class GameServer extends Thread {
 					p.port = player2.port;
 				}
 				alreadyConnected = true;
-			} 
-			
+			}
+
 			else {
-				//Packet00Login loginPacket = new Packet00Login(player2.getName());
-				try{
+				// Packet00Login loginPacket = new
+				// Packet00Login(player2.getName());
+				try {
 					sendData(packet.getData(), p.ipAdress, p.port);
 					packet = new Packet00Login(p.getName());
 					sendData(packet.getData(), player2.ipAdress, player2.port);
-				}catch(Exception e){
+				} catch (Exception e) {
 					System.out.println("vafan");
 				}
-				
+
 			}
-		
+
 		}
-		if (!alreadyConnected){
+		if (!alreadyConnected) {
 			this.connectedPlayers.add(player2);
-			
+
 		}
-		
 
 	}
 
+	public PlayerMP getPlayerMP(String username) {
+		for (PlayerMP playerMP : connectedPlayers) {
+			if (player.getName().equals(username))
+				return player;
+		}
+		return null;
+	}
+	public int getPlayerMPIndex(String username) {
+		int index = 0;
+		for (PlayerMP playerMP : connectedPlayers) {
+			if (player.getName().equals(username))
+				break;
+			index++;
+		}
+		return index;
+	}
 
+	public void removeConnection(Packet01Disconnect packet) {
+		//PlayerMP player = getPlayerMP(packet.getUsername());
+		connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
+		packet.writeData(this);
+	}
 
 }

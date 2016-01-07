@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import javafx.scene.image.Image;
 import packets.Packet;
 import packets.Packet00Login;
+import packets.Packet01Disconnect;
 import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.Main;
@@ -72,14 +73,20 @@ public class GameClient extends Thread {
 		switch (type) {
 		case INVALID:
 			break;
-		case LOGIN:
+		case LOGIN: {
 			System.out.println("logon");
 			packet = new Packet00Login(data);
 			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
 			game.addPlayer(player);
-
+		}
 			break;
-		case DISCONNECT:
+		case DISCONNECT: {
+			packet = new Packet01Disconnect(data);
+			System.out.println(
+					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
+							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
+			game.removePlayerMP(((Packet01Disconnect)packet).getUsername());
+		}
 			break;
 		default:
 			break;

@@ -20,6 +20,7 @@ import net.GameClient;
 import net.GameServer;
 import packets.Packet;
 import packets.Packet00Login;
+import packets.Packet01Disconnect;
 import packets.Packet.PacketTypes;
 
 public class Game extends Thread{
@@ -51,9 +52,11 @@ public class Game extends Thread{
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
-
+		primaryStage.setOnCloseRequest(e->{
+			Packet01Disconnect packet = new Packet01Disconnect(player.getName());
+			packet.writeData(gc);
+		});
 		root.getChildren().add(player.getGraphics());
-
 		
 		System.out.println("run server");
 		if (sc.nextLine().equalsIgnoreCase("y")) {
@@ -202,17 +205,25 @@ public class Game extends Thread{
 			//player2.getGraphics().setTranslateX(400);
 			//player2.getGraphics().setTranslateY(400);
 		});
-		//
-		//
-		//
-		//
-
 	}
 	public void update(double speed){
 		player.setRotate(player.getGraphics().getRotate());
 		player.setPosX(player.getGraphics().getTranslateX());
 		player.setPosyY(player.getGraphics().getTranslateY());
 		player.setSpeed(speed);
+	}
+
+	public void removePlayerMP(String username) {
+		int index=0;
+		for (PlayerMP p : gameObjects) {
+			if (p instanceof PlayerMP && p.getName().equals(username)){
+				break;
+			}
+			index++;
+		}
+		root.getChildren().remove(gameObjects.get(index));
+		gameObjects.remove(index);
+		
 	}
 	
 }
