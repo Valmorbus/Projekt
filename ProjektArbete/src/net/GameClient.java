@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
+import javafx.scene.image.Image;
 import packets.Packet;
 import packets.Packet00Login;
 import packets.Packet.PacketTypes;

@@ -193,6 +193,7 @@ public class Game extends Thread{
 		System.out.println(gameObjects.size() +" player id "+ player2.getName());
 		System.out.println(player.ipAdress +" " +player.port);
 		System.out.println(player2.ipAdress + " " +player2.port);
+		player2.setGraphics(new Image("/secondship.png"));
 		Platform.runLater(()->{
 			root.getChildren().add(player2.getGraphics());
 
