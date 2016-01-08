@@ -88,7 +88,7 @@ public class Game extends Thread {
 					checkHit();
 				}
 				// if (!gameObjects.isEmpty())
-				// movePlayer(0.2);
+				//movePlayer(0.2);
 
 			}
 		}));
@@ -215,7 +215,6 @@ public class Game extends Thread {
 	}
 
 	public void addLocalPlayer(PlayerMP player) {
-		// gameObjects.add(player);
 		Platform.runLater(() -> {
 			root.getChildren().add(player);
 		});
