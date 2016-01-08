@@ -94,7 +94,7 @@ public class Game extends Thread{
 				}
 
 			
-				//movePlayer(1.5);
+				//movePlayer(0.2);
 
 			}
 		}));

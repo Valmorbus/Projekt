@@ -146,7 +146,7 @@ public class GameServer extends Thread {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
 				}
-				if (player.port == -1) {
+				if (player.port == 0) {
 					p.port = player2.port;
 				}
 				alreadyConnected = true;
