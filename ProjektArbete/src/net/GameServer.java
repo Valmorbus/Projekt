@@ -23,8 +23,8 @@ public class GameServer extends Thread {
 	// private InetAddress ipAdress;
 	private DatagramSocket socket;
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
-	Game game;
-	PlayerMP player;
+	private Game game;
+	private PlayerMP player;
 	// Player player;
 
 	/*
@@ -89,19 +89,9 @@ public class GameServer extends Thread {
 			break;
 		case LOGIN: {
 			packet = new Packet00Login(data);
-			System.out
-					.println("User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
-							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());
-			player = new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
-			// kolla upp, verkar bli en för mycket
-			this.connectedPlayers.add(player);
-			for (PlayerMP p : connectedPlayers) {
-				System.out.println(p.getName() +connectedPlayers.size());
-			}
-			
-			
+			handleLogin((Packet00Login)packet, adress, port);
 			System.out.println(player.port +" " +player.getName() + " " +player.ipAdress);
-			addConnection(player, (Packet00Login) packet);
+			
 		}
 			/*
 			 * if (player != null) { this.connectedPlayers.add(player);
@@ -150,8 +140,8 @@ public class GameServer extends Thread {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
 				}
-				if (player.port == 0) {
-					p.port = player2.port;
+				if (player.port == 0) { //borde vara p.port... funkar inte då
+					player.port = player2.port;
 				}
 				alreadyConnected = true;
 			}
@@ -161,7 +151,7 @@ public class GameServer extends Thread {
 				// Packet00Login(player2.getName());
 				try {
 					sendData(packet.getData(), p.ipAdress, p.port);
-					packet = new Packet00Login(p.getName());
+					packet = new Packet00Login(p.getName(), p.getX(), p.getY(),p.getRotate()); //kanske p.translate
 					sendData(packet.getData(), player2.ipAdress, player2.port);
 				} catch (Exception e) {
 					System.out.println("Server cant send packet " +e);
@@ -198,6 +188,14 @@ public class GameServer extends Thread {
 		//PlayerMP player = getPlayerMP(packet.getUsername());
 		connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
 		packet.writeData(this);
+	}
+	
+	private void handleLogin(Packet00Login packet, InetAddress adress, int port){
+	
+		player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(), 0, adress, port);
+		//this.connectedPlayers.add(player);
+		addConnection(player, (Packet00Login) packet);
+	
 	}
 
 }

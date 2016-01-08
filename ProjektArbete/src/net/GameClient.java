@@ -22,17 +22,6 @@ public class GameClient extends Thread {
 	private InetAddress ipAdress;
 	private DatagramSocket socket;
 	private Game game;
-	// private int port = 3340;
-
-	/*
-	 * public static void main(String[] args) {
-	 * 
-	 * GameClient gc = new GameClient("localhost");
-	 * 
-	 * gc.start();
-	 * 
-	 * gc.sendData("ping".getBytes()); }
-	 */
 
 	public GameClient(Game game, String ipAdress) {
 		try {

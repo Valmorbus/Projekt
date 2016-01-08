@@ -12,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -23,7 +24,6 @@ import packets.Packet02Move;
 
 public class Game extends Thread {
 
-	// Image image = new Image("projectv2/untitled.png");
 	private Timeline playerLoop;
 	private Bullet bullet;
 	private List<Bullet> bulletArray = new LinkedList<Bullet>();
@@ -35,12 +35,27 @@ public class Game extends Thread {
 	private GameServer gs;
 	// Label label;
 
-	public void runGame(Stage primaryStage) {
+	/**
+	 * att göra. Kolla varför servern inte får sin klient att fungera lägga till
+	 * skott över nätverk. skicka uppdateringspacket oftare så att positionerna
+	 * håller i sig.
+	 */
+
+	public Game(String runServer) {
+		if (runServer.equalsIgnoreCase("y")) {
+			gs = new GameServer(this);
+			gs.start();
+		}
+	}
+	// kör server från main genom game konstruktor?
+
+	public synchronized void runGame(Stage primaryStage) {
 		System.out.println("name: ");
 		Scanner sc = new Scanner(System.in);
 		String userName = sc.nextLine();
+		sc.close();
 		root = new Pane();
-		player = new PlayerMP(userName, 150, 150, -50, 0, null, 0);
+		player = new PlayerMP(userName, 550, 550, -250, 0, null, 0);
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
 
@@ -52,16 +67,8 @@ public class Game extends Thread {
 				packet.writeData(gc);
 			}
 		});
-		// root.getChildren().add(player.getGraphics());
-		// addPlayer(player);
-
-		System.out.println("run server");
-		if (sc.nextLine().equalsIgnoreCase("y")) {
-
-			gs = new GameServer(this);
-			gs.start();
-		}
-		Packet00Login loginPacket = new Packet00Login(("00" + player.getName()).getBytes());
+		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getX(), player.getY(),
+				player.getRotate());
 
 		gc = new GameClient(this, "localhost");
 		gc.start();
@@ -70,24 +77,18 @@ public class Game extends Thread {
 			gs.addConnection((PlayerMP) player, loginPacket);
 		}
 		loginPacket.writeData(gc);
-		// addLocalPlayer(player);
-		// player.getGraphics().setTranslateX(100);
-		// player.getGraphics().setTranslateY(350);
 
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				if (!gameObjects.isEmpty()) {
 					playerMovements();
-					if (bullet != null) {
-						for (int i = 0; i < bulletArray.size(); i++) {
-							moveBullet(bulletArray.get(i));
-							checkHit();
-						}
-					}
 				}
-				//if (!gameObjects.isEmpty())
-				//movePlayer(0.2);
+				if (bullet != null) {
+					checkHit();
+				}
+				// if (!gameObjects.isEmpty())
+				// movePlayer(0.2);
 
 			}
 		}));
@@ -95,35 +96,44 @@ public class Game extends Thread {
 		playerLoop.play();
 	}
 
+
 	private void checkHit() {
-		if (!bulletArray.isEmpty())
+		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
 				if (bulletArray.get(i).getR().getTranslateX() <= -scene.getWidth()
 						|| bulletArray.get(i).getR().getTranslateX() >= scene.getWidth()
 						|| bulletArray.get(i).getR().getTranslateY() <= -scene.getHeight()
 						|| bulletArray.get(i).getR().getTranslateY() >= scene.getHeight()) {
-					root.getChildren().remove(bulletArray.get(i).getR());
-					bulletArray.remove(bulletArray.get(i));
+					removeBullet(bulletArray.get(i));
 				}
-				for (PlayerMP p : gameObjects) {
-					if (bulletArray.get(i).getR().getBoundsInParent().intersects(p.getBoundsInParent())) {
-						System.out.println("hit");
-						player.setLives(p.getLives() - 1);
-						System.out.println(p.getLives());
-
-						root.getChildren().remove(bulletArray.get(i).getR());
-						bulletArray.remove(i);
+				for (int j = 0; j < gameObjects.size(); j++) {
+					if (bulletArray.get(i).getR().getBoundsInParent()
+							.intersects(gameObjects.get(j).getBoundsInParent())) {
+						System.out.println("hit " + gameObjects.get(j).getName());
+						gameObjects.get(j).setLives(gameObjects.get(j).getLives() - 1);
+						System.out.println(gameObjects.get(j).getLives());
+						removeBullet(bulletArray.get(i));
 					}
 				}
+				moveBullet(bulletArray.get(i));
 			}
+		}
+	}
+
+	private void removeBullet(Bullet bullet) {
+		Platform.runLater(() -> {
+			root.getChildren().remove(bullet.getR());
+			bulletArray.remove(bullet);
+		});
 	}
 
 	private void moveBullet(Bullet bullet) {
-
-		double bulletX = bullet.getR().getTranslateX();
-		double bulletY = bullet.getR().getTranslateY();
-		bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 25);
-		bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 25);
+		Platform.runLater(() -> {
+			double bulletX = bullet.getR().getTranslateX();
+			double bulletY = bullet.getR().getTranslateY();
+			bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 25);
+			bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 25);
+		});
 
 	}
 
@@ -159,15 +169,7 @@ public class Game extends Thread {
 	}
 
 	private void movePlayer(int turn, double speed) {
-		// double x = player.getGraphics().getTranslateX();
-		// double y = player.getGraphics().getTranslateY();
-		// player.getGraphics().setRotate(player.getGraphics().getRotate() +
-		// turn);
-		// player.getGraphics().setTranslateX(x +
-		// Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		// player.getGraphics().setTranslateY(y +
-		// Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setRotate(player.getRotate() + turn);
@@ -178,14 +180,7 @@ public class Game extends Thread {
 	}
 
 	private void movePlayer(double speed) {
-		// double x = player.getGraphics().getTranslateX();
-		// double y = player.getGraphics().getTranslateY();
-		// player.getGraphics().setTranslateX(x +
-		// Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		// player.getGraphics().setTranslateY(y +
-		// Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
-
-		Platform.runLater(()->{
+		Platform.runLater(() -> {
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
@@ -195,30 +190,28 @@ public class Game extends Thread {
 	}
 
 	private void shoot() {
-		if (bulletArray.size() <= 5) {
-			bullet = new Bullet();
-			root.getChildren().add(bullet.getR());
-			bullet.getR().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
-			bullet.getR().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
-			bullet.getR().setRotate(player.getRotate());
-			bulletArray.add(bullet);
+		Platform.runLater(() -> {
+			if (bulletArray.size() <= 5) {
+				bullet = new Bullet();
+				root.getChildren().add(bullet.getR());
+				bullet.getR().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
+				bullet.getR().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
+				bullet.getR().setRotate(player.getRotate());
+				bulletArray.add(bullet);
 
-			moveBulletFirst(bullet);
-		}
+				moveBulletFirst(bullet);
+			}
+		});
+
 	}
 
 	public void addPlayer(PlayerMP player2) {
-		// player = player2;
-
 		gameObjects.add(player2);
 		System.out.println(gameObjects.size() + " player id " + player2.getName());
 		System.out.println(player2.ipAdress + " " + player2.port);
-		// player2.setGraphics(new Image("/secondship.png"));
+		// player2.setImage(new Image("/secondship.png"));
 
-		addLocalPlayer(player2); // .getGraphics());
-		// player.getGraphics().setTranslateX(500);
-		// root.getChildren().add(player2.getGraphics());
-
+		addLocalPlayer(player2);
 	}
 
 	public void addLocalPlayer(PlayerMP player) {
@@ -234,13 +227,12 @@ public class Game extends Thread {
 			player.setPosX(player.getTranslateX());
 			player.setPosY(player.getTranslateY());
 			player.setSpeed(speed);
-			
+
 			Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
 					player.getRotate());
 			packet.writeData(gc);
 		});
 
-		
 	}
 
 	private int getPlayerMPIndex(String username) {

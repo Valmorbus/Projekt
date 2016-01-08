@@ -6,15 +6,23 @@ import net.GameServer;
 public class Packet00Login extends Packet{
 	
 	private String username;
+	private double x, y, rotate;
 
 	public Packet00Login(byte[] data) {
 		super(00);
-		this.username = readData(data);
+		String[] dataArray =readData(data).split(",");
+		this.username = dataArray[0];
+		this.x =Double.parseDouble(dataArray[1]);
+		this.y =Double.parseDouble(dataArray[2]);;
+		this.rotate = Double.parseDouble(dataArray[3]);;
 		// TODO Auto-generated constructor stub
 	}
-	public Packet00Login(String username) {
+	public Packet00Login(String username, double x, double y, double rotate) {
 		super(00);
 		this.username = username;
+		this.x=x;
+		this.y=y;
+		this.rotate=rotate;
 		// TODO Auto-generated constructor stub
 	}
 
@@ -31,7 +39,7 @@ public class Packet00Login extends Packet{
 	}
 	@Override
 	public byte[] getData() {
-		return ("00" + this.username).getBytes();
+		return ("00" + this.username+","+this.x+","+this.y+","+this.rotate).getBytes();
 	
 	}
 	public String getUsername() {
@@ -39,6 +47,24 @@ public class Packet00Login extends Packet{
 	}
 	public void setUsername(String username) {
 		this.username = username;
+	}
+	public double getX() {
+		return x;
+	}
+	public void setX(double x) {
+		this.x = x;
+	}
+	public double getY() {
+		return y;
+	}
+	public void setY(double y) {
+		this.y = y;
+	}
+	public double getRotate() {
+		return rotate;
+	}
+	public void setRotate(double rotate) {
+		this.rotate = rotate;
 	}
 	
 	
