@@ -5,7 +5,6 @@ import javafx.scene.image.ImageView;
 public abstract class GameObject extends ImageView{
 	private double posX, posY;
 	private int networkId;
-	private double rotate;
 	private double speed;
 	private short owningPlayer;
 	

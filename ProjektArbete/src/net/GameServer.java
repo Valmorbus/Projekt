@@ -92,10 +92,14 @@ public class GameServer extends Thread {
 			System.out
 					.println("User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());
-			player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
-			new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
+			player = new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
 			// kolla upp, verkar bli en för mycket
 			this.connectedPlayers.add(player);
+			for (PlayerMP p : connectedPlayers) {
+				System.out.println(p.getName() +connectedPlayers.size());
+			}
+			
+			
 			System.out.println(player.port +" " +player.getName() + " " +player.ipAdress);
 			addConnection(player, (Packet00Login) packet);
 		}

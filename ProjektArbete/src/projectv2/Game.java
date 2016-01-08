@@ -12,20 +12,16 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.GameClient;
 import net.GameServer;
-import packets.Packet;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
-import packets.Packet.PacketTypes;
 
-public class Game extends Thread{
+public class Game extends Thread {
 
 	// Image image = new Image("projectv2/untitled.png");
 	private Timeline playerLoop;
@@ -36,8 +32,8 @@ public class Game extends Thread{
 	public PlayerMP player;
 	private Pane root;
 	private GameClient gc;
-	private GameServer gs; 
-	//Label label;
+	private GameServer gs;
+	// Label label;
 
 	public void runGame(Stage primaryStage) {
 		System.out.println("name: ");
@@ -47,43 +43,41 @@ public class Game extends Thread{
 		player = new PlayerMP(userName, 150, 150, -50, 0, null, 0);
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
-		
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
-		primaryStage.setOnCloseRequest(e->{
-			if (gs !=null){
+		primaryStage.setOnCloseRequest(e -> {
+			if (gs != null) {
 				Packet01Disconnect packet = new Packet01Disconnect(player.getName());
 				packet.writeData(gc);
-			}	
+			}
 		});
-		//root.getChildren().add(player.getGraphics());
-		//addPlayer(player);
-		
+		// root.getChildren().add(player.getGraphics());
+		// addPlayer(player);
+
 		System.out.println("run server");
 		if (sc.nextLine().equalsIgnoreCase("y")) {
+
 			gs = new GameServer(this);
 			gs.start();
 		}
-		Packet00Login loginPacket = new Packet00Login(("00"+player.getName()).getBytes());
-		
+		Packet00Login loginPacket = new Packet00Login(("00" + player.getName()).getBytes());
+
 		gc = new GameClient(this, "localhost");
 		gc.start();
-		
-		
-		if (gs != null){
-			gs.addConnection((PlayerMP)player, loginPacket);
+
+		if (gs != null) {
+			gs.addConnection((PlayerMP) player, loginPacket);
 		}
-		//root.getChildren().add(player);
 		loginPacket.writeData(gc);
-		
-		//player.getGraphics().setTranslateX(100);
-		//player.getGraphics().setTranslateY(350);
+		// addLocalPlayer(player);
+		// player.getGraphics().setTranslateX(100);
+		// player.getGraphics().setTranslateY(350);
 
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if (!gameObjects.isEmpty()){
+				if (!gameObjects.isEmpty()) {
 					playerMovements();
 					if (bullet != null) {
 						for (int i = 0; i < bulletArray.size(); i++) {
@@ -92,8 +86,7 @@ public class Game extends Thread{
 						}
 					}
 				}
-
-			
+				//if (!gameObjects.isEmpty())
 				//movePlayer(0.2);
 
 			}
@@ -112,19 +105,19 @@ public class Game extends Thread{
 					root.getChildren().remove(bulletArray.get(i).getR());
 					bulletArray.remove(bulletArray.get(i));
 				}
+				for (PlayerMP p : gameObjects) {
+					if (bulletArray.get(i).getR().getBoundsInParent().intersects(p.getBoundsInParent())) {
+						System.out.println("hit");
+						player.setLives(p.getLives() - 1);
+						System.out.println(p.getLives());
 
-				else if (bulletArray.get(i).getR().getBoundsInParent()
-						.intersects(player.getGraphics().getBoundsInParent())) {
-					System.out.println("hit");
-					player.setLives(player.getLives() - 1);
-					System.out.println(player.getLives());
-
-					root.getChildren().remove(bulletArray.get(i).getR());
-					bulletArray.remove(0);
+						root.getChildren().remove(bulletArray.get(i).getR());
+						bulletArray.remove(i);
+					}
 				}
 			}
 	}
-	
+
 	private void moveBullet(Bullet bullet) {
 
 		double bulletX = bullet.getR().getTranslateX();
@@ -140,8 +133,8 @@ public class Game extends Thread{
 		bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 100);
 		bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 100);
 	}
-	
-	private void playerMovements(){
+
+	private void playerMovements() {
 		scene.setOnKeyPressed(e -> {
 
 			switch (e.getCode()) {
@@ -166,30 +159,38 @@ public class Game extends Thread{
 	}
 
 	private void movePlayer(int turn, double speed) {
-		//double x = player.getGraphics().getTranslateX();
-		//double y = player.getGraphics().getTranslateY();
-		//player.getGraphics().setRotate(player.getGraphics().getRotate() + turn);
-		//player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		//player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		double x = player.getTranslateX();
-		double y = player.getTranslateY();
-		player.setRotate(player.getRotate() + turn);
-		player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
-		player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
-		
+		// double x = player.getGraphics().getTranslateX();
+		// double y = player.getGraphics().getTranslateY();
+		// player.getGraphics().setRotate(player.getGraphics().getRotate() +
+		// turn);
+		// player.getGraphics().setTranslateX(x +
+		// Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
+		// player.getGraphics().setTranslateY(y +
+		// Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
+		Platform.runLater(()->{
+			double x = player.getTranslateX();
+			double y = player.getTranslateY();
+			player.setRotate(player.getRotate() + turn);
+			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
+			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
+		});
 		update(speed);
 	}
 
 	private void movePlayer(double speed) {
-		//double x = player.getGraphics().getTranslateX();
-		//double y = player.getGraphics().getTranslateY();
-		//player.getGraphics().setTranslateX(x + Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		//player.getGraphics().setTranslateY(y + Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
-		
-		double x = player.getTranslateX();
-		double y = player.getTranslateY();
-		player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
-		player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
+		// double x = player.getGraphics().getTranslateX();
+		// double y = player.getGraphics().getTranslateY();
+		// player.getGraphics().setTranslateX(x +
+		// Math.cos(Math.toRadians(player.getGraphics().getRotate())) * speed);
+		// player.getGraphics().setTranslateY(y +
+		// Math.sin(Math.toRadians(player.getGraphics().getRotate())) * speed);
+
+		Platform.runLater(()->{
+			double x = player.getTranslateX();
+			double y = player.getTranslateY();
+			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
+			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
+		});
 		update(speed);
 	}
 
@@ -197,11 +198,9 @@ public class Game extends Thread{
 		if (bulletArray.size() <= 5) {
 			bullet = new Bullet();
 			root.getChildren().add(bullet.getR());
-			bullet.getR().setTranslateX(
-					player.getGraphics().getTranslateX() + (player.getGraphics().getImage().getWidth()) / 2);
-			bullet.getR().setTranslateY(
-					player.getGraphics().getTranslateY() + (player.getGraphics().getImage().getHeight() / 2));
-			bullet.getR().setRotate(player.getGraphics().getRotate());
+			bullet.getR().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
+			bullet.getR().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
+			bullet.getR().setRotate(player.getRotate());
 			bulletArray.add(bullet);
 
 			moveBulletFirst(bullet);
@@ -209,70 +208,70 @@ public class Game extends Thread{
 	}
 
 	public void addPlayer(PlayerMP player2) {
-		//player = player2; 
-		
+		// player = player2;
+
 		gameObjects.add(player2);
-		System.out.println(gameObjects.size() +" player id "+ player2.getName());
-		System.out.println(player2.ipAdress + " " +player2.port);
-		//player2.setGraphics(new Image("/secondship.png"));
-		Platform.runLater(()->{
-			root.getChildren().add(player2); //.getGraphics());
-			//player.getGraphics().setTranslateX(500);
-			//root.getChildren().add(player2.getGraphics());
-			
+		System.out.println(gameObjects.size() + " player id " + player2.getName());
+		System.out.println(player2.ipAdress + " " + player2.port);
+		// player2.setGraphics(new Image("/secondship.png"));
+
+		addLocalPlayer(player2); // .getGraphics());
+		// player.getGraphics().setTranslateX(500);
+		// root.getChildren().add(player2.getGraphics());
+
+	}
+
+	public void addLocalPlayer(PlayerMP player) {
+		// gameObjects.add(player);
+		Platform.runLater(() -> {
+			root.getChildren().add(player);
 		});
 	}
-	public void update(double speed){
-		//Platform.runLater(()->{
-		//for (PlayerMP player : gameObjects){
-		
+
+	public void update(double speed) {
+		Platform.runLater(() -> {
+			// for (PlayerMP player : gameObjects){
+
 			player.setRotate(player.getRotate());
 			player.setPosX(player.getTranslateX());
 			player.setPosY(player.getTranslateY());
 			player.setSpeed(speed);
-		System.out.println(player.getName() + "update packet");
-		//});
+			// System.out.println(player.getName() + "update packet");
+			Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
+					player.getRotate());
+			packet.writeData(gc);
+		});
+
 		
-		Packet02Move packet = new Packet02Move(player.getName(), player.getPosX(), player.getPosY(), player.getRotate());
-		packet.writeData(gc);
 	}
-	
-	private int getPlayerMPIndex(String username){
+
+	private int getPlayerMPIndex(String username) {
 		int index = -1;
-		for (PlayerMP p: gameObjects) {
-			if (p instanceof PlayerMP && p.getName().equals(username)){
+		for (PlayerMP p : gameObjects) {
+			if (p instanceof PlayerMP && p.getName().equals(username)) {
 				break;
 			}
 			index++;
 		}
 		return index;
 	}
-	public void updatePlayers(String userName, double x, double y, double rotate){
+
+	public void updatePlayers(String userName, double x, double y, double rotate) {
 		int index = getPlayerMPIndex(userName);
-		
+		Platform.runLater(() -> {
 			this.gameObjects.get(index).setTranslateX(x);
 			this.gameObjects.get(index).setTranslateY(y);
 			this.gameObjects.get(index).setRotate(rotate);
-			System.out.println("update player" +userName);
-			//root.getChildren().get(getRootPlayer(userName)).setTranslateX(x);
-			//root.getChildren().get(getRootPlayer(userName)).setTranslateY(y);
-			//root.getChildren().get(getRootPlayer(userName)).setRotate(rotate);
-	
-		
-		
-		
-		//root.getChildren().get(index).setTranslateX(x);
-		//root.getChildren().get(index).setTranslateY(y);
-		//root.getChildren().get(index).setRotate(rotate);
-		//alt graphics.translate
+		});
+
 	}
-	
-	public int getRootPlayer(String username){
-		int PlayerIndex = getPlayerMPIndex( username);
+
+	public int getRootPlayer(String username) {
+		int PlayerIndex = getPlayerMPIndex(username);
 		int index = -1;
-		for (Node p: root.getChildren()) {
-			if (p.equals(gameObjects.get(PlayerIndex))){
-				System.out.println(p.toString() + " " +gameObjects.get(PlayerIndex));
+		for (Node p : root.getChildren()) {
+			if (p.equals(gameObjects.get(PlayerIndex))) {
+				System.out.println(p.toString() + " " + gameObjects.get(PlayerIndex));
 				break;
 			}
 			index++;
@@ -281,16 +280,16 @@ public class Game extends Thread{
 	}
 
 	public void removePlayerMP(String username) {
-		int index=0;
+		int index = 0;
 		for (PlayerMP p : gameObjects) {
-			if (p instanceof PlayerMP && p.getName().equals(username)){
+			if (p instanceof PlayerMP && p.getName().equals(username)) {
 				break;
 			}
 			index++;
 		}
 		root.getChildren().remove(getRootPlayer(username));
 		gameObjects.remove(index);
-		
+
 	}
-	
+
 }
