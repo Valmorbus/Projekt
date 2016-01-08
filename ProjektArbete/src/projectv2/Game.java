@@ -230,13 +230,11 @@ public class Game extends Thread {
 
 	public void update(double speed) {
 		Platform.runLater(() -> {
-			// for (PlayerMP player : gameObjects){
-
 			player.setRotate(player.getRotate());
 			player.setPosX(player.getTranslateX());
 			player.setPosY(player.getTranslateY());
 			player.setSpeed(speed);
-			// System.out.println(player.getName() + "update packet");
+			
 			Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
 					player.getRotate());
 			packet.writeData(gc);
