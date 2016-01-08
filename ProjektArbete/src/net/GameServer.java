@@ -127,6 +127,7 @@ public class GameServer extends Thread {
 	}
 
 	private void handleMove(Packet02Move packet) {
+		System.out.println("Handle move");
 		if(getPlayerMP(packet.getUsername())!= null){
 			int index= getPlayerMPIndex(packet.getUsername());
 			connectedPlayers.get(index).setPosX(packet.getX());
@@ -174,15 +175,15 @@ public class GameServer extends Thread {
 
 	public PlayerMP getPlayerMP(String username) {
 		for (PlayerMP playerMP : connectedPlayers) {
-			if (player.getName().equals(username))
-				return player;
+			if (playerMP.getName().equals(username))
+				return playerMP;
 		}
 		return null;
 	}
 	public int getPlayerMPIndex(String username) {
 		int index = 0;
 		for (PlayerMP playerMP : connectedPlayers) {
-			if (player.getName().equals(username))
+			if (playerMP.getName().equals(username))
 				break;
 			index++;
 		}

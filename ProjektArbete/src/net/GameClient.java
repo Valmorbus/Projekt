@@ -79,7 +79,7 @@ public class GameClient extends Thread {
 			packet = new Packet00Login(data);
 			PlayerMP player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
 			new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
-			game.addPlayer(player);
+			this.game.addPlayer(player);
 		}
 			break;
 		case DISCONNECT: {
@@ -87,7 +87,7 @@ public class GameClient extends Thread {
 			System.out.println(
 					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
-			game.removePlayerMP(((Packet01Disconnect)packet).getUsername());
+			this.game.removePlayerMP(((Packet01Disconnect)packet).getUsername());
 		}
 			break;
 		case MOVE : {
