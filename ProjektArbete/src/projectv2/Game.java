@@ -167,7 +167,7 @@ public class Game extends Thread {
 			}
 		});
 	}
-
+	//synchronize?
 	private void movePlayer(int turn, double speed) {
 		Platform.runLater(() -> {
 			double x = player.getTranslateX();
@@ -178,7 +178,7 @@ public class Game extends Thread {
 		});
 		update(speed);
 	}
-
+	//synchronize?
 	private void movePlayer(double speed) {
 		Platform.runLater(() -> {
 			double x = player.getTranslateX();
@@ -219,7 +219,7 @@ public class Game extends Thread {
 			root.getChildren().add(player);
 		});
 	}
-
+	//synchronize?
 	public void update(double speed) {
 		Platform.runLater(() -> {
 			player.setRotate(player.getRotate());
