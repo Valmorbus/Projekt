@@ -11,6 +11,7 @@ import javafx.scene.image.Image;
 import packets.Packet;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
+import packets.Packet02Move;
 import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.Main;
@@ -76,7 +77,8 @@ public class GameClient extends Thread {
 		case LOGIN: {
 			System.out.println("logon");
 			packet = new Packet00Login(data);
-			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
+			PlayerMP player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
+			new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
 			game.addPlayer(player);
 		}
 			break;
@@ -88,9 +90,18 @@ public class GameClient extends Thread {
 			game.removePlayerMP(((Packet01Disconnect)packet).getUsername());
 		}
 			break;
+		case MOVE : {
+			packet = new Packet02Move(data);
+			handleMove((Packet02Move) packet);
+		}
 		default:
 			break;
 		}
+	}
+
+	private void handleMove(Packet02Move packet) {
+		this.game.updatePlayers(packet.getUsername(), packet.getX(), packet.getY(), packet.getRotate());
+		
 	}
 
 	public void sendData(byte[] data) {

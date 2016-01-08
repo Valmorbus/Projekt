@@ -19,9 +19,16 @@ public class PlayerMP extends Player {
 	}
 	
 
-	public PlayerMP(String name, double posX, double posyY, double rotate, double speed, InetAddress ipAdress, int port) {
-		super(posX, posyY, rotate, speed, ipAdress, port);
+	public PlayerMP(String name, double posX, double posY, double rotate, double speed, InetAddress ipAdress, int port) {
+		super(posX, posY, rotate, speed); //, ipAdress, port);
 		this.name = name;
+		this.image = new Image("/Untitled.png");
+		this.graphics.setImage(image);
+		//this.getGraphics().setTranslateX(posX);
+		//this.getGraphics().setTranslateY(posY);
+		//this.getGraphics().setRotate(rotate);
+		this.ipAdress = ipAdress;
+		this.port = port;
 	}
 
 
@@ -51,6 +58,7 @@ public class PlayerMP extends Player {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	
 	
 

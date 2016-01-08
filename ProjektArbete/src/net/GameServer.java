@@ -11,6 +11,7 @@ import packets.Packet;
 import packets.Packet.PacketTypes;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
+import packets.Packet02Move;
 import projectv2.Game;
 import projectv2.PlayerMP;
 
@@ -91,10 +92,11 @@ public class GameServer extends Thread {
 			System.out
 					.println("User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());
-			player = new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
-
+			player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
+			new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
 			// kolla upp, verkar bli en för mycket
 			this.connectedPlayers.add(player);
+			System.out.println(player.port +" " +player.getName() + " " +player.ipAdress);
 			addConnection(player, (Packet00Login) packet);
 		}
 			/*
@@ -112,9 +114,27 @@ public class GameServer extends Thread {
 			removeConnection((Packet01Disconnect) packet);
 		}
 			break;
+		case MOVE:{
+			packet = new Packet02Move(data);
+			System.out.println(((Packet02Move)packet).getUsername() +" has moved to "
+			+((Packet02Move)packet).getX()+((Packet02Move)packet).getY() );
+			this.handleMove((Packet02Move)packet);
+		}
+			break;
 		default:
 			break;
 		}
+	}
+
+	private void handleMove(Packet02Move packet) {
+		if(getPlayerMP(packet.getUsername())!= null){
+			int index= getPlayerMPIndex(packet.getUsername());
+			connectedPlayers.get(index).setPosX(packet.getX());
+			connectedPlayers.get(index).setPosY(packet.getY());
+			connectedPlayers.get(index).setRotate(packet.getRotate());
+			packet.writeData(this);
+		}
+		
 	}
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
@@ -139,7 +159,7 @@ public class GameServer extends Thread {
 					packet = new Packet00Login(p.getName());
 					sendData(packet.getData(), player2.ipAdress, player2.port);
 				} catch (Exception e) {
-					System.out.println("vafan");
+					System.out.println("Server cant send packet " +e);
 				}
 
 			}

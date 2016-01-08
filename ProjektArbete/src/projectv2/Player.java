@@ -45,13 +45,14 @@ public class Player extends GameObject {
 	}
 	
 	
-	public Player(double posX, double posyY, double rotate, double speed, InetAddress ipAdress, int port) {
-		super(posX, posyY, rotate, speed);
+	public Player(double posX, double posY, double rotate, double speed){ //, InetAddress ipAdress, int port) {
+		super(posX, posY, rotate, speed);
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
-		this.ipAdress = ipAdress;
-		this.port = port;
+		this.setImage(this.image);
+		//this.ipAdress = ipAdress;
+		//this.port = port;
 	}
 
 	public int getLives() {
@@ -81,14 +82,14 @@ public class Player extends GameObject {
 	public Polygon getTriangle() {
 		return this.triangle;
 	}
-
+	/*
 	public Image getImage() {
 		return image;
 	}
 
 	public void setImage(Image image) {
 		this.image = image;
-	}
+	}*/
 	
 
 }
