@@ -133,6 +133,9 @@ public class Game{ // extends Thread {
 				moveBullet(bulletArray.get(i));
 			}
 		}
+		if (player.getLives()<=0){
+			System.exit(0);
+		}
 	}
 
 	private void removeBullet(Bullet bullet) {

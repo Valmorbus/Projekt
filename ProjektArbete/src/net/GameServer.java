@@ -128,6 +128,8 @@ public class GameServer extends Thread {
 	private void handleShoot(Packet03Shoot packet) {
 		connectedBullets.add(new Bullet(packet.getX(), packet.getY(), packet.getRotate()));
 		packet.writeData(this);	
+		connectedBullets.remove(0);
+		System.out.println(connectedBullets.size());
 	}
 
 	private void handleMove(Packet02Move packet) {
