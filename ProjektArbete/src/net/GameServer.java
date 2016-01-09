@@ -140,15 +140,13 @@ public class GameServer extends Thread {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
 				}
-				if (player.port == 0) { //borde vara p.port... funkar inte då
-					player.port = player2.port;
+				if (p.port == 0) { //borde vara p.port... funkar inte då
+					p.port = player2.port;
 				}
 				alreadyConnected = true;
 			}
 
 			else {
-				// Packet00Login loginPacket = new
-				// Packet00Login(player2.getName());
 				try { 
 					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(),p.getRotate());
 					sendData(packet.getData(), p.ipAdress, p.port);

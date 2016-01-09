@@ -32,7 +32,7 @@ import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
 
-public class Game extends Thread {
+public class Game{ // extends Thread {
 
 	private Timeline playerLoop;
 	private Bullet bullet;
@@ -48,8 +48,7 @@ public class Game extends Thread {
 
 	/**
 	 * att göra. Kolla varför servern inte får sin klient att fungera lägga till
-	 * skott över nätverk. skicka uppdateringspacket oftare så att positionerna
-	 * håller i sig.
+	 * skott över nätverk.
 	 */
 
 	public Game(String runServer) {

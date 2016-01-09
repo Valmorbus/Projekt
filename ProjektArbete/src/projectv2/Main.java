@@ -15,6 +15,7 @@ public class Main extends Application {
 		Scanner sc = new Scanner(System.in);
 		Game game = new Game(sc.nextLine());
 		game.runGame(primaryStage);
+		
 	}
 	
 	public static void main(String[] args) {
