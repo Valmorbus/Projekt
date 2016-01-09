@@ -94,15 +94,12 @@ public class Game{ // extends Thread {
 			public void handle(ActionEvent event) {
 				if (!gameObjects.isEmpty()) {
 					playerMovements();
-					
-					//kan behöva ändras
-					//updateTick();
 				}
 				if (bullet != null) {
 					checkHit();
 				}
 				
-				// if (!gameObjects.isEmpty())
+				//if (!gameObjects.isEmpty() && !root.getChildren().isEmpty())
 				//movePlayer(0.2);
 
 			}
@@ -115,14 +112,14 @@ public class Game{ // extends Thread {
 	private void checkHit() {
 		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
-				if (bulletArray.get(i).getR().getTranslateX() <= -scene.getWidth()
-						|| bulletArray.get(i).getR().getTranslateX() >= scene.getWidth()
-						|| bulletArray.get(i).getR().getTranslateY() <= -scene.getHeight()
-						|| bulletArray.get(i).getR().getTranslateY() >= scene.getHeight()) {
+				if (bulletArray.get(i).getEllipse().getTranslateX() <= -scene.getWidth()
+						|| bulletArray.get(i).getEllipse().getTranslateX() >= scene.getWidth()
+						|| bulletArray.get(i).getEllipse().getTranslateY() <= -scene.getHeight()
+						|| bulletArray.get(i).getEllipse().getTranslateY() >= scene.getHeight()) {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < gameObjects.size(); j++) {
-					if (bulletArray.get(i).getR().getBoundsInParent()
+					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(gameObjects.get(j).getBoundsInParent())) {
 						System.out.println("hit " + gameObjects.get(j).getName());
 						gameObjects.get(j).setLives(gameObjects.get(j).getLives() - 1);
@@ -141,19 +138,20 @@ public class Game{ // extends Thread {
 	private void removeBullet(Bullet bullet) {
 		createExplosion(bullet);
 		Platform.runLater(() -> {
-			root.getChildren().remove(bullet.getR());
+			root.getChildren().remove(bullet.getEllipse());
 			bulletArray.remove(bullet);
 		});
 	}
 	private void createExplosion(Bullet bullet){
 		Ellipse ellipse = new Ellipse(25, 25);
 		ellipse.setFill(Color.YELLOW);
+		ellipse.setStroke(Color.WHITE);
 		ellipse.setEffect(new Glow(0));
 		ellipse.setEffect(new Bloom(0));
 		Platform.runLater(()->{
 			root.getChildren().add(ellipse);
-			ellipse.setTranslateX(bullet.getR().getTranslateX());
-			ellipse.setTranslateY(bullet.getR().getTranslateY());	
+			ellipse.setTranslateX(bullet.getEllipse().getTranslateX());
+			ellipse.setTranslateY(bullet.getEllipse().getTranslateY());	
 			explosions.add(ellipse);
 		});
 		
@@ -168,19 +166,19 @@ public class Game{ // extends Thread {
 
 	private void moveBullet(Bullet bullet) {
 		Platform.runLater(() -> {
-			double bulletX = bullet.getR().getTranslateX();
-			double bulletY = bullet.getR().getTranslateY();
-			bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 25);
-			bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 25);
+			double bulletX = bullet.getEllipse().getTranslateX();
+			double bulletY = bullet.getEllipse().getTranslateY();
+			bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
+			bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
 		});
 
 	}
 
 	private void moveBulletFirst(Bullet bullet) {
-		double bulletX = bullet.getR().getTranslateX();
-		double bulletY = bullet.getR().getTranslateY();
-		bullet.getR().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getR().getRotate())) * 100);
-		bullet.getR().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getR().getRotate())) * 100);
+		double bulletX = bullet.getEllipse().getTranslateX();
+		double bulletY = bullet.getEllipse().getTranslateY();
+		bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 100);
+		bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 100);
 	}
 
 	private void playerMovements() {
@@ -207,7 +205,7 @@ public class Game{ // extends Thread {
 		});
 	}
 	//synchronize?
-	private void movePlayer(int turn, double speed) {
+	private  void movePlayer(int turn, double speed) {
 		Platform.runLater(() -> {
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
@@ -218,7 +216,7 @@ public class Game{ // extends Thread {
 		update(speed);
 	}
 	//synchronize?
-	private void movePlayer(double speed) {
+	private  void movePlayer(double speed) {
 		Platform.runLater(() -> {
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
@@ -232,10 +230,10 @@ public class Game{ // extends Thread {
 		Platform.runLater(() -> {
 			if (bulletArray.size() <= 5) {
 				bullet = new Bullet();
-				root.getChildren().add(bullet.getR());
-				bullet.getR().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
-				bullet.getR().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
-				bullet.getR().setRotate(player.getRotate());
+				root.getChildren().add(bullet.getEllipse());
+				bullet.getEllipse().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
+				bullet.getEllipse().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
+				bullet.getEllipse().setRotate(player.getRotate());
 				bulletArray.add(bullet);
 
 				moveBulletFirst(bullet);
@@ -277,7 +275,7 @@ public class Game{ // extends Thread {
 		});
 	}
 	private void updateShoots(Bullet bullet){
-		Packet03Shoot packet = new Packet03Shoot(null,bullet.getR().getTranslateX(),bullet.getR().getTranslateY(), bullet.getR().getRotate());
+		Packet03Shoot packet = new Packet03Shoot(null,bullet.getEllipse().getTranslateX(),bullet.getEllipse().getTranslateY(), bullet.getEllipse().getRotate());
 	packet.writeData(gc);
 	}
 	
@@ -347,14 +345,17 @@ public class Game{ // extends Thread {
 		
 		bulletArray.add(bullet);
 		Platform.runLater(()->{
-			root.getChildren().add(bullet.getR());
-			bullet.getR().setTranslateX(x);
-			bullet.getR().setTranslateY(y);
-			bullet.getR().setRotate(rotate);
-			System.out.println("bullet added: " +bullet.getR().getTranslateX()+" " +bullet.getR().getTranslateY());
+			root.getChildren().add(bullet.getEllipse());
+			bullet.getEllipse().setTranslateX(x);
+			bullet.getEllipse().setTranslateY(y);
+			bullet.getEllipse().setRotate(rotate);
+			System.out.println("bullet added: " +bullet.getEllipse().getTranslateX()+" " +bullet.getEllipse().getTranslateY());
 		});
 		
 		
+	}
+	public GameServer getServer(){
+		return this.gs;
 	}
 
 }

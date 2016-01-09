@@ -10,13 +10,12 @@ import javafx.scene.shape.Rectangle;
 public class Bullet extends GameObject {
 	double directionX;
 	double directionY;
-	Circle c = new Circle(15, 15, 50);
-	private Ellipse e = new Ellipse(15, 2.5);
+	private Ellipse ellipse = new Ellipse(15, 2.5);
 
 	Bullet() {
-		e.setFill(Color.RED);
-		e.setEffect(new Glow(0));
-		e.setEffect(new Bloom(0));
+		ellipse.setFill(Color.RED);
+		ellipse.setEffect(new Glow(0));
+		ellipse.setEffect(new Bloom(0));
 
 	}
 
@@ -28,12 +27,12 @@ public class Bullet extends GameObject {
 	}
 	public Bullet(double directionX, double directionY, double rotate) {
 		super();
-		this.e.setTranslateX(directionX);
-		this.e.setTranslateY(directionY);
-		this.e.setRotate(rotate);
-		e.setFill(Color.RED);
-		e.setEffect(new Glow(0));
-		e.setEffect(new Bloom(0));
+		this.ellipse.setTranslateX(directionX);
+		this.ellipse.setTranslateY(directionY);
+		this.ellipse.setRotate(rotate);
+		ellipse.setFill(Color.RED);
+		ellipse.setEffect(new Glow(0));
+		ellipse.setEffect(new Bloom(0));
 
 	}
 
@@ -53,12 +52,12 @@ public class Bullet extends GameObject {
 		this.directionY = directionY;
 	}
 
-	public Ellipse getR() {
-		return e;
+	public Ellipse getEllipse() {
+		return ellipse;
 	}
 
-	public void setR(Ellipse e) {
-		this.e = e;
+	public void setEllipse(Ellipse e) {
+		this.ellipse = e;
 	}
 
 }
