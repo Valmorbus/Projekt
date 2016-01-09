@@ -252,6 +252,7 @@ public class Game extends Thread {
 	public void addLocalPlayer(PlayerMP player) {
 		Platform.runLater(() -> {
 			root.getChildren().add(player);
+			checkIfAdded();
 		});
 	}
 	//synchronize?
@@ -301,7 +302,9 @@ public class Game extends Thread {
 			this.gameObjects.get(index).setTranslateX(x);
 			this.gameObjects.get(index).setTranslateY(y);
 			this.gameObjects.get(index).setRotate(rotate);
+			
 		});
+		
 
 	}
 
@@ -343,6 +346,9 @@ public class Game extends Thread {
 			}
 			
 		}
+	}
+	private void updateRoot(String userName, double x, double y, double rotate){
+		
 	}
 
 }

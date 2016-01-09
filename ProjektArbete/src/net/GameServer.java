@@ -149,9 +149,12 @@ public class GameServer extends Thread {
 			else {
 				// Packet00Login loginPacket = new
 				// Packet00Login(player2.getName());
-				try { //kolla upp här
+				try { 
+					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(),p.getRotate());
 					sendData(packet.getData(), p.ipAdress, p.port);
-					packet = new Packet00Login(p.getName(), p.getX(), p.getY(),p.getRotate()); //kanske p.translate
+					
+					//skickar att tidigare spelare är connected
+					 //kanske p.translate
 					sendData(packet.getData(), player2.ipAdress, player2.port);
 				} catch (Exception e) {
 					System.out.println("Server cant send packet " +e);
