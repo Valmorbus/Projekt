@@ -81,7 +81,7 @@ public class GameServer extends Thread {
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {
 		String message = new String(data).trim();
-		System.out.println(message);
+		//System.out.println(message);
 		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
 		Packet packet = null;
 		switch (type) {
@@ -110,8 +110,8 @@ public class GameServer extends Thread {
 			break;
 		case MOVE:{
 			packet = new Packet02Move(data);
-			System.out.println(((Packet02Move)packet).getUsername() +" has moved to "
-			+((Packet02Move)packet).getX()+((Packet02Move)packet).getY() );
+		//	System.out.println(((Packet02Move)packet).getUsername() +" has moved to "
+	//		+((Packet02Move)packet).getX()+((Packet02Move)packet).getY() );
 			this.handleMove((Packet02Move)packet);
 		}
 			break;
@@ -121,7 +121,7 @@ public class GameServer extends Thread {
 	}
 
 	private void handleMove(Packet02Move packet) {
-		System.out.println("Handle move");
+		//System.out.println("Handle move");
 		if(getPlayerMP(packet.getUsername())!= null){
 			int index= getPlayerMPIndex(packet.getUsername());
 			connectedPlayers.get(index).setPosX(packet.getX());

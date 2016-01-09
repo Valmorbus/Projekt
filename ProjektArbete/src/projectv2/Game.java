@@ -8,6 +8,7 @@ import java.util.TimerTask;
 
 import javax.management.timer.Timer;
 
+import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -93,6 +94,9 @@ public class Game extends Thread {
 			public void handle(ActionEvent event) {
 				if (!gameObjects.isEmpty()) {
 					playerMovements();
+					
+					//kan behöva ändras
+					//updateTick();
 				}
 				if (bullet != null) {
 					checkHit();
@@ -260,7 +264,7 @@ public class Game extends Thread {
 
 			Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
 					player.getRotate());
-			packet.writeData(gc);
+		packet.writeData(gc);
 			
 			
 			//temporary position
@@ -268,17 +272,15 @@ public class Game extends Thread {
 		});
 	}
 	
-	//Sk kanske användas
+	//synchronize?
 	private void updateTick(){
-		new Timeline(new KeyFrame(
-		        Duration.millis(2500),
-		        ae -> {
-		        	System.out.println("send");
-		        	Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
-							player.getRotate());
-					packet.writeData(gc);
-		        }))
-		    .play();
+		Platform.runLater(()->{
+			 Timeline timeline = new Timeline(new KeyFrame(Duration.millis(1000 / 25), 
+				        ev-> update(0)));
+				    timeline.setCycleCount(Animation.INDEFINITE);
+				    timeline.play();
+			
+		});
 		
 	}
 
