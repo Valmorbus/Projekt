@@ -21,7 +21,12 @@ import javafx.scene.effect.Glow;
 import javafx.scene.effect.Light;
 import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
 import javafx.stage.Stage;
@@ -45,9 +50,18 @@ public class Game{ // extends Thread {
 	private Pane root;
 	private GameClient gc;
 	private GameServer gs;
+	
+	private Media music = new Media (getClass().getResource("/Music.mp3").toString());
+	private Media[] soundEffects= {
+			new Media(getClass().getResource("/Explosion.mp3").toString()),
+			new Media(getClass().getResource("/Laser.mp3").toString()),
+			new Media(getClass().getResource("/Rocket.mp3").toString())
+			};
+	private MediaPlayer musicPlayer = new MediaPlayer(music);
+	private MediaPlayer effectPlayer; // = new MediaPlayer(null);
 	// Label label;
 
-	/**
+	/**ProjektArbete/resource/Music.mp3
 	 * att göra. Kolla varför servern inte får sin klient att fungera lägga till
 	 * skott över nätverk.
 	 */
@@ -58,17 +72,23 @@ public class Game{ // extends Thread {
 			gs.start();
 		}
 	}
+	public Game (boolean runServer){
+		if (runServer) {
+			gs = new GameServer(this);
+			gs.start();
+		}
+	}
 	// kör server från main genom game konstruktor?
 
-	public synchronized void runGame(Stage primaryStage) {
-		System.out.println("name: ");
-		Scanner sc = new Scanner(System.in);
-		String userName = sc.nextLine();
-		sc.close();
+	public synchronized void runGame(Stage primaryStage, String login) {
+		String userName = login;
 		root = new Pane();
 		player = new PlayerMP(userName, 550, 550, -250, 0, null, 0);
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
+		
+		musicPlayer.play();
+		musicPlayer.setVolume(0.2);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -86,7 +106,11 @@ public class Game{ // extends Thread {
 
 		if (gs != null) {
 			gs.addConnection((PlayerMP) player, loginPacket);
+			
 		}
+		primaryStage.setFullScreen(true);
+		primaryStage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("ESCAPE"));
+		
 		loginPacket.writeData(gc);
 		
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
@@ -125,6 +149,8 @@ public class Game{ // extends Thread {
 						gameObjects.get(j).setLives(gameObjects.get(j).getLives() - 1);
 						System.out.println(gameObjects.get(j).getLives());
 						removeBullet(bulletArray.get(i));
+						
+						playEffect(soundEffects[0]);
 					}
 				}
 				moveBullet(bulletArray.get(i));
@@ -207,6 +233,7 @@ public class Game{ // extends Thread {
 	//synchronize?
 	private  void movePlayer(int turn, double speed) {
 		Platform.runLater(() -> {
+			playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setRotate(player.getRotate() + turn);
@@ -218,6 +245,7 @@ public class Game{ // extends Thread {
 	//synchronize?
 	private  void movePlayer(double speed) {
 		Platform.runLater(() -> {
+			playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
@@ -228,7 +256,8 @@ public class Game{ // extends Thread {
 
 	private void shoot() {
 		Platform.runLater(() -> {
-			if (bulletArray.size() <= 5) {
+			if (bulletArray.size() <= 10) {
+				playEffect(soundEffects[1]);
 				bullet = new Bullet();
 				root.getChildren().add(bullet.getEllipse());
 				bullet.getEllipse().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
@@ -349,13 +378,15 @@ public class Game{ // extends Thread {
 			bullet.getEllipse().setTranslateX(x);
 			bullet.getEllipse().setTranslateY(y);
 			bullet.getEllipse().setRotate(rotate);
-			System.out.println("bullet added: " +bullet.getEllipse().getTranslateX()+" " +bullet.getEllipse().getTranslateY());
+			playEffect(soundEffects[1]);
 		});
 		
 		
 	}
-	public GameServer getServer(){
-		return this.gs;
+	
+	private void playEffect(Media media){
+		effectPlayer = new MediaPlayer(media);
+		effectPlayer.play();
 	}
 
 }
