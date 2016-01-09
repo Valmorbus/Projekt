@@ -31,6 +31,7 @@ import net.GameServer;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
+import packets.Packet03Shoot;
 
 public class Game{ // extends Thread {
 
@@ -100,6 +101,7 @@ public class Game{ // extends Thread {
 				if (bullet != null) {
 					checkHit();
 				}
+				
 				// if (!gameObjects.isEmpty())
 				//movePlayer(0.2);
 
@@ -234,6 +236,7 @@ public class Game{ // extends Thread {
 				bulletArray.add(bullet);
 
 				moveBulletFirst(bullet);
+				updateShoots(bullet);
 			}
 		});
 
@@ -251,7 +254,6 @@ public class Game{ // extends Thread {
 	public void addLocalPlayer(PlayerMP player) {
 		Platform.runLater(() -> {
 			root.getChildren().add(player);
-			checkIfAdded();
 		});
 	}
 	//synchronize?
@@ -270,6 +272,10 @@ public class Game{ // extends Thread {
 			//temporary position
 			removeExplosions();
 		});
+	}
+	private void updateShoots(Bullet bullet){
+		Packet03Shoot packet = new Packet03Shoot(null,bullet.getR().getTranslateX(),bullet.getR().getTranslateY(), bullet.getR().getRotate());
+	packet.writeData(gc);
 	}
 	
 	//synchronize?
@@ -332,21 +338,19 @@ public class Game{ // extends Thread {
 		gameObjects.remove(index);
 
 	}
-	//for test
-
-	private void checkIfAdded(){
-		for (PlayerMP p : gameObjects) {
-			for (Node n : root.getChildren()) {
-				System.out.println("root " +n + " " + "Player " +p);
-				if (!p.equals(n)){
-					System.out.println("not added " +p);
-					System.out.println(this.player);
-				}
-			}
-			
-		}
-	}
-	private void updateRoot(String userName, double x, double y, double rotate){
+	
+	public void updateShoots(double x, double y, double rotate) {
+		Bullet bullet = new Bullet(x, y, rotate);
+		
+		bulletArray.add(bullet);
+		Platform.runLater(()->{
+			root.getChildren().add(bullet.getR());
+			bullet.getR().setTranslateX(x);
+			bullet.getR().setTranslateY(y);
+			bullet.getR().setRotate(rotate);
+			System.out.println("bullet added: " +bullet.getR().getTranslateX()+" " +bullet.getR().getTranslateY());
+		});
+		
 		
 	}
 

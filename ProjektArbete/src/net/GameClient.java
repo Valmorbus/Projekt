@@ -12,6 +12,7 @@ import packets.Packet;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
+import packets.Packet03Shoot;
 import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.Main;
@@ -82,10 +83,19 @@ public class GameClient extends Thread {
 		case MOVE : {
 			packet = new Packet02Move(data);
 			handleMove((Packet02Move) packet);
+		}break;
+		case SHOOT:{
+			packet = new Packet03Shoot(data);
+			handleShoot((Packet03Shoot) packet);
 		}
 		default:
 			break;
 		}
+	}
+
+	private void handleShoot(Packet03Shoot packet) {
+		this.game.updateShoots(packet.getX(),packet.getY(),packet.getRotate());
+		
 	}
 
 	private void handleMove(Packet02Move packet) {

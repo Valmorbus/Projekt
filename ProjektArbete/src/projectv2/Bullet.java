@@ -26,6 +26,16 @@ public class Bullet extends GameObject {
 		this.directionY = directionY;
 
 	}
+	public Bullet(double directionX, double directionY, double rotate) {
+		super();
+		this.e.setTranslateX(directionX);
+		this.e.setTranslateY(directionY);
+		this.e.setRotate(rotate);
+		e.setFill(Color.RED);
+		e.setEffect(new Glow(0));
+		e.setEffect(new Bloom(0));
+
+	}
 
 	public double getDirectionX() {
 		return directionX;

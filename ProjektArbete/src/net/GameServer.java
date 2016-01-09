@@ -12,6 +12,8 @@ import packets.Packet.PacketTypes;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
+import packets.Packet03Shoot;
+import projectv2.Bullet;
 import projectv2.Game;
 import projectv2.PlayerMP;
 
@@ -23,6 +25,7 @@ public class GameServer extends Thread {
 	// private InetAddress ipAdress;
 	private DatagramSocket socket;
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
+	private ArrayList<Bullet> connectedBullets = new ArrayList<Bullet>();
 	private Game game;
 	private PlayerMP player;
 	// Player player;
@@ -112,12 +115,19 @@ public class GameServer extends Thread {
 			packet = new Packet02Move(data);
 		//	System.out.println(((Packet02Move)packet).getUsername() +" has moved to "
 	//		+((Packet02Move)packet).getX()+((Packet02Move)packet).getY() );
-			this.handleMove((Packet02Move)packet);
+			handleMove((Packet02Move)packet);
 		}
 			break;
+		case SHOOT:packet = new Packet03Shoot(data);
+			handleShoot((Packet03Shoot)packet);
 		default:
 			break;
 		}
+	}
+
+	private void handleShoot(Packet03Shoot packet) {
+		connectedBullets.add(new Bullet(packet.getX(), packet.getY(), packet.getRotate()));
+		packet.writeData(this);	
 	}
 
 	private void handleMove(Packet02Move packet) {
