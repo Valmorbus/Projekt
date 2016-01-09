@@ -1,5 +1,6 @@
 package projectv2;
 
+import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Glow;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -10,11 +11,12 @@ public class Bullet extends GameObject {
 	double directionX;
 	double directionY;
 	Circle c = new Circle(15, 15, 50);
-	Ellipse e = new Ellipse(15, 2.5);
+	private Ellipse e = new Ellipse(15, 2.5);
 
 	Bullet() {
 		e.setFill(Color.RED);
-		e.setEffect(new Glow(1));
+		e.setEffect(new Glow(0));
+		e.setEffect(new Bloom(0));
 
 	}
 

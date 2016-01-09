@@ -67,7 +67,7 @@ public class GameClient extends Thread {
 			System.out.println("logon");
 			packet = new Packet00Login(data);
 			PlayerMP player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
-			new PlayerMP(((Packet00Login) packet).getUsername(), 150, 150, -50, 0, adress, port);
+			new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(), ((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
 			this.game.addPlayer(player);
 		}
 			break;

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.TimerTask;
+
+import javax.management.timer.Timer;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -12,8 +15,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.effect.Bloom;
+import javafx.scene.effect.Glow;
+import javafx.scene.effect.Light;
+import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Ellipse;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.GameClient;
@@ -28,6 +37,7 @@ public class Game extends Thread {
 	private Bullet bullet;
 	private List<Bullet> bulletArray = new LinkedList<Bullet>();
 	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
+	private ArrayList<Ellipse> explosions = new ArrayList<Ellipse>();
 	private Scene scene;
 	public PlayerMP player;
 	private Pane root;
@@ -67,7 +77,7 @@ public class Game extends Thread {
 				packet.writeData(gc);
 			}
 		});
-		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getX(), player.getY(),
+		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),  //player.getX(), player.getY(),
 				player.getRotate());
 
 		gc = new GameClient(this, "localhost");
@@ -77,7 +87,7 @@ public class Game extends Thread {
 			gs.addConnection((PlayerMP) player, loginPacket);
 		}
 		loginPacket.writeData(gc);
-
+		
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -121,10 +131,31 @@ public class Game extends Thread {
 	}
 
 	private void removeBullet(Bullet bullet) {
+		createExplosion(bullet);
 		Platform.runLater(() -> {
 			root.getChildren().remove(bullet.getR());
 			bulletArray.remove(bullet);
 		});
+	}
+	private void createExplosion(Bullet bullet){
+		Ellipse ellipse = new Ellipse(25, 25);
+		ellipse.setFill(Color.YELLOW);
+		ellipse.setEffect(new Glow(0));
+		ellipse.setEffect(new Bloom(0));
+		Platform.runLater(()->{
+			root.getChildren().add(ellipse);
+			ellipse.setTranslateX(bullet.getR().getTranslateX());
+			ellipse.setTranslateY(bullet.getR().getTranslateY());	
+			explosions.add(ellipse);
+		});
+		
+	}
+	private void removeExplosions(){
+		for(Ellipse e : explosions){
+			root.getChildren().remove(e);
+		}
+		explosions.removeAll(explosions);
+			
 	}
 
 	private void moveBullet(Bullet bullet) {
@@ -230,8 +261,25 @@ public class Game extends Thread {
 			Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
 					player.getRotate());
 			packet.writeData(gc);
+			
+			
+			//temporary position
+			removeExplosions();
 		});
-
+	}
+	
+	//Sk kanske användas
+	private void updateTick(){
+		new Timeline(new KeyFrame(
+		        Duration.millis(2500),
+		        ae -> {
+		        	System.out.println("send");
+		        	Packet02Move packet = new Packet02Move(player.getName(), player.getTranslateX(), player.getTranslateY(),
+							player.getRotate());
+					packet.writeData(gc);
+		        }))
+		    .play();
+		
 	}
 
 	private int getPlayerMPIndex(String username) {
@@ -279,6 +327,20 @@ public class Game extends Thread {
 		root.getChildren().remove(getRootPlayer(username));
 		gameObjects.remove(index);
 
+	}
+	//for test
+
+	private void checkIfAdded(){
+		for (PlayerMP p : gameObjects) {
+			for (Node n : root.getChildren()) {
+				System.out.println("root " +n + " " + "Player " +p);
+				if (!p.equals(n)){
+					System.out.println("not added " +p);
+					System.out.println(this.player);
+				}
+			}
+			
+		}
 	}
 
 }
