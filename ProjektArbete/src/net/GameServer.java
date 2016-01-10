@@ -70,6 +70,8 @@ public class GameServer extends Thread {
 			sendData(data, p.ipAdress, p.port);
 		}
 	}
+	
+	
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {
 		String message = new String(data).trim();
@@ -119,14 +121,18 @@ public class GameServer extends Thread {
 	}
 
 	private void handleMove(Packet02Move packet) {
-		// System.out.println("Handle move");
-		if (getPlayerMP(packet.getUsername()) != null) {
-			int index = getPlayerMPIndex(packet.getUsername());
-			connectedPlayers.get(index).setPosX(packet.getX());
-			connectedPlayers.get(index).setPosY(packet.getY());
-			connectedPlayers.get(index).setRotate(packet.getRotate());
-			packet.writeData(this);
-		}
+		Platform.runLater(()->{
+			 System.out.println("Handle move");
+				if (getPlayerMP(packet.getUsername()) != null) {
+					int index = getPlayerMPIndex(packet.getUsername());
+					connectedPlayers.get(index).setPosX(packet.getX());
+					connectedPlayers.get(index).setPosY(packet.getY());
+					connectedPlayers.get(index).setRotate(packet.getRotate());
+					packet.writeData(this);
+				}
+		});
+		
+		
 	}
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
@@ -146,19 +152,23 @@ public class GameServer extends Thread {
 			}
 			else {
 				try {
+					
+					//uppdaterar nya spelaren om gamla spelares positioner
+					/*
 					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());
 					sendData(packet.getData(), p.ipAdress, p.port);
+					
+					
 					// skickar att tidigare spelare är connected
-					// kanske p.translate
-					
+				
 					sendData(packet.getData(), player2.ipAdress, player2.port);
-					
+				*/
 					//detta ska vara korrekt sätt att skriva på, problemet är att spelare tilldelas förra connected player och inte nuvarande
-					/*
-					 * sendData(packet.getData(), p.ipAdress, p.port);
-					 * packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());				
+					
+					 sendData(packet.getData(), p.ipAdress, p.port);
+					 packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());				
 					sendData(packet.getData(), player2.ipAdress, player2.port);
-					 */
+					 
 					//packet = new Packet00Login(player2.getName(), player2.getTranslateX(), player2.getTranslateY(), player2.getRotate());
 					
 				} catch (Exception e) {

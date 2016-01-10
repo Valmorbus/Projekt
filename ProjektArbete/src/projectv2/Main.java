@@ -22,6 +22,7 @@ public class Main extends Application {
 	String userName = "Guest";
 	String ipAdress ="localhost";
 	boolean runServer;
+	double posX, posY;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -64,6 +65,10 @@ public class Main extends Application {
 
 		TextField IPTextfield = new TextField();
 		grid.add(IPTextfield, 1, 2);
+		TextField posXTextfield = new TextField();
+		grid.add(posXTextfield, 3, 2);
+		TextField posYTextfield = new TextField();
+		grid.add(posYTextfield, 3, 1);
 		
 		Button start = new Button("Start");
 		HBox hbox = new HBox(10);
@@ -80,8 +85,10 @@ public class Main extends Application {
 		start.setOnAction(e->{
 			userName = userTextField.getText();
 			ipAdress = IPTextfield.getText();
+			posX = Double.parseDouble(posXTextfield.getText());
+			posY = Double.parseDouble(posYTextfield.getText());
 			Game game = new Game( ipAdress);
-			game.runGame(primaryStage, userName);
+			game.runGame(primaryStage, userName, posX, posY);
 		});
 		
 		

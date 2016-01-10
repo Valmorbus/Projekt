@@ -121,6 +121,7 @@ private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
 		
 		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
 				0, adress, port);
+		System.out.println("handlelogin name" +player.getName());
 		this.game.addPlayer(player);
 		System.out.println("kör handlelogin client");
 
