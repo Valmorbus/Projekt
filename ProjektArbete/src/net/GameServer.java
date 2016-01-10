@@ -144,8 +144,8 @@ public class GameServer extends Thread {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
 				}
-				if (p.port == 0) { // borde vara p.port... funkar inte då
-					p.port = player2.port;
+				if (player.port == 0) { // borde vara p.port... funkar inte då
+					player.port = player2.port;
 				}
 				alreadyConnected = true;
 			}
@@ -154,7 +154,7 @@ public class GameServer extends Thread {
 				try {
 					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());
 					sendData(packet.getData(), p.ipAdress, p.port);
-
+					
 					// skickar att tidigare spelare är connected
 					// kanske p.translate
 					sendData(packet.getData(), player2.ipAdress, player2.port);
@@ -200,7 +200,7 @@ public class GameServer extends Thread {
 
 		player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
 				0, adress, port);
-		this.connectedPlayers.add(player);
+		//this.connectedPlayers.add(player);
 		addConnection(player, (Packet00Login) packet);
 
 	}
