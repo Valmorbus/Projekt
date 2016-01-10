@@ -285,7 +285,7 @@ this.ipAdress=ip;
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
 		});
 		playerOutOfBounds();
-		//update(speed);
+		update(speed);
 	}
 
 	// synchronize?
@@ -299,7 +299,7 @@ this.ipAdress=ip;
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
 		});
 		playerOutOfBounds();
-		//update(speed);
+		update(speed);
 	}
 
 	private void shoot() {
@@ -382,7 +382,7 @@ this.ipAdress=ip;
 
 			if (!explosions.isEmpty())
 				removeExplosions();
-			update(0);
+			//update(0);
 			
 		}));
 		timeline.setCycleCount(Animation.INDEFINITE);
