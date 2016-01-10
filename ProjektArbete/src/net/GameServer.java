@@ -27,7 +27,7 @@ public class GameServer extends Thread {
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
 	private ArrayList<Bullet> connectedBullets = new ArrayList<Bullet>();
 	private Game game;
-	private PlayerMP player;
+	//private PlayerMP player;
 	// Player player;
 
 	/*
@@ -92,8 +92,17 @@ public class GameServer extends Thread {
 			break;
 		case LOGIN: {
 			packet = new Packet00Login(data);
-			handleLogin((Packet00Login) packet, adress, port);
+			System.out.println("connected players size " +connectedPlayers.size());
+			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login)packet).getX(), ((Packet00Login)packet).getY(), ((Packet00Login)packet).getRotate(),
+					0, adress, port);
+			
+			connectedPlayers.add(player);
+			
+			System.out.println("connected players size " +connectedPlayers.size());
 			System.out.println(player.port + " " + player.getName() + " " + player.ipAdress);
+			addConnection(player, (Packet00Login) packet);
+
+			
 
 		}
 			break;
@@ -103,6 +112,7 @@ public class GameServer extends Thread {
 					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
 			removeConnection((Packet01Disconnect) packet);
+			
 		}
 			break;
 		case MOVE: {
@@ -138,36 +148,43 @@ public class GameServer extends Thread {
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
 		boolean alreadyConnected = false;
-
-		for (PlayerMP p : connectedPlayers) {
-			if (player2.getName().equalsIgnoreCase(p.getName())) {
+	
+		for (PlayerMP p : connectedPlayers)
+		{
+			System.out.println("playername "+player2.getName() + "packet " +packet.getUsername() + "p " +p.getName());
+			if (player2.getName().equals(p.getName())) {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
 				}
-				if (player.port == 0) { // borde vara p.port... funkar inte då
-					player.port = player2.port;
+				if (p.port == 0) { 
+					p.port = player2.port;
 				}
 				alreadyConnected = true;
 			}
-
 			else {
 				try {
 					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());
 					sendData(packet.getData(), p.ipAdress, p.port);
-					
 					// skickar att tidigare spelare är connected
 					// kanske p.translate
 					sendData(packet.getData(), player2.ipAdress, player2.port);
+					
+					//detta ska vara korrekt sätt att skriva på, problemet är att spelare tilldelas förra connected player och inte nuvarande
+					/*
+					 * sendData(packet.getData(), p.ipAdress, p.port);
+					 * packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());				
+					sendData(packet.getData(), player2.ipAdress, player2.port);
+					 */
+					//packet = new Packet00Login(player2.getName(), player2.getTranslateX(), player2.getTranslateY(), player2.getRotate());
+					
 				} catch (Exception e) {
 					System.out.println("Server cant send packet " + e);
 				}
-
 			}
-
 		}
 		if (!alreadyConnected) {
 			this.connectedPlayers.add(player2);
-
+			
 		}
 
 	}
@@ -197,12 +214,16 @@ public class GameServer extends Thread {
 	}
 
 	private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
-
-		player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
+		
+		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
 				0, adress, port);
-		//this.connectedPlayers.add(player);
 		addConnection(player, (Packet00Login) packet);
 
+		System.out.println("här"+connectedPlayers.size());
+		//connectedPlayers.add(player);
+		System.out.println(connectedPlayers.size());
+		//this.connectedPlayers.add(player);
+		
 	}
 
 }

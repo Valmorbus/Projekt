@@ -7,7 +7,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import javafx.scene.image.Image;
 import packets.Packet;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
@@ -15,7 +14,6 @@ import packets.Packet02Move;
 import packets.Packet03Shoot;
 import packets.Packet.PacketTypes;
 import projectv2.Game;
-import projectv2.Main;
 import projectv2.PlayerMP;
 
 public class GameClient extends Thread {
@@ -64,12 +62,18 @@ public class GameClient extends Thread {
 		switch (type) {
 		case INVALID:
 			break;
-		case LOGIN: {
-			System.out.println("logon");
+		case LOGIN: { 
 			packet = new Packet00Login(data);
+			/*
+			System.out.println("logon");
+			
 			PlayerMP player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
 			new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(), ((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
-			this.game.addPlayer(player);
+			this.game.addPlayer(player);*/
+			System.out.println(
+					"User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
+							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());
+			handleLogin((Packet00Login)packet, adress, port);
 		}
 			break;
 		case DISCONNECT: {
@@ -111,6 +115,14 @@ public class GameClient extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+	}
+private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
+		
+		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
+				0, adress, port);
+		this.game.addPlayer(player);
+		System.out.println("kör handlelogin client");
 
 	}
 

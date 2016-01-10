@@ -80,8 +80,8 @@ public class Main extends Application {
 		start.setOnAction(e->{
 			userName = userTextField.getText();
 			ipAdress = IPTextfield.getText();
-			Game game = new Game(runServer);
-			game.runGame(primaryStage, userName, ipAdress);
+			Game game = new Game( ipAdress);
+			game.runGame(primaryStage, userName);
 		});
 		
 		
@@ -98,7 +98,7 @@ public class Main extends Application {
 		pane.getChildren().addAll(noButton, yesButton);
 		yesButton.setOnAction(e->{
 			runServer = true;
-			//return;
+			Game game = new Game(runServer, ipAdress);
 			stage.close();
 		});
 		noButton.setOnAction(e->{
