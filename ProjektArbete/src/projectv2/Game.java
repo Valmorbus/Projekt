@@ -480,9 +480,8 @@ this.ipAdress=ip;
 	private void lost(Player player) {
 		if (player.getLives() <= 0) {
 			System.out.println(player.getName());
-			//removePlayerMP(player.getName());
-			//Pane pane = new Pane();
-			//primaryStage.setScene(new Scene(pane));
+			removePlayerMP(player.getName());
+			
 			
 			//Packet01Disconnect packet = new Packet01Disconnect(player.getName());
 			//packet.writeData(gc);
