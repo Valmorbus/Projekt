@@ -95,10 +95,7 @@ public class Main extends Application {
 			posY = posYSlide.getValue();
 			Game game = new Game( ipAdress);
 			game.runGame(primaryStage, userName, posX, posY);
-		});
-		
-		
-		
+		});	
 	}
 	
 	private void ServerPopUp(){

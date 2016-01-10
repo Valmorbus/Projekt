@@ -40,7 +40,7 @@ public class Game extends Thread {
 	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
 	private ArrayList<Ellipse> explosions = new ArrayList<Ellipse>();
 	private Scene scene;
-	public PlayerMP player;
+	private PlayerMP player;
 	private Pane root;
 	private GameClient gc;
 	private GameServer gs;
