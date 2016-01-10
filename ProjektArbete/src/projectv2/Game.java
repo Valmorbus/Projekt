@@ -302,7 +302,7 @@ this.ipAdress=ip;
 
 	public void addPlayer(PlayerMP player2) {
 		gameObjects.add(player2);
-		System.out.println(gameObjects.size() + " player id " + player2.getName());
+		System.out.println("gameobjects " +gameObjects.size() + " player id " + player2.getName());
 		System.out.println(player2.ipAdress + " " + player2.port);
 		System.out.println("name: " + player2.getName());
 		if (this.player.getName().equalsIgnoreCase(player2.getName()));

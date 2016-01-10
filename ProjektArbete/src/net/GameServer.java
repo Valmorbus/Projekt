@@ -22,19 +22,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GameServer extends Thread {
-	// private InetAddress ipAdress;
+	
 	private DatagramSocket socket;
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
 	private ArrayList<Bullet> connectedBullets = new ArrayList<Bullet>();
 	private Game game;
-	//private PlayerMP player;
-	// Player player;
-
-	/*
-	 * public static void main(String[] args) {
-	 * 
-	 * GameServer gs = new GameServer(); gs.start(); }
-	 */
+	
 
 	public GameServer(Game game) {
 		this.game = game;
@@ -59,9 +52,7 @@ public class GameServer extends Thread {
 				e.printStackTrace();
 			}
 			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
-
 		}
-
 	}
 
 	public void sendData(byte[] data, InetAddress ipAdress, int port) {
@@ -72,13 +63,11 @@ public class GameServer extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	public void sendDataToAllClients(byte[] data) {
 		for (PlayerMP p : connectedPlayers) {
 			sendData(data, p.ipAdress, p.port);
-
 		}
 	}
 
@@ -95,15 +84,11 @@ public class GameServer extends Thread {
 			System.out.println("connected players size " +connectedPlayers.size());
 			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login)packet).getX(), ((Packet00Login)packet).getY(), ((Packet00Login)packet).getRotate(),
 					0, adress, port);
-			
 			connectedPlayers.add(player);
 			
 			System.out.println("connected players size " +connectedPlayers.size());
 			System.out.println(player.port + " " + player.getName() + " " + player.ipAdress);
 			addConnection(player, (Packet00Login) packet);
-
-			
-
 		}
 			break;
 		case DISCONNECT: {
@@ -131,7 +116,6 @@ public class GameServer extends Thread {
 		connectedBullets.add(new Bullet(packet.getX(), packet.getY(), packet.getRotate()));
 		packet.writeData(this);
 		connectedBullets.remove(0);
-		System.out.println(connectedBullets.size());
 	}
 
 	private void handleMove(Packet02Move packet) {
@@ -143,7 +127,6 @@ public class GameServer extends Thread {
 			connectedPlayers.get(index).setRotate(packet.getRotate());
 			packet.writeData(this);
 		}
-
 	}
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
@@ -167,6 +150,7 @@ public class GameServer extends Thread {
 					sendData(packet.getData(), p.ipAdress, p.port);
 					// skickar att tidigare spelare är connected
 					// kanske p.translate
+					
 					sendData(packet.getData(), player2.ipAdress, player2.port);
 					
 					//detta ska vara korrekt sätt att skriva på, problemet är att spelare tilldelas förra connected player och inte nuvarande
@@ -183,10 +167,8 @@ public class GameServer extends Thread {
 			}
 		}
 		if (!alreadyConnected) {
-			this.connectedPlayers.add(player2);
-			
+			this.connectedPlayers.add(player2);	
 		}
-
 	}
 
 	private PlayerMP getPlayerMP(String username) {
@@ -208,22 +190,8 @@ public class GameServer extends Thread {
 	}
 
 	public void removeConnection(Packet01Disconnect packet) {
-		// PlayerMP player = getPlayerMP(packet.getUsername());
 		connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
 		packet.writeData(this);
-	}
-
-	private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
-		
-		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
-				0, adress, port);
-		addConnection(player, (Packet00Login) packet);
-
-		System.out.println("här"+connectedPlayers.size());
-		//connectedPlayers.add(player);
-		System.out.println(connectedPlayers.size());
-		//this.connectedPlayers.add(player);
-		
 	}
 
 }
