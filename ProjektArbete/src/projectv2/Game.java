@@ -59,6 +59,10 @@ public class Game{ // extends Thread {
 			};
 	private MediaPlayer musicPlayer = new MediaPlayer(music);
 	private MediaPlayer effectPlayer; // = new MediaPlayer(null);
+	private Stage primaryStage;
+	
+	
+	private String ipAdress = "localhost";
 	// Label label;
 
 	/**ProjektArbete/resource/Music.mp3
@@ -80,7 +84,10 @@ public class Game{ // extends Thread {
 	}
 	// kör server från main genom game konstruktor?
 
-	public synchronized void runGame(Stage primaryStage, String login) {
+	public synchronized void runGame(Stage primary, String login, String iplogin) {
+		primaryStage = primary;
+		if (iplogin.equals(null) || iplogin.equals(""))
+			iplogin = "localhost";
 		String userName = login;
 		root = new Pane();
 		player = new PlayerMP(userName, 550, 550, -250, 0, null, 0);
@@ -88,7 +95,7 @@ public class Game{ // extends Thread {
 		scene = new Scene(root);
 		
 		musicPlayer.play();
-		musicPlayer.setVolume(0.2);
+		musicPlayer.setVolume(0.1);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -100,8 +107,8 @@ public class Game{ // extends Thread {
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),  //player.getX(), player.getY(),
 				player.getRotate());
-
-		gc = new GameClient(this, "localhost");
+		System.out.println(player.getName());
+		gc = new GameClient(this, iplogin);
 		gc.start();
 
 		if (gs != null) {
@@ -112,12 +119,16 @@ public class Game{ // extends Thread {
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("ESCAPE"));
 		
 		loginPacket.writeData(gc);
-		
+		updateLocalGraphics();
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				if (!gameObjects.isEmpty()) {
 					playerMovements();
+					
+					for (int i = 0; i < gameObjects.size(); i++) {
+						lost(gameObjects.get(i));
+					}
 				}
 				if (bullet != null) {
 					checkHit();
@@ -136,29 +147,30 @@ public class Game{ // extends Thread {
 	private void checkHit() {
 		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
-				if (bulletArray.get(i).getEllipse().getTranslateX() <= -scene.getWidth()
-						|| bulletArray.get(i).getEllipse().getTranslateX() >= scene.getWidth()
-						|| bulletArray.get(i).getEllipse().getTranslateY() <= -scene.getHeight()
-						|| bulletArray.get(i).getEllipse().getTranslateY() >= scene.getHeight()) {
+				if (bulletArray.get(i).getEllipse().getTranslateX() <= -100
+						|| bulletArray.get(i).getEllipse().getTranslateX() >= scene.getWidth()+100
+						|| bulletArray.get(i).getEllipse().getTranslateY() <= -100
+						|| bulletArray.get(i).getEllipse().getTranslateY() >= scene.getHeight()+100) {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < gameObjects.size(); j++) {
+					System.out.println(gameObjects.get(j).getName());
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(gameObjects.get(j).getBoundsInParent())) {
 						System.out.println("hit " + gameObjects.get(j).getName());
-						gameObjects.get(j).setLives(gameObjects.get(j).getLives() - 1);
-						System.out.println(gameObjects.get(j).getLives());
+						gameObjects.get(j).setLives(gameObjects.get(j).getLives() - 15);
+						System.out.println(gameObjects.get(j).getLives() +gameObjects.get(j).getName());
 						removeBullet(bulletArray.get(i));
 						
 						playEffect(soundEffects[0]);
 					}
+					
 				}
 				moveBullet(bulletArray.get(i));
+				
 			}
 		}
-		if (player.getLives()<=0){
-			System.exit(0);
-		}
+		
 	}
 
 	private void removeBullet(Bullet bullet) {
@@ -240,6 +252,7 @@ public class Game{ // extends Thread {
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
 		});
+		playerOutOfBounds();
 		update(speed);
 	}
 	//synchronize?
@@ -251,6 +264,7 @@ public class Game{ // extends Thread {
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
 		});
+		playerOutOfBounds();
 		update(speed);
 	}
 
@@ -306,17 +320,23 @@ public class Game{ // extends Thread {
 	private void updateShoots(Bullet bullet){
 		Packet03Shoot packet = new Packet03Shoot(null,bullet.getEllipse().getTranslateX(),bullet.getEllipse().getTranslateY(), bullet.getEllipse().getRotate());
 	packet.writeData(gc);
+	removeExplosions();
 	}
 	
 	//synchronize?
-	private void updateTick(){
-		Platform.runLater(()->{
-			 Timeline timeline = new Timeline(new KeyFrame(Duration.millis(1000 / 25), 
-				        ev-> update(0)));
+	private void updateLocalGraphics(){
+		//Platform.runLater(()->{
+			 Timeline timeline = new Timeline(new KeyFrame(Duration.millis(1000 / 1), 
+				        ev->{
+				        	
+				        	if(!explosions.isEmpty())
+				        	removeExplosions();
+				        }
+				        ));
 				    timeline.setCycleCount(Animation.INDEFINITE);
 				    timeline.play();
 			
-		});
+	//	});
 		
 	}
 
@@ -364,8 +384,13 @@ public class Game{ // extends Thread {
 			}
 			index++;
 		}
-		root.getChildren().remove(getRootPlayer(username));
+		Platform.runLater(()->{
+			root.getChildren().remove(getRootPlayer(username));
+		
+		});
 		gameObjects.remove(index);
+		
+		
 
 	}
 	
@@ -379,6 +404,7 @@ public class Game{ // extends Thread {
 			bullet.getEllipse().setTranslateY(y);
 			bullet.getEllipse().setRotate(rotate);
 			playEffect(soundEffects[1]);
+			removeExplosions();
 		});
 		
 		
@@ -386,7 +412,39 @@ public class Game{ // extends Thread {
 	
 	private void playEffect(Media media){
 		effectPlayer = new MediaPlayer(media);
+		effectPlayer.setVolume(0.7);
 		effectPlayer.play();
+	}
+	
+	private void playerOutOfBounds(){
+		if (player.getTranslateX() > scene.getWidth()+25){
+			player.setTranslateX(-25);
+		}
+		else if (player.getTranslateX()<-25){
+			player.setTranslateX(scene.getWidth()+25);
+		}
+		else if (player.getTranslateY()>scene.getHeight()+25){
+			player.setTranslateY(-25);
+		}
+		else if (player.getTranslateY()<-25){
+			player.setTranslateY(scene.getHeight()+25);
+		}
+			
+		
+	}
+	private void lost(Player player){
+		if (player.getLives()<=0){
+			System.out.println(player.getName());
+			removePlayerMP(player.getName());
+			Packet01Disconnect packet = new Packet01Disconnect(player.getName());
+			packet.writeData(gc);
+			//System.exit(0);
+			//Platform.exit();
+			
+		}
+	}
+	private void Lost(){
+		primaryStage.close();
 	}
 
 }

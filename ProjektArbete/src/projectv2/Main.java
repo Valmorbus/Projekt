@@ -20,6 +20,7 @@ import net.GameServer;
 
 public class Main extends Application {
 	String userName = "Guest";
+	String ipAdress ="localhost";
 	boolean runServer;
 
 	@Override
@@ -38,9 +39,9 @@ public class Main extends Application {
 
 	private void getLogin(Stage primaryStage) {
 		
-		String ip = "This ip is "; 
+		String LocalIP = "This ip is "; 
 		try {
-			ip += InetAddress.getLocalHost().toString();
+			LocalIP += InetAddress.getLocalHost().toString();
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -58,6 +59,12 @@ public class Main extends Application {
 		TextField userTextField = new TextField();
 		grid.add(userTextField, 1, 1);
 		
+		Label ip = new Label("IP Adress:");
+		grid.add(ip, 0, 2);
+
+		TextField IPTextfield = new TextField();
+		grid.add(IPTextfield, 1, 2);
+		
 		Button start = new Button("Start");
 		HBox hbox = new HBox(10);
 		hbox.setAlignment(Pos.BOTTOM_RIGHT);
@@ -66,14 +73,15 @@ public class Main extends Application {
 		
 		Scene scene = new Scene(grid, 300, 275);
 		primaryStage.setScene(scene);
-		primaryStage.setTitle(ip);	
+		primaryStage.setTitle(LocalIP);	
 		primaryStage.show();
 		ServerPopUp();		
 		
 		start.setOnAction(e->{
 			userName = userTextField.getText();
+			ipAdress = IPTextfield.getText();
 			Game game = new Game(runServer);
-			game.runGame(primaryStage, userName);
+			game.runGame(primaryStage, userName, ipAdress);
 		});
 		
 		
