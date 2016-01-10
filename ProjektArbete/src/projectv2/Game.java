@@ -3,33 +3,26 @@ package projectv2;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.TimerTask;
-
-import javax.management.timer.Timer;
-
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Glow;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.GameClient;
@@ -59,64 +52,47 @@ public class Game extends Thread {
 	private MediaPlayer musicPlayer = new MediaPlayer(music);
 	private MediaPlayer effectPlayer; // = new MediaPlayer(null);
 	private Stage primaryStage;
-
 	private String ipAdress = "localhost";
-	// Label label;
-
-	/**
-	 * ProjektArbete/resource/Music.mp3 att göra. Kolla varför servern inte får
-	 * sin klient att fungera lägga till skott över nätverk.
-	 */
+	
+	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
+	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
+	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
 
 	public Game(boolean runServer, String iplogin) {
 		startServerClient(runServer, iplogin);
 	}
 
 	public Game(String ip) {
-this.ipAdress=ip;
+		this.ipAdress = ip;
 	}
 
 	// kör server från main genom game konstruktor?
 	private synchronized void startServerClient(boolean server, String iplogin) {
 		new Thread(this).start();
-		this.ipAdress =iplogin;
+		this.ipAdress = iplogin;
 		if (server) {
 
 			gs = new GameServer(this);
 			gs.start();
 		}
-		/*
-		if (ipAdress.equals(null) || ipAdress.equals(""))
-			ipAdress = "localhost";
-		
-		gc = new GameClient(this, ipAdress);
-		gc.start();*/
 	}
-	
-	/**
-	 *  gör om main som det var förut, server lokal i rungame. 
-	 * 
-	 * 
-	 * 
-	 * 
-	 */
-	
-	
-	
-	
 
 	public synchronized void runGame(Stage primary, String login, double posx, double posy) {
-		
+
 		primaryStage = primary;
 		System.out.println("kör här");
 		String userName = login;
 		root = new Pane();
-		player = new PlayerMP(userName, posx, posy, 0, 0, null, 0);
+		
+		double r = setStartRotate(posx, posy);
+		player = new PlayerMP(userName, posx, posy, r, 0, null, 0);
+		
+		
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
 		primaryStage.setTitle(userName);
 		musicPlayer.play();
-		musicPlayer.setVolume(0.1);
+		musicPlayer.setVolume(0.5);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
@@ -126,26 +102,20 @@ this.ipAdress=ip;
 				packet.writeData(gc);
 			}
 		});
-		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(), 																						
+		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),
 				player.getRotate());
 		if (gs != null) {
 			gs.addConnection((PlayerMP) player, loginPacket);
 		}
 		primaryStage.setFullScreen(true);
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("ESCAPE"));
-		
+
 		if (login.equals(null) || login.equals(""))
 			ipAdress = "localhost";
-		
+
 		gc = new GameClient(this, ipAdress);
 		gc.start();
-		
-		// check.... 
-		
-		
-		
-		//connect to server
-		
+
 		addPlayer(player);
 		loginPacket.writeData(gc);
 		updateLocalGraphics();
@@ -162,9 +132,6 @@ this.ipAdress=ip;
 				if (bullet != null) {
 					checkHit();
 				}
-
-				// if (!gameObjects.isEmpty() && !root.getChildren().isEmpty())
-				// movePlayer(0.2);
 
 			}
 		}));
@@ -191,7 +158,6 @@ this.ipAdress=ip;
 
 						playEffect(soundEffects[0]);
 					}
-
 				}
 				moveBullet(bulletArray.get(i));
 			}
@@ -222,14 +188,12 @@ this.ipAdress=ip;
 	}
 
 	private void removeExplosions() {
-		if (!explosions.isEmpty()){
+		if (!explosions.isEmpty()) {
 			for (Ellipse e : explosions) {
 				root.getChildren().remove(e);
 			}
 			explosions.removeAll(explosions);
 		}
-		
-
 	}
 
 	private void moveBullet(Bullet bullet) {
@@ -273,9 +237,8 @@ this.ipAdress=ip;
 		});
 	}
 
-	// synchronize?
 	private void movePlayer(int turn, double speed) {
-		
+
 		Platform.runLater(() -> {
 			playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
@@ -288,9 +251,8 @@ this.ipAdress=ip;
 		update(speed);
 	}
 
-	// synchronize?
 	private void movePlayer(double speed) {
-		
+
 		Platform.runLater(() -> {
 			playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
@@ -307,7 +269,7 @@ this.ipAdress=ip;
 			if (bulletArray.size() <= 10) {
 				playEffect(soundEffects[1]);
 				bullet = new Bullet();
-				root.getChildren().add(bullet.getEllipse());
+				// root.getChildren().add(bullet.getEllipse());
 				bullet.getEllipse().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
 				bullet.getEllipse().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
 				bullet.getEllipse().setRotate(player.getRotate());
@@ -319,23 +281,19 @@ this.ipAdress=ip;
 		});
 
 	}
-	
-	//får inte tillbaks sin egen player
 
 	public void addPlayer(PlayerMP player2) {
-		
+
 		getGameObjects().add(player2);
-		
-		System.out.println("gameobjects " +getGameObjects().size() + " player id " + player2.getName());
+
+		System.out.println("gameobjects " + getGameObjects().size() + " player id " + player2.getName());
 		System.out.println(player2.ipAdress + " " + player2.port);
 		System.out.println("name: " + player2.getName());
-		if (this.player.getName().equalsIgnoreCase(player2.getName()));
-			player2.setImage(new Image("/secondship.png"));
+		//if (!this.player.getName().equalsIgnoreCase(player2.getName()));
+		//player2.setImage(new Image("/secondship.png"));
 
 		addLocalPlayer(player2);
 	}
-
-	
 
 	public void addLocalPlayer(PlayerMP player) {
 		Platform.runLater(() -> {
@@ -344,11 +302,11 @@ this.ipAdress=ip;
 			Label playerLabel = new Label(player.getName());
 			playerLabel.setTextFill(Color.RED);
 			root.getChildren().add(playerLabel);
-			
+
 			playerLabel.setTranslateX(player.getTranslateX());
 			playerLabel.setTranslateY(player.getTranslateY());
-			
-	});
+
+		});
 	}
 
 	// synchronize?
@@ -364,7 +322,7 @@ this.ipAdress=ip;
 			packet.writeData(gc);
 
 			// temporary position
-			//removeExplosions();
+			// removeExplosions();
 		});
 	}
 
@@ -382,8 +340,7 @@ this.ipAdress=ip;
 
 			if (!explosions.isEmpty())
 				removeExplosions();
-			//update(0);
-			
+
 		}));
 		timeline.setCycleCount(Animation.INDEFINITE);
 		timeline.play();
@@ -460,19 +417,19 @@ this.ipAdress=ip;
 
 	private void playEffect(Media media) {
 		effectPlayer = new MediaPlayer(media);
-		effectPlayer.setVolume(0.7);
+		effectPlayer.setVolume(0.3);
 		effectPlayer.play();
 	}
 
 	private void playerOutOfBounds() {
-		if (player.getTranslateX() > scene.getWidth() + 25) {
+		if (player.getTranslateX() > SCREEN_WIDTH + 25) {
 			player.setTranslateX(-25);
 		} else if (player.getTranslateX() < -25) {
-			player.setTranslateX(scene.getWidth() + 25);
-		} else if (player.getTranslateY() > scene.getHeight() + 25) {
+			player.setTranslateX(SCREEN_WIDTH + 25);
+		} else if (player.getTranslateY() > SCREEN_HEIGHT + 25) {
 			player.setTranslateY(-25);
 		} else if (player.getTranslateY() < -25) {
-			player.setTranslateY(scene.getHeight() + 25);
+			player.setTranslateY(SCREEN_HEIGHT + 25);
 		}
 
 	}
@@ -481,10 +438,10 @@ this.ipAdress=ip;
 		if (player.getLives() <= 0) {
 			System.out.println(player.getName());
 			removePlayerMP(player.getName());
-			
-			
-			//Packet01Disconnect packet = new Packet01Disconnect(player.getName());
-			//packet.writeData(gc);
+
+			// Packet01Disconnect packet = new
+			// Packet01Disconnect(player.getName());
+			// packet.writeData(gc);
 			// System.exit(0);
 			// Platform.exit();
 
@@ -494,6 +451,19 @@ this.ipAdress=ip;
 	private void Lost() {
 		primaryStage.close();
 	}
+	
+	private double setStartRotate(double x, double y){
+		double rotate = 0;
+		if (x > 500)
+			rotate = -90;
+		if (x <500)
+			rotate =+90;
+		if (y > 500)
+			rotate = -90;
+		if (y <500)
+			rotate =+90;
+		return rotate;
+	}
 
 	public synchronized ArrayList<PlayerMP> getGameObjects() {
 		return gameObjects;
@@ -502,6 +472,5 @@ this.ipAdress=ip;
 	public synchronized void setGameObjects(ArrayList<PlayerMP> gameObjects) {
 		this.gameObjects = gameObjects;
 	}
-	
 
 }

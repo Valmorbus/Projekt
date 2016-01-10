@@ -10,6 +10,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
@@ -62,19 +63,24 @@ public class Main extends Application {
 		
 		Label ip = new Label("IP Adress:");
 		grid.add(ip, 0, 2);
-
 		TextField IPTextfield = new TextField();
 		grid.add(IPTextfield, 1, 2);
-		TextField posXTextfield = new TextField();
-		grid.add(posXTextfield, 3, 2);
-		TextField posYTextfield = new TextField();
-		grid.add(posYTextfield, 3, 1);
+		
+		Label slideXLabel = new Label ("Startposition X");
+		Slider posXSlide = new Slider(0, 1000, 500);
+		grid.add(posXSlide, 1, 3);
+		grid.add(slideXLabel, 0, 3);
+		
+		Label slideYLabel = new Label ("Startposition Y");
+		Slider posYSlide = new Slider(0, 1000, 500);
+		grid.add(posYSlide, 1, 4);
+		grid.add(slideYLabel, 0, 4);
 		
 		Button start = new Button("Start");
 		HBox hbox = new HBox(10);
 		hbox.setAlignment(Pos.BOTTOM_RIGHT);
 		hbox.getChildren().add(start);
-		grid.add(hbox, 1, 4);
+		grid.add(hbox, 1, 5);
 		
 		Scene scene = new Scene(grid, 300, 275);
 		primaryStage.setScene(scene);
@@ -85,8 +91,8 @@ public class Main extends Application {
 		start.setOnAction(e->{
 			userName = userTextField.getText();
 			ipAdress = IPTextfield.getText();
-			posX = Double.parseDouble(posXTextfield.getText());
-			posY = Double.parseDouble(posYTextfield.getText());
+			posX = posXSlide.getValue();
+			posY = posYSlide.getValue();
 			Game game = new Game( ipAdress);
 			game.runGame(primaryStage, userName, posX, posY);
 		});

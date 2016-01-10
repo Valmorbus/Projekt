@@ -75,7 +75,7 @@ public class GameServer extends Thread {
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {
 		String message = new String(data).trim();
-		// System.out.println(message);
+
 		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
 		Packet packet = null;
 		switch (type) {
@@ -83,12 +83,10 @@ public class GameServer extends Thread {
 			break;
 		case LOGIN: {
 			packet = new Packet00Login(data);
-			System.out.println("connected players size " +connectedPlayers.size());
 			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login)packet).getX(), ((Packet00Login)packet).getY(), ((Packet00Login)packet).getRotate(),
 					0, adress, port);
 			connectedPlayers.add(player);
-			
-			System.out.println("connected players size " +connectedPlayers.size());
+
 			System.out.println(player.port + " " + player.getName() + " " + player.ipAdress);
 			addConnection(player, (Packet00Login) packet);
 		}
@@ -122,7 +120,6 @@ public class GameServer extends Thread {
 
 	private void handleMove(Packet02Move packet) {
 		Platform.runLater(()->{
-			 System.out.println("Handle move");
 				if (getPlayerMP(packet.getUsername()) != null) {
 					int index = getPlayerMPIndex(packet.getUsername());
 					connectedPlayers.get(index).setPosX(packet.getX());
@@ -140,7 +137,6 @@ public class GameServer extends Thread {
 	
 		for (PlayerMP p : connectedPlayers)
 		{
-			System.out.println("playername "+player2.getName() + "packet " +packet.getUsername() + "p " +p.getName());
 			if (player2.getName().equals(p.getName())) {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
@@ -169,7 +165,6 @@ public class GameServer extends Thread {
 					 packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());				
 					sendData(packet.getData(), player2.ipAdress, player2.port);
 					 
-					//packet = new Packet00Login(player2.getName(), player2.getTranslateX(), player2.getTranslateY(), player2.getRotate());
 					
 				} catch (Exception e) {
 					System.out.println("Server cant send packet " + e);
