@@ -200,7 +200,7 @@ public class GameServer extends Thread {
 
 		player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
 				0, adress, port);
-		// this.connectedPlayers.add(player);
+		this.connectedPlayers.add(player);
 		addConnection(player, (Packet00Login) packet);
 
 	}

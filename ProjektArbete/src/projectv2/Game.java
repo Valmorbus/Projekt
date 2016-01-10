@@ -107,7 +107,7 @@ public class Game{ // extends Thread {
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),  //player.getX(), player.getY(),
 				player.getRotate());
-		System.out.println(player.getName());
+
 		gc = new GameClient(this, iplogin);
 		gc.start();
 
@@ -154,12 +154,11 @@ public class Game{ // extends Thread {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < gameObjects.size(); j++) {
-					System.out.println(gameObjects.get(j).getName());
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(gameObjects.get(j).getBoundsInParent())) {
 						System.out.println("hit " + gameObjects.get(j).getName());
 						gameObjects.get(j).setLives(gameObjects.get(j).getLives() - 15);
-						System.out.println(gameObjects.get(j).getLives() +gameObjects.get(j).getName());
+						System.out.println(gameObjects.get(j).getLives());
 						removeBullet(bulletArray.get(i));
 						
 						playEffect(soundEffects[0]);
@@ -385,12 +384,10 @@ public class Game{ // extends Thread {
 			index++;
 		}
 		Platform.runLater(()->{
-			root.getChildren().remove(getRootPlayer(username));
-		
+			root.getChildren().remove(username);
+			
 		});
 		gameObjects.remove(index);
-		
-		
 
 	}
 	
