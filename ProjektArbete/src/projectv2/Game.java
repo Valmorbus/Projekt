@@ -157,7 +157,7 @@ public class Game extends Thread {
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(getGameObjects().get(j).getBoundsInParent())) {
 						System.out.println("hit " + getGameObjects().get(j).getName());
-						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - 3);
+						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - 3); //bullet.damage
 						System.out.println(getGameObjects().get(j).getLives());
 						removeBullet(bulletArray.get(i));
 
@@ -316,8 +316,8 @@ public class Game extends Thread {
 		for (Text name : playerNames) {
 			for (PlayerMP player : gameObjects) {
 				if (name.getText().equals(player.getName())){
-					name.setTranslateX(player.getTranslateX()+50);
-					name.setLayoutY(player.getTranslateY()+150);
+					name.setTranslateX(player.getTranslateX()+25);
+					name.setLayoutY(player.getTranslateY()+100);
 					name.setRotate(player.getRotate());	
 				}
 			}
