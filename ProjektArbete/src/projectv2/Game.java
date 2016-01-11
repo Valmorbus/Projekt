@@ -122,7 +122,7 @@ public class Game extends Thread {
 
 		addPlayer(player);
 		loginPacket.writeData(gc);
-		updateLocalGraphics();
+		//updateLocalGraphics();
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -245,7 +245,7 @@ public class Game extends Thread {
 	private void movePlayer(int turn, double speed) {
 
 		Platform.runLater(() -> {
-			playEffect(soundEffects[2]);
+			//playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setRotate(player.getRotate() + turn);
@@ -259,7 +259,7 @@ public class Game extends Thread {
 	private void movePlayer(double speed) {
 
 		Platform.runLater(() -> {
-			playEffect(soundEffects[2]);
+			//playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
