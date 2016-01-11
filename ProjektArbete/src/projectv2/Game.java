@@ -157,7 +157,7 @@ public class Game extends Thread {
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(getGameObjects().get(j).getBoundsInParent())) {
 						System.out.println("hit " + getGameObjects().get(j).getName());
-						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - 15);
+						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - 3);
 						System.out.println(getGameObjects().get(j).getLives());
 						removeBullet(bulletArray.get(i));
 
