@@ -4,6 +4,8 @@ import java.net.InetAddress;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 
 public class PlayerMP extends Player {
 

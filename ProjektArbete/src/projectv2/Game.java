@@ -7,6 +7,7 @@ import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
@@ -22,6 +23,7 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Ellipse;
+import javafx.scene.text.Text;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -53,6 +55,8 @@ public class Game extends Thread {
 	private MediaPlayer effectPlayer; // = new MediaPlayer(null);
 	private Stage primaryStage;
 	private String ipAdress = "localhost";
+	
+	private ArrayList<Text> playerNames= new ArrayList<Text>();  
 	
 	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
@@ -124,6 +128,7 @@ public class Game extends Thread {
 			public void handle(ActionEvent event) {
 				if (!getGameObjects().isEmpty()) {
 					playerMovements();
+					updateLabels();
 
 					for (int i = 0; i < getGameObjects().size(); i++) {
 						lost(getGameObjects().get(i));
@@ -299,14 +304,24 @@ public class Game extends Thread {
 		Platform.runLater(() -> {
 			System.out.println("addlocalplayer");
 			root.getChildren().add(player);
-			Label playerLabel = new Label(player.getName());
-			playerLabel.setTextFill(Color.RED);
+			Text playerLabel = new Text(player.getName());
+			playerLabel.setFill(Color.RED);
 			root.getChildren().add(playerLabel);
-			
-			playerLabel.setLayoutX(player.getTranslateX());
-			playerLabel.setLayoutY(player.getTranslateY()+50);
+			playerNames.add(playerLabel);
 
 		});
+	}
+	
+	private void updateLabels(){
+		for (Text name : playerNames) {
+			for (PlayerMP player : gameObjects) {
+				if (name.getText().equals(player.getName())){
+					name.setTranslateX(player.getTranslateX()+50);
+					name.setLayoutY(player.getTranslateY()+150);
+					name.setRotate(player.getRotate());	
+				}
+			}
+		}
 	}
 
 	// synchronize?
