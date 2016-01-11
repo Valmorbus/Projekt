@@ -67,7 +67,7 @@ public class Main extends Application {
 		grid.add(IPTextfield, 1, 2);
 		
 		Label slideXLabel = new Label ("Startposition X");
-		Slider posXSlide = new Slider(0, 1000, 500);
+		Slider posXSlide = new Slider(0, 1500, 500);
 		grid.add(posXSlide, 1, 3);
 		grid.add(slideXLabel, 0, 3);
 		

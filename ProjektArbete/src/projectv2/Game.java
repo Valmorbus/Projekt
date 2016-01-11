@@ -303,8 +303,8 @@ public class Game extends Thread {
 			playerLabel.setTextFill(Color.RED);
 			root.getChildren().add(playerLabel);
 			
-			playerLabel.setTranslateX(player.getTranslateX());
-			playerLabel.setTranslateY(player.getTranslateY());
+			playerLabel.setLayoutX(player.getTranslateX());
+			playerLabel.setLayoutY(player.getTranslateY()+50);
 
 		});
 	}
