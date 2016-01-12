@@ -53,7 +53,7 @@ public class GameClient extends Thread {
 			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
 
 		}
-		//this.socket.close();
+		this.socket.close();
 	}
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {

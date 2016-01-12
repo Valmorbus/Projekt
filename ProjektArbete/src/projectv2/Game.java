@@ -29,7 +29,7 @@ import packets.Packet01Disconnect;
 import packets.Packet02Move;
 import packets.Packet03Shoot;
 
-public class Game{ 
+public class Game {
 
 	private Timeline playerLoop;
 	private Bullet bullet;
@@ -49,39 +49,43 @@ public class Game{
 	private MediaPlayer musicPlayer = new MediaPlayer(music);
 	private Stage primaryStage;
 	private String ipAdress = "localhost";
-	
-	private ArrayList<Text> playerNames= new ArrayList<Text>();  
-	
+
+	private ArrayList<Text> playerNames = new ArrayList<Text>();
+
 	/**
-	 * Sätter spelplanen till maxyta för skärmen. 
-	 * Skulle det vara så att spelarna har olika upplösning kommer det att bli fel för den med sämst upplösning. 
-	 * Detta går att åtgärda med att ändra width till 1920 och height till 1080, men skulle leda till att spelare 
-	 * med sämre upplösning kan åka så långt att de inte ser sin spelare. går även att ändra till mindre för att anpassa, 
-	 * men detta skulle belöna de som köpt en sämre dator vilket jag vägrar. 
+	 * Sätter spelplanen till maxyta för skärmen. Skulle det vara så att
+	 * spelarna har olika upplösning kommer det att bli fel för den med sämst
+	 * upplösning. Detta går att åtgärda med att ändra width till 1920 och
+	 * height till 1080, men skulle leda till att spelare med sämre upplösning
+	 * kan åka så långt att de inte ser sin spelare. går även att ändra till
+	 * mindre för att anpassa, men detta skulle belöna de som köpt en sämre
+	 * dator vilket jag vägrar.
 	 */
 	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
-	
-	
+
 	// Att göra
 	// hit Packet + death
-	// change packet from double to float. 
 	// player collition
-	
-	
-	
-/**
- * Runs a dedicated server
- * @param runServer 
- * 
- */
+	// se till att allt stängs ner korrekt
+
+	/**
+	 * Runs a dedicated server
+	 * 
+	 * @param runServer
+	 * 
+	 */
 	public Game(boolean runServer) {
 		startServer(runServer);
 	}
+
 	/**
 	 * Runs the game and gameclient
-	 * @param ip - The ipadress on witch the client will connect. Default "localhost"
+	 * 
+	 * @param ip
+	 *            - The ipadress on witch the client will connect. Default
+	 *            "localhost"
 	 */
 	public Game(String ip) {
 		this.ipAdress = ip;
@@ -98,14 +102,12 @@ public class Game{
 	public synchronized void runGame(Stage primary, String login, double posx, double posy) {
 
 		primaryStage = primary;
-		System.out.println("kör här");
 		String userName = login;
 		root = new Pane();
-		
+
 		double r = setStartRotate(posx, posy);
 		player = new PlayerMP(userName, posx, posy, r, 0, null, 0);
-		
-		
+
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
 		primaryStage.setTitle(userName);
@@ -115,10 +117,17 @@ public class Game{
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
-			//ska skicka ett disconnectpavket när man stänger ner fönstret
-				Packet01Disconnect packet = new Packet01Disconnect(player.getName());
-				packet.writeData(gc);
-				musicPlayer.stop();
+			// ska skicka ett disconnectpavket när man stänger ner fönstret
+			Packet01Disconnect packet = new Packet01Disconnect(player.getName());
+			packet.writeData(gc);
+			musicPlayer.stop();
+			gc.setRunning(false);
+			System.out.println(gc.isAlive());
+			if (gs != null) {
+				gs.setRunning(false);
+
+			}
+			// kolla om det går att stänga ner main på något ev sätt
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),
 				player.getRotate());
@@ -143,6 +152,7 @@ public class Game{
 					playerMovements();
 					updateLabels();
 					movePlayer(0.3);
+					playerCollition();
 
 					for (int i = 0; i < getGameObjects().size(); i++) {
 						lost(getGameObjects().get(i));
@@ -161,17 +171,18 @@ public class Game{
 	private void checkHit() {
 		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
-				if (bulletArray.get(i).getEllipse().getTranslateX() <= -SCREEN_WIDTH-100
+				if (bulletArray.get(i).getEllipse().getTranslateX() <= -SCREEN_WIDTH - 100
 						|| bulletArray.get(i).getEllipse().getTranslateX() >= SCREEN_WIDTH + 100
-						|| bulletArray.get(i).getEllipse().getTranslateY() <= -SCREEN_HEIGHT-100
+						|| bulletArray.get(i).getEllipse().getTranslateY() <= -SCREEN_HEIGHT - 100
 						|| bulletArray.get(i).getEllipse().getTranslateY() >= SCREEN_HEIGHT + 100) {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < getGameObjects().size(); j++) {
-					if (bulletArray.get(i).getEllipse().getBoundsInParent()   
+					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(getGameObjects().get(j).getHitbox().getBoundsInParent())) {
 						System.out.println("hit " + getGameObjects().get(j).getName());
-						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - bulletArray.get(i).getDamage()); 
+						gameObjects.get(j)
+								.setLives(getGameObjects().get(j).getLives() - bulletArray.get(i).getDamage());
 						System.out.println(getGameObjects().get(j).getLives());
 						removeBullet(bulletArray.get(i));
 
@@ -216,12 +227,12 @@ public class Game{
 	}
 
 	private void moveBullet(Bullet bullet) {
-	//	Platform.runLater(() -> {
-			double bulletX = bullet.getEllipse().getTranslateX();
-			double bulletY = bullet.getEllipse().getTranslateY();
-			bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
-			bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
-	//	});
+		// Platform.runLater(() -> {
+		double bulletX = bullet.getEllipse().getTranslateX();
+		double bulletY = bullet.getEllipse().getTranslateY();
+		bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
+		bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
+		// });
 	}
 
 	private void moveBulletFirst(Bullet bullet) {
@@ -258,7 +269,7 @@ public class Game{
 	private void movePlayer(int turn, double speed) {
 
 		Platform.runLater(() -> {
-			//playEffect(soundEffects[2]);
+			// playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setRotate(player.getRotate() + turn);
@@ -272,7 +283,7 @@ public class Game{
 	private void movePlayer(double speed) {
 
 		Platform.runLater(() -> {
-			//playEffect(soundEffects[2]);
+			// playEffect(soundEffects[2]);
 			double x = player.getTranslateX();
 			double y = player.getTranslateY();
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
@@ -283,10 +294,10 @@ public class Game{
 	}
 
 	private synchronized void shoot() {
-		if (player.getAmmo()>=1)
-			player.setAmmo(player.getAmmo()-1);
-		Platform.runLater(() -> {	
-				 if (!(player.getAmmo()<=0)) {
+		if (player.getAmmo() >= 1)
+			player.setAmmo(player.getAmmo() - 1);
+		Platform.runLater(() -> {
+			if (!(player.getAmmo() <= 0)) {
 				playEffect(soundEffects[1]);
 				bullet = new Bullet();
 				root.getChildren().add(bullet.getEllipse());
@@ -294,11 +305,11 @@ public class Game{
 				bullet.getEllipse().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
 				bullet.getEllipse().setRotate(player.getRotate());
 				bulletArray.add(bullet);
-				
+
 				moveBulletFirst(bullet);
 				updateShootsToServer(bullet);
 				removeBullet(bullet);
-				
+
 			}
 		});
 
@@ -307,9 +318,9 @@ public class Game{
 	public void addPlayer(PlayerMP player2) {
 
 		getGameObjects().add(player2);
-		
-		//if (!this.player.getName().equalsIgnoreCase(player2.getName()));
-		//player2.setImage(new Image("/secondship.png"));
+
+		// if (!this.player.getName().equalsIgnoreCase(player2.getName()));
+		// player2.setImage(new Image("/secondship.png"));
 
 		addLocalPlayer(player2);
 	}
@@ -321,19 +332,19 @@ public class Game{
 			playerLabel.setFill(Color.RED);
 			root.getChildren().add(playerLabel);
 			playerNames.add(playerLabel);
-			//root.getChildren().add(player.getHitbox());
-			//player.getHitbox().setFill(Color.RED);
-			
+			// root.getChildren().add(player.getHitbox());
+			// player.getHitbox().setFill(Color.RED);
+
 		});
 	}
-	
-	private void updateLabels(){
+
+	private void updateLabels() {
 		for (Text name : playerNames) {
 			for (PlayerMP player : gameObjects) {
-				if (name.getText().equals(player.getName())){
-					name.setTranslateX(player.getTranslateX()+25);
-					name.setLayoutY(player.getTranslateY()+100);
-					name.setRotate(player.getRotate());	
+				if (name.getText().equals(player.getName())) {
+					name.setTranslateX(player.getTranslateX() + 25);
+					name.setLayoutY(player.getTranslateY() + 100);
+					name.setRotate(player.getRotate());
 				}
 			}
 		}
@@ -371,8 +382,8 @@ public class Game{
 
 			if (!explosions.isEmpty())
 				removeExplosions();
-			if (player.getAmmo()<8)
-				player.setAmmo(player.getAmmo()+1);
+			if (player.getAmmo() < 8)
+				player.setAmmo(player.getAmmo() + 1);
 
 		}));
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -395,7 +406,7 @@ public class Game{
 
 	public void updatePlayers(String userName, double x, double y, double rotate) {
 		int index = getPlayerMPIndex(userName);
-		Platform.runLater(() -> {	
+		Platform.runLater(() -> {
 			this.getGameObjects().get(index).setTranslateX(x);
 			this.getGameObjects().get(index).setTranslateY(y);
 			this.getGameObjects().get(index).setRotate(rotate);
@@ -409,7 +420,8 @@ public class Game{
 		int index = 0;
 		for (Node p : root.getChildren()) {
 			if (p.equals(getGameObjects().get(PlayerIndex))) {
-				//System.out.println(p.toString() + " " + gameObjects.get(PlayerIndex));
+				// System.out.println(p.toString() + " " +
+				// gameObjects.get(PlayerIndex));
 				break;
 			}
 			index++;
@@ -419,20 +431,19 @@ public class Game{
 
 	public synchronized void removePlayerMP(String username) {
 		Platform.runLater(() -> {
-		int index = 0;
-		for (PlayerMP p : getGameObjects()) {
-			if (p instanceof PlayerMP && p.getName().equals(username)) {
-				break;
+			int index = 0;
+			for (PlayerMP p : getGameObjects()) {
+				if (p instanceof PlayerMP && p.getName().equals(username)) {
+					break;
+				}
+				index++;
 			}
-			index++;
-		}
 			int rootIndex = getRootPlayer(username);
 			root.getChildren().remove(rootIndex);
-			root.getChildren().remove(rootIndex); //tar bort playername text
+			root.getChildren().remove(rootIndex); // tar bort playername text
 			gameObjects.get(index).setHitbox(null);
 			getGameObjects().remove(index);
 		});
-		
 
 	}
 
@@ -442,12 +453,12 @@ public class Game{
 		bulletArray.add(bullet);
 		Platform.runLater(() -> {
 			root.getChildren().add(bullet.getEllipse());
-			
+
 			bullet.getEllipse().setTranslateX(x);
 			bullet.getEllipse().setTranslateY(y);
 			bullet.getEllipse().setRotate(rotate);
 			playEffect(soundEffects[1]);
-			
+
 			removeExplosions();
 		});
 
@@ -474,8 +485,8 @@ public class Game{
 
 	private void lost(Player player) {
 		if (player.getLives() <= 0) {
-			//System.out.println(player.getName() +"died");
-			//removePlayerMP(player.getName());
+			// System.out.println(player.getName() +"died");
+			// removePlayerMP(player.getName());
 
 			// packet.writeData(gc);
 			// System.exit(0);
@@ -487,18 +498,35 @@ public class Game{
 	private void Lost() {
 		primaryStage.close();
 	}
-	
-	private double setStartRotate(double x, double y){
+
+	private double setStartRotate(double x, double y) {
 		double rotate = 0;
 		if (x > 500)
 			rotate = -90;
-		if (x <500)
-			rotate =+90;
+		if (x < 500)
+			rotate = +90;
 		if (y > 500)
 			rotate = -90;
-		if (y <500)
-			rotate =+90;
+		if (y < 500)
+			rotate = +90;
 		return rotate;
+	}
+
+	private void playerCollition() {
+		for (PlayerMP player2 : gameObjects) {
+			if (!player.getName().equals(player2.getName()))
+				if (player.getHitbox().getBoundsInParent().intersects(player2.getHitbox().getBoundsInParent())) {
+					if (player2.getTranslateX() > player.getTranslateX())
+						player.setTranslateX(player.getTranslateX() - 15);
+					else
+						player.setTranslateX(player.getTranslateX() + 15);
+					if (player2.getTranslateY() > player.getTranslateY())
+						player.setTranslateY(player.getTranslateY() - 15);
+					else
+						player.setTranslateY(player.getTranslateY() + 15);
+
+				}
+		}
 	}
 
 	public synchronized ArrayList<PlayerMP> getGameObjects() {
