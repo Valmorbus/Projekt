@@ -1,5 +1,7 @@
 package projectv2;
 
+import java.io.IOException;
+import java.net.SocketException;
 import java.util.ArrayList;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -122,6 +124,13 @@ public class Game {
 			packet.writeData(gc);
 			musicPlayer.stop();
 			gc.setRunning(false);
+			/*if (gc.isAlive())
+				try {
+					gc.join();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}*/
 			System.out.println(gc.isAlive());
 			if (gs != null) {
 				gs.setRunning(false);
