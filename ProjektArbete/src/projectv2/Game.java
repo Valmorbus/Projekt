@@ -1,22 +1,17 @@
 package projectv2;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Glow;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
@@ -66,6 +61,7 @@ public class Game extends Thread {
 	// Att göra
 	// hit Packet + death
 	// change packet from double to float. 
+	// fix up main with a serverwindow
 	
 	
 
@@ -135,7 +131,7 @@ public class Game extends Thread {
 			public void handle(ActionEvent event) {
 				if (!getGameObjects().isEmpty()) {
 					playerMovements();
-					updateLabelsAndHitBox();
+					updateLabels();
 					//movePlayer(0.3);
 
 					for (int i = 0; i < getGameObjects().size(); i++) {
@@ -261,7 +257,7 @@ public class Game extends Thread {
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
 		});
 		playerOutOfBounds();
-		update(speed);
+		updateMovementsToServer(speed);
 	}
 
 	private void movePlayer(double speed) {
@@ -274,7 +270,7 @@ public class Game extends Thread {
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
 		});
 		playerOutOfBounds();
-		update(speed);
+		updateMovementsToServer(speed);
 	}
 
 	private synchronized void shoot() {
@@ -291,7 +287,7 @@ public class Game extends Thread {
 				bulletArray.add(bullet);
 				
 				moveBulletFirst(bullet);
-				updateShoots(bullet);
+				updateShootsToServer(bullet);
 				removeBullet(bullet);
 				
 			}
@@ -320,13 +316,13 @@ public class Game extends Thread {
 			playerLabel.setFill(Color.RED);
 			root.getChildren().add(playerLabel);
 			playerNames.add(playerLabel);
-			root.getChildren().add(player.getHitbox());
+			//root.getChildren().add(player.getHitbox());
 			
 			
 		});
 	}
 	
-	private void updateLabelsAndHitBox(){
+	private void updateLabels(){
 		for (Text name : playerNames) {
 			for (PlayerMP player : gameObjects) {
 				if (name.getText().equals(player.getName())){
@@ -336,16 +332,10 @@ public class Game extends Thread {
 				}
 			}
 		}
-		for (PlayerMP player : gameObjects){
-			//System.out.println(player.getHitbox().getTranslateX());
-			//player.getHitbox().setTranslateX(player.getTranslateX());
-			//player.getHitbox().setTranslateY(player.getTranslateY());
-			//player.getHitbox().setRotate(player.getRotate());
-		}
 	}
 
 	// synchronize?
-	public synchronized void update(double speed) {
+	public synchronized void updateMovementsToServer(double speed) {
 		Platform.runLater(() -> {
 			player.setRotate(player.getRotate());
 			player.setTranslateX(player.getTranslateX());
@@ -361,7 +351,7 @@ public class Game extends Thread {
 		});
 	}
 
-	private synchronized void updateShoots(Bullet bullet) {
+	private synchronized void updateShootsToServer(Bullet bullet) {
 		moveBulletFirst(bullet);
 		Packet03Shoot packet = new Packet03Shoot(null, bullet.getEllipse().getTranslateX(),
 				bullet.getEllipse().getTranslateY(), bullet.getEllipse().getRotate());

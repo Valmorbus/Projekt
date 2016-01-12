@@ -12,7 +12,6 @@ public class Player extends GameObject {
 	protected String name;
 	protected ImageView graphics = new ImageView();
 	protected Image image;
-	private Polygon triangle;
 	public InetAddress ipAdress;
 	public int port;
 	
@@ -20,7 +19,6 @@ public class Player extends GameObject {
 	public Player(int lives, String name) {
 		this.image = new Image("/Untitled.png");
 		this.graphics.setImage(image);
-		this.triangle = new Polygon(15, 30, 3);
 		this.lives = lives;
 		this.name = name;
 	}
@@ -80,9 +78,7 @@ public class Player extends GameObject {
 		this.graphics.setImage(graphics);
 	}
 
-	public Polygon getTriangle() {
-		return this.triangle;
-	}
+
 	/*
 	public Image getImage() {
 		return image;
