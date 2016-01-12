@@ -29,18 +29,12 @@ public class PlayerMP extends Player {
 		this.name = name;
 		this.image = new Image("/Untitled.png");
 		this.graphics.setImage(image);
-		//this.getGraphics().setTranslateX(posX);
-		//this.getGraphics().setTranslateY(posY);
-		//this.getGraphics().setRotate(rotate);
 		this.ipAdress = ipAdress;
 		this.port = port;
 		this.ammo = 8;
 		
 		hitbox = new Ellipse(image.getWidth()/2.5, image.getHeight()/2.5);
-		//hitbox.setTranslateX(this.getTranslateX()/2);
-		//hitbox.setTranslateY(this.getTranslateY()/2);
-		//hitbox.setRotate(this.getRotate());
-		hitbox.setFill(Color.RED);
+		hitbox.setFill(Color.TRANSPARENT);
 		hitbox.centerXProperty().bind(this.translateXProperty().add(image.getWidth()/2));
 		hitbox.centerYProperty().bind(this.translateYProperty().add(image.getHeight()/2));
 		hitbox.rotateProperty().bind(this.rotateProperty());

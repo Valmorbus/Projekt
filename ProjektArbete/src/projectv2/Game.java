@@ -99,7 +99,7 @@ public class Game extends Thread {
 		player = new PlayerMP(userName, posx, posy, r, 0, null, 0);
 		
 		
-		//root.setStyle("-fx-background-color: black;");
+		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
 		primaryStage.setTitle(userName);
 		musicPlayer.play();
@@ -136,7 +136,7 @@ public class Game extends Thread {
 				if (!getGameObjects().isEmpty()) {
 					playerMovements();
 					updateLabelsAndHitBox();
-					movePlayer(0.3);
+					//movePlayer(0.3);
 
 					for (int i = 0; i < getGameObjects().size(); i++) {
 						lost(getGameObjects().get(i));
@@ -162,10 +162,10 @@ public class Game extends Thread {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < getGameObjects().size(); j++) {
-					if (bulletArray.get(i).getEllipse().getBoundsInParent()   //gettranslate x Y
+					if (bulletArray.get(i).getEllipse().getBoundsInParent()   
 							.intersects(getGameObjects().get(j).getHitbox().getBoundsInParent())) {
 						System.out.println("hit " + getGameObjects().get(j).getName());
-						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - 3); //bullet.damage
+						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - bulletArray.get(i).getDamage()); 
 						System.out.println(getGameObjects().get(j).getLives());
 						removeBullet(bulletArray.get(i));
 
@@ -337,6 +337,7 @@ public class Game extends Thread {
 			}
 		}
 		for (PlayerMP player : gameObjects){
+			//System.out.println(player.getHitbox().getTranslateX());
 			//player.getHitbox().setTranslateX(player.getTranslateX());
 			//player.getHitbox().setTranslateY(player.getTranslateY());
 			//player.getHitbox().setRotate(player.getRotate());

@@ -11,12 +11,13 @@ public class Bullet extends GameObject {
 	double directionX;
 	double directionY;
 	private Ellipse ellipse = new Ellipse(15, 2.5);
+	private int damage;
 
 	Bullet() {
 		ellipse.setFill(Color.RED);
 		ellipse.setEffect(new Glow(0));
 		ellipse.setEffect(new Bloom(0));
-
+		this.damage = 3;
 	}
 
 	public Bullet(double directionX, double directionY) {
@@ -59,5 +60,15 @@ public class Bullet extends GameObject {
 	public void setEllipse(Ellipse e) {
 		this.ellipse = e;
 	}
+
+	public int getDamage() {
+		return damage;
+	}
+
+	public void setDamage(int damage) {
+		this.damage = damage;
+	}
+	
+	
 
 }
