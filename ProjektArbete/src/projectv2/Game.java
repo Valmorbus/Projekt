@@ -47,12 +47,18 @@ public class Game extends Thread {
 			new Media(getClass().getResource("/Laser.mp3").toString()),
 			new Media(getClass().getResource("/Rocket.mp3").toString()) };
 	private MediaPlayer musicPlayer = new MediaPlayer(music);
-	private MediaPlayer effectPlayer; // = new MediaPlayer(null);
 	private Stage primaryStage;
 	private String ipAdress = "localhost";
 	
 	private ArrayList<Text> playerNames= new ArrayList<Text>();  
 	
+	/**
+	 * Sätter spelplanen till maxyta för skärmen. 
+	 * Skulle det vara så att spelarna har olika upplösning kommer det att bli fel för den med sämst upplösning. 
+	 * Detta går att åtgärda med att ändra width till 1920 och height till 1080, men skulle leda till att spelare 
+	 * med sämre upplösning kan åka så långt att de inte ser sin spelare. går även att ändra till mindre för att anpassa, 
+	 * men detta skulle belöna de som köpt en sämre dator vilket jag vägrar. 
+	 */
 	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
@@ -218,8 +224,8 @@ public class Game extends Thread {
 	private void moveBulletFirst(Bullet bullet) {
 		double bulletX = bullet.getEllipse().getTranslateX();
 		double bulletY = bullet.getEllipse().getTranslateY();
-		bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 100);
-		bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 100);
+		bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 30);
+		bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 30);
 	}
 
 	private void playerMovements() {
@@ -446,7 +452,7 @@ public class Game extends Thread {
 	}
 
 	private void playEffect(Media media) {
-		effectPlayer = new MediaPlayer(media);
+		MediaPlayer effectPlayer = new MediaPlayer(media);
 		effectPlayer.setVolume(0.3);
 		effectPlayer.play();
 	}
