@@ -21,6 +21,7 @@ public class GameClient extends Thread {
 	private InetAddress ipAdress;
 	private DatagramSocket socket;
 	private Game game;
+	private boolean running = true;
 
 	public GameClient(Game game, String ipAdress) {
 		try {
@@ -39,7 +40,7 @@ public class GameClient extends Thread {
 
 	public void run() {
 		System.out.println("Client start");
-		while (true) {
+		while (running) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -52,7 +53,7 @@ public class GameClient extends Thread {
 			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
 
 		}
-
+		//this.socket.close();
 	}
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {
@@ -62,12 +63,12 @@ public class GameClient extends Thread {
 		switch (type) {
 		case INVALID:
 			break;
-		case LOGIN: { 
+		case LOGIN: {
 			packet = new Packet00Login(data);
-			System.out.println(
-					"User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
+			System.out
+					.println("User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());
-			handleLogin((Packet00Login)packet, adress, port);
+			handleLogin((Packet00Login) packet, adress, port);
 		}
 			break;
 		case DISCONNECT: {
@@ -75,14 +76,15 @@ public class GameClient extends Thread {
 			System.out.println(
 					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
-			this.game.removePlayerMP(((Packet01Disconnect)packet).getUsername());
+			this.game.removePlayerMP(((Packet01Disconnect) packet).getUsername());
 		}
 			break;
-		case MOVE : {
+		case MOVE: {
 			packet = new Packet02Move(data);
 			handleMove((Packet02Move) packet);
-		}break;
-		case SHOOT:{
+		}
+			break;
+		case SHOOT: {
 			packet = new Packet03Shoot(data);
 			handleShoot((Packet03Shoot) packet);
 		}
@@ -92,13 +94,13 @@ public class GameClient extends Thread {
 	}
 
 	private void handleShoot(Packet03Shoot packet) {
-		this.game.updateShoots(packet.getX(),packet.getY(),packet.getRotate());
-		
+		this.game.updateShoots(packet.getX(), packet.getY(), packet.getRotate());
+
 	}
 
 	private void handleMove(Packet02Move packet) {
 		this.game.updatePlayers(packet.getUsername(), packet.getX(), packet.getY(), packet.getRotate());
-		
+
 	}
 
 	public void sendData(byte[] data) {
@@ -111,12 +113,30 @@ public class GameClient extends Thread {
 		}
 
 	}
-private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
-		
-		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(), packet.getRotate(),
-				0, adress, port);
+
+	private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
+
+		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(),
+				packet.getRotate(), 0, adress, port);
 		this.game.addPlayer(player);
 
 	}
 
+	public DatagramSocket getSocket() {
+		return socket;
+	}
+
+	public void setSocket(DatagramSocket socket) {
+		this.socket = socket;
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+
+	public void setRunning(boolean running) {
+		this.running = running;
+	}
+	
+	
 }

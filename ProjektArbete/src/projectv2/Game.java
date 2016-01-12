@@ -29,7 +29,7 @@ import packets.Packet01Disconnect;
 import packets.Packet02Move;
 import packets.Packet03Shoot;
 
-public class Game extends Thread {
+public class Game{ 
 
 	private Timeline playerLoop;
 	private Bullet bullet;
@@ -67,24 +67,29 @@ public class Game extends Thread {
 	// Att göra
 	// hit Packet + death
 	// change packet from double to float. 
+	// player collition
 	
 	
 	
-
-	public Game(boolean runServer, String iplogin) {
-		startServerClient(runServer, iplogin);
+/**
+ * Runs a dedicated server
+ * @param runServer 
+ * 
+ */
+	public Game(boolean runServer) {
+		startServer(runServer);
 	}
-
+	/**
+	 * Runs the game and gameclient
+	 * @param ip - The ipadress on witch the client will connect. Default "localhost"
+	 */
 	public Game(String ip) {
 		this.ipAdress = ip;
 	}
 
 	// kör server från main genom game konstruktor
-	private synchronized void startServerClient(boolean server, String iplogin) {
-		new Thread(this).start();
-		this.ipAdress = iplogin;
+	private synchronized void startServer(boolean server) {
 		if (server) {
-
 			gs = new GameServer(this);
 			gs.start();
 		}
@@ -110,10 +115,10 @@ public class Game extends Thread {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
-			if (gs != null) {
+			//ska skicka ett disconnectpavket när man stänger ner fönstret
 				Packet01Disconnect packet = new Packet01Disconnect(player.getName());
 				packet.writeData(gc);
-			}
+				musicPlayer.stop();
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),
 				player.getRotate());
@@ -123,12 +128,11 @@ public class Game extends Thread {
 		primaryStage.setFullScreen(true);
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("ESCAPE"));
 
-		if (login.equals(null) || login.equals(""))
+		if (ipAdress.equals(null) || ipAdress.equals(""))
 			ipAdress = "localhost";
 
 		gc = new GameClient(this, ipAdress);
 		gc.start();
-
 		addPlayer(player);
 		loginPacket.writeData(gc);
 		updateLocalGraphics();
@@ -140,11 +144,11 @@ public class Game extends Thread {
 					updateLabels();
 					movePlayer(0.3);
 
-				//	for (int i = 0; i < getGameObjects().size(); i++) {
-					//	lost(getGameObjects().get(i));
-				//	}
+					for (int i = 0; i < getGameObjects().size(); i++) {
+						lost(getGameObjects().get(i));
+					}
 				}
-				if (bullet != null) {
+				if (!bulletArray.isEmpty()) {
 					checkHit();
 				}
 
@@ -212,13 +216,12 @@ public class Game extends Thread {
 	}
 
 	private void moveBullet(Bullet bullet) {
-		Platform.runLater(() -> {
+	//	Platform.runLater(() -> {
 			double bulletX = bullet.getEllipse().getTranslateX();
 			double bulletY = bullet.getEllipse().getTranslateY();
 			bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
 			bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
-		});
-
+	//	});
 	}
 
 	private void moveBulletFirst(Bullet bullet) {
@@ -305,25 +308,21 @@ public class Game extends Thread {
 
 		getGameObjects().add(player2);
 		
-		System.out.println("gameobjects " + getGameObjects().size() + " player id " + player2.getName());
-		System.out.println(player2.ipAdress + " " + player2.port);
-		System.out.println("name: " + player2.getName());
 		//if (!this.player.getName().equalsIgnoreCase(player2.getName()));
 		//player2.setImage(new Image("/secondship.png"));
 
 		addLocalPlayer(player2);
 	}
 
-	public void addLocalPlayer(PlayerMP player) {
+	private void addLocalPlayer(PlayerMP player) {
 		Platform.runLater(() -> {
-			System.out.println("addlocalplayer");
 			root.getChildren().add(player);
 			Text playerLabel = new Text(player.getName());
 			playerLabel.setFill(Color.RED);
 			root.getChildren().add(playerLabel);
 			playerNames.add(playerLabel);
-			root.getChildren().add(player.getHitbox());
-			
+			//root.getChildren().add(player.getHitbox());
+			//player.getHitbox().setFill(Color.RED);
 			
 		});
 	}
@@ -341,7 +340,7 @@ public class Game extends Thread {
 	}
 
 	// synchronize?
-	public synchronized void updateMovementsToServer(double speed) {
+	private synchronized void updateMovementsToServer(double speed) {
 		Platform.runLater(() -> {
 			player.setRotate(player.getRotate());
 			player.setTranslateX(player.getTranslateX());
@@ -410,7 +409,7 @@ public class Game extends Thread {
 		int index = 0;
 		for (Node p : root.getChildren()) {
 			if (p.equals(getGameObjects().get(PlayerIndex))) {
-				System.out.println(p.toString() + " " + gameObjects.get(PlayerIndex));
+				//System.out.println(p.toString() + " " + gameObjects.get(PlayerIndex));
 				break;
 			}
 			index++;
@@ -418,7 +417,8 @@ public class Game extends Thread {
 		return index;
 	}
 
-	public void removePlayerMP(String username) {
+	public synchronized void removePlayerMP(String username) {
+		Platform.runLater(() -> {
 		int index = 0;
 		for (PlayerMP p : getGameObjects()) {
 			if (p instanceof PlayerMP && p.getName().equals(username)) {
@@ -426,11 +426,13 @@ public class Game extends Thread {
 			}
 			index++;
 		}
-		Platform.runLater(() -> {
-			root.getChildren().remove(getRootPlayer(username));
-
+			int rootIndex = getRootPlayer(username);
+			root.getChildren().remove(rootIndex);
+			root.getChildren().remove(rootIndex); //tar bort playername text
+			gameObjects.get(index).setHitbox(null);
+			getGameObjects().remove(index);
 		});
-		getGameObjects().remove(index);
+		
 
 	}
 
@@ -475,8 +477,6 @@ public class Game extends Thread {
 			//System.out.println(player.getName() +"died");
 			//removePlayerMP(player.getName());
 
-			// Packet01Disconnect packet = new
-			// Packet01Disconnect(player.getName());
 			// packet.writeData(gc);
 			// System.exit(0);
 			// Platform.exit();

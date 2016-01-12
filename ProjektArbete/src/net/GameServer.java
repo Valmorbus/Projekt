@@ -27,7 +27,7 @@ public class GameServer extends Thread {
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
 	private ArrayList<Bullet> connectedBullets = new ArrayList<Bullet>();
 	private Game game;
-	
+	private boolean running = true;
 
 	public GameServer(Game game) {
 		this.game = game;
@@ -41,7 +41,7 @@ public class GameServer extends Thread {
 
 	public void run() {
 		System.out.println("serverStart");
-		while (true) {
+		while (running) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -198,5 +198,23 @@ public class GameServer extends Thread {
 		connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
 		packet.writeData(this);
 	}
+
+	public DatagramSocket getSocket() {
+		return socket;
+	}
+
+	public void setSocket(DatagramSocket socket) {
+		this.socket = socket;
+	}
+
+	public boolean isRunning() {
+		return running;
+	}
+
+	public void setRunning(boolean running) {
+		this.running = running;
+	}
+	
+	
 
 }

@@ -106,7 +106,7 @@ public class Main extends Application {
 		pane.getChildren().addAll(noButton, yesButton);
 		yesButton.setOnAction(e->{
 			runServer = true;
-			Game game = new Game(runServer, ipAdress);
+			Game game = new Game(runServer);
 			pane.getChildren().removeAll(pane.getChildren());
 			Label ipLabel = new Label(LocalIP);
 			pane.getChildren().add(ipLabel);

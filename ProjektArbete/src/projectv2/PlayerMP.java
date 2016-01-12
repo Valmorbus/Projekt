@@ -16,7 +16,7 @@ public class PlayerMP extends Player {
 	private String name;
 	private int ammo;
 	private Ellipse hitbox; 
-	//private Image image = new Image("projectv2/untitled.png");
+	private boolean isAlive;
 
 	public PlayerMP() {
 		super();
@@ -32,6 +32,7 @@ public class PlayerMP extends Player {
 		this.ipAdress = ipAdress;
 		this.port = port;
 		this.ammo = 8;
+		this.isAlive = true;
 		
 		hitbox = new Ellipse(image.getWidth()/2.5, image.getHeight()/2.5);
 		hitbox.setFill(Color.TRANSPARENT);
@@ -108,10 +109,16 @@ public class PlayerMP extends Player {
 	public void setHitbox(Ellipse hitbox) {
 		this.hitbox = hitbox;
 	}
-	
-	
-	
-	
+
+
+	public boolean isAlive() {
+		return isAlive;
+	}
+
+	public void setAlive(boolean isAlive) {
+		this.isAlive = isAlive;
+	}
+		
 	
 
 }
