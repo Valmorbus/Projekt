@@ -161,7 +161,7 @@ public class Game {
 					playerMovements();
 					updateLabels();
 					movePlayer(0.3);
-					playerCollition();
+				//	playerCollition();
 
 					for (int i = 0; i < getGameObjects().size(); i++) {
 						lost(getGameObjects().get(i));
@@ -284,6 +284,7 @@ public class Game {
 			player.setRotate(player.getRotate() + turn);
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
+			playerCollition();
 		});
 		playerOutOfBounds();
 		updateMovementsToServer(speed);
@@ -297,6 +298,7 @@ public class Game {
 			double y = player.getTranslateY();
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
+			playerCollition(); //ev parametter av speed för damage
 		});
 		playerOutOfBounds();
 		updateMovementsToServer(speed);
