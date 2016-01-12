@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Ellipse;
 import javafx.scene.text.Text;
 
 public class PlayerMP extends Player {
@@ -13,6 +14,8 @@ public class PlayerMP extends Player {
 	public int port;
 	private ImageView graphics = new ImageView();
 	private String name;
+	private int ammo;
+	private Ellipse hitbox; 
 	//private Image image = new Image("projectv2/untitled.png");
 
 	public PlayerMP() {
@@ -31,6 +34,17 @@ public class PlayerMP extends Player {
 		//this.getGraphics().setRotate(rotate);
 		this.ipAdress = ipAdress;
 		this.port = port;
+		this.ammo = 8;
+		
+		hitbox = new Ellipse(image.getWidth()/2.5, image.getHeight()/2.5);
+		//hitbox.setTranslateX(this.getTranslateX()/2);
+		//hitbox.setTranslateY(this.getTranslateY()/2);
+		//hitbox.setRotate(this.getRotate());
+		hitbox.setFill(Color.RED);
+		hitbox.centerXProperty().bind(this.translateXProperty().add(image.getWidth()/2));
+		hitbox.centerYProperty().bind(this.translateYProperty().add(image.getHeight()/2));
+		hitbox.rotateProperty().bind(this.rotateProperty());
+		
 	}
 
 
@@ -60,6 +74,48 @@ public class PlayerMP extends Player {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+
+	public int getAmmo() {
+		return ammo;
+	}
+
+
+	public void setAmmo(int ammo) {
+		this.ammo = ammo;
+	}
+
+
+	public InetAddress getIpAdress() {
+		return ipAdress;
+	}
+
+
+	public void setIpAdress(InetAddress ipAdress) {
+		this.ipAdress = ipAdress;
+	}
+
+
+	public int getPort() {
+		return port;
+	}
+
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+
+	public Ellipse getHitbox() {
+		return hitbox;
+	}
+
+
+	public void setHitbox(Ellipse hitbox) {
+		this.hitbox = hitbox;
+	}
+	
+	
 	
 	
 	

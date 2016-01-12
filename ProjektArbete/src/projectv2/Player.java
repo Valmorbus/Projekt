@@ -15,6 +15,7 @@ public class Player extends GameObject {
 	private Polygon triangle;
 	public InetAddress ipAdress;
 	public int port;
+	
 
 	public Player(int lives, String name) {
 		this.image = new Image("/Untitled.png");

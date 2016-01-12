@@ -2,8 +2,6 @@ package projectv2;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Scanner;
-
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,7 +15,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import net.GameServer;
 
 public class Main extends Application {
 	String userName = "Guest";

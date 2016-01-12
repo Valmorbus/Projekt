@@ -38,7 +38,7 @@ public class Game extends Thread {
 
 	private Timeline playerLoop;
 	private Bullet bullet;
-	private List<Bullet> bulletArray = new LinkedList<Bullet>();
+	private ArrayList<Bullet> bulletArray = new ArrayList<Bullet>();
 	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
 	private ArrayList<Ellipse> explosions = new ArrayList<Ellipse>();
 	private Scene scene;
@@ -61,6 +61,13 @@ public class Game extends Thread {
 	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
+	
+	
+	// Att göra
+	// hit Packet + death
+	// change packet from double to float. 
+	
+	
 
 	public Game(boolean runServer, String iplogin) {
 		startServerClient(runServer, iplogin);
@@ -70,7 +77,7 @@ public class Game extends Thread {
 		this.ipAdress = ip;
 	}
 
-	// kör server från main genom game konstruktor?
+	// kör server från main genom game konstruktor
 	private synchronized void startServerClient(boolean server, String iplogin) {
 		new Thread(this).start();
 		this.ipAdress = iplogin;
@@ -92,7 +99,7 @@ public class Game extends Thread {
 		player = new PlayerMP(userName, posx, posy, r, 0, null, 0);
 		
 		
-		root.setStyle("-fx-background-color: black;");
+		//root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
 		primaryStage.setTitle(userName);
 		musicPlayer.play();
@@ -122,13 +129,14 @@ public class Game extends Thread {
 
 		addPlayer(player);
 		loginPacket.writeData(gc);
-		//updateLocalGraphics();
+		updateLocalGraphics();
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
 				if (!getGameObjects().isEmpty()) {
 					playerMovements();
-					updateLabels();
+					updateLabelsAndHitBox();
+					movePlayer(0.3);
 
 					for (int i = 0; i < getGameObjects().size(); i++) {
 						lost(getGameObjects().get(i));
@@ -147,15 +155,15 @@ public class Game extends Thread {
 	private void checkHit() {
 		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
-				if (bulletArray.get(i).getEllipse().getTranslateX() <= -100
-						|| bulletArray.get(i).getEllipse().getTranslateX() >= scene.getWidth() + 100
-						|| bulletArray.get(i).getEllipse().getTranslateY() <= -100
-						|| bulletArray.get(i).getEllipse().getTranslateY() >= scene.getHeight() + 100) {
+				if (bulletArray.get(i).getEllipse().getTranslateX() <= -SCREEN_WIDTH-100
+						|| bulletArray.get(i).getEllipse().getTranslateX() >= SCREEN_WIDTH + 100
+						|| bulletArray.get(i).getEllipse().getTranslateY() <= -SCREEN_HEIGHT-100
+						|| bulletArray.get(i).getEllipse().getTranslateY() >= SCREEN_HEIGHT + 100) {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < getGameObjects().size(); j++) {
-					if (bulletArray.get(i).getEllipse().getBoundsInParent()
-							.intersects(getGameObjects().get(j).getBoundsInParent())) {
+					if (bulletArray.get(i).getEllipse().getBoundsInParent()   //gettranslate x Y
+							.intersects(getGameObjects().get(j).getHitbox().getBoundsInParent())) {
 						System.out.println("hit " + getGameObjects().get(j).getName());
 						gameObjects.get(j).setLives(getGameObjects().get(j).getLives() - 3); //bullet.damage
 						System.out.println(getGameObjects().get(j).getLives());
@@ -269,19 +277,23 @@ public class Game extends Thread {
 		update(speed);
 	}
 
-	private void shoot() {
-		Platform.runLater(() -> {
-			if (bulletArray.size() <= 10) {
+	private synchronized void shoot() {
+		if (player.getAmmo()>=1)
+			player.setAmmo(player.getAmmo()-1);
+		Platform.runLater(() -> {	
+				 if (!(player.getAmmo()<=0)) {
 				playEffect(soundEffects[1]);
 				bullet = new Bullet();
-				// root.getChildren().add(bullet.getEllipse());
+				root.getChildren().add(bullet.getEllipse());
 				bullet.getEllipse().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
 				bullet.getEllipse().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
 				bullet.getEllipse().setRotate(player.getRotate());
 				bulletArray.add(bullet);
-
+				
 				moveBulletFirst(bullet);
 				updateShoots(bullet);
+				removeBullet(bullet);
+				
 			}
 		});
 
@@ -290,7 +302,7 @@ public class Game extends Thread {
 	public void addPlayer(PlayerMP player2) {
 
 		getGameObjects().add(player2);
-
+		
 		System.out.println("gameobjects " + getGameObjects().size() + " player id " + player2.getName());
 		System.out.println(player2.ipAdress + " " + player2.port);
 		System.out.println("name: " + player2.getName());
@@ -308,11 +320,13 @@ public class Game extends Thread {
 			playerLabel.setFill(Color.RED);
 			root.getChildren().add(playerLabel);
 			playerNames.add(playerLabel);
-
+			root.getChildren().add(player.getHitbox());
+			
+			
 		});
 	}
 	
-	private void updateLabels(){
+	private void updateLabelsAndHitBox(){
 		for (Text name : playerNames) {
 			for (PlayerMP player : gameObjects) {
 				if (name.getText().equals(player.getName())){
@@ -321,6 +335,11 @@ public class Game extends Thread {
 					name.setRotate(player.getRotate());	
 				}
 			}
+		}
+		for (PlayerMP player : gameObjects){
+			//player.getHitbox().setTranslateX(player.getTranslateX());
+			//player.getHitbox().setTranslateY(player.getTranslateY());
+			//player.getHitbox().setRotate(player.getRotate());
 		}
 	}
 
@@ -341,7 +360,8 @@ public class Game extends Thread {
 		});
 	}
 
-	private void updateShoots(Bullet bullet) {
+	private synchronized void updateShoots(Bullet bullet) {
+		moveBulletFirst(bullet);
 		Packet03Shoot packet = new Packet03Shoot(null, bullet.getEllipse().getTranslateX(),
 				bullet.getEllipse().getTranslateY(), bullet.getEllipse().getRotate());
 		packet.writeData(gc);
@@ -355,6 +375,8 @@ public class Game extends Thread {
 
 			if (!explosions.isEmpty())
 				removeExplosions();
+			if (player.getAmmo()<8)
+				player.setAmmo(player.getAmmo()+1);
 
 		}));
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -415,16 +437,18 @@ public class Game extends Thread {
 
 	}
 
-	public void updateShoots(double x, double y, double rotate) {
+	public synchronized void updateShoots(double x, double y, double rotate) {
 		Bullet bullet = new Bullet(x, y, rotate);
-
+		moveBulletFirst(bullet);
 		bulletArray.add(bullet);
 		Platform.runLater(() -> {
 			root.getChildren().add(bullet.getEllipse());
+			
 			bullet.getEllipse().setTranslateX(x);
 			bullet.getEllipse().setTranslateY(y);
 			bullet.getEllipse().setRotate(rotate);
 			playEffect(soundEffects[1]);
+			
 			removeExplosions();
 		});
 
@@ -451,8 +475,8 @@ public class Game extends Thread {
 
 	private void lost(Player player) {
 		if (player.getLives() <= 0) {
-			System.out.println(player.getName());
-			removePlayerMP(player.getName());
+			//System.out.println(player.getName() +"died");
+			//removePlayerMP(player.getName());
 
 			// Packet01Disconnect packet = new
 			// Packet01Disconnect(player.getName());
