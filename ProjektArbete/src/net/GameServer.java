@@ -160,7 +160,7 @@ public class GameServer extends Thread {
 					sendData(packet.getData(), player2.ipAdress, player2.port);
 				*/
 					//detta ska vara korrekt sätt att skriva på, problemet är att spelare tilldelas förra connected player och inte nuvarande
-					
+					 packet = new Packet00Login(player2.getName(), player2.getTranslateX(),player2.getTranslateY(),player2.getRotate());
 					 sendData(packet.getData(), p.ipAdress, p.port);
 					 packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());				
 					sendData(packet.getData(), player2.ipAdress, player2.port);

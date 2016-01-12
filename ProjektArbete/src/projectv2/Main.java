@@ -17,10 +17,11 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	String userName = "Guest";
-	String ipAdress ="localhost";
-	boolean runServer;
-	double posX, posY;
+	private String userName = "Guest";
+	private String ipAdress ="localhost";
+	private boolean runServer;
+	private double posX, posY;
+	private String LocalIP;
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -38,7 +39,7 @@ public class Main extends Application {
 
 	private void getLogin(Stage primaryStage) {
 		
-		String LocalIP = "This ip is "; 
+		LocalIP = "This ip is "; 
 		try {
 			LocalIP += InetAddress.getLocalHost().toString();
 		} catch (UnknownHostException e) {
@@ -106,7 +107,9 @@ public class Main extends Application {
 		yesButton.setOnAction(e->{
 			runServer = true;
 			Game game = new Game(runServer, ipAdress);
-			stage.close();
+			pane.getChildren().removeAll(pane.getChildren());
+			Label ipLabel = new Label(LocalIP);
+			pane.getChildren().add(ipLabel);
 		});
 		noButton.setOnAction(e->{
 			runServer = false;

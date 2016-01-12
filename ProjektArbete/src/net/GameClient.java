@@ -64,12 +64,6 @@ public class GameClient extends Thread {
 			break;
 		case LOGIN: { 
 			packet = new Packet00Login(data);
-			/*
-			System.out.println("logon");
-			
-			PlayerMP player = //new PlayerMP(((Packet00Login) packet).getUsername(), adress, port);
-			new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(), ((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
-			this.game.addPlayer(player);*/
 			System.out.println(
 					"User " + ((Packet00Login) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has connected " + ((Packet00Login) packet).getUsername());

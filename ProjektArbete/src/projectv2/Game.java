@@ -61,7 +61,7 @@ public class Game extends Thread {
 	// Att göra
 	// hit Packet + death
 	// change packet from double to float. 
-	// fix up main with a serverwindow
+	
 	
 	
 
@@ -132,11 +132,11 @@ public class Game extends Thread {
 				if (!getGameObjects().isEmpty()) {
 					playerMovements();
 					updateLabels();
-					//movePlayer(0.3);
+					movePlayer(0.3);
 
-					for (int i = 0; i < getGameObjects().size(); i++) {
-						lost(getGameObjects().get(i));
-					}
+				//	for (int i = 0; i < getGameObjects().size(); i++) {
+					//	lost(getGameObjects().get(i));
+				//	}
 				}
 				if (bullet != null) {
 					checkHit();
@@ -316,7 +316,7 @@ public class Game extends Thread {
 			playerLabel.setFill(Color.RED);
 			root.getChildren().add(playerLabel);
 			playerNames.add(playerLabel);
-			//root.getChildren().add(player.getHitbox());
+			root.getChildren().add(player.getHitbox());
 			
 			
 		});
@@ -390,7 +390,7 @@ public class Game extends Thread {
 
 	public void updatePlayers(String userName, double x, double y, double rotate) {
 		int index = getPlayerMPIndex(userName);
-		Platform.runLater(() -> {
+		Platform.runLater(() -> {	
 			this.getGameObjects().get(index).setTranslateX(x);
 			this.getGameObjects().get(index).setTranslateY(y);
 			this.getGameObjects().get(index).setRotate(rotate);
