@@ -358,7 +358,7 @@ public class Game {
 		});
 	}
 
-	private void updateLabels() {
+	private synchronized void updateLabels() {
 		for (Text name : playerNames) {
 			for (PlayerMP player : gameObjects) {
 				if (name.getText().equals(player.getName())) {
@@ -396,7 +396,7 @@ public class Game {
 	}
 
 	// synchronize?
-	private void updateLocalGraphics() {
+	private synchronized void updateLocalGraphics() {
 		// Platform.runLater(()->{
 		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(1000 / 1), ev -> {
 
@@ -427,7 +427,7 @@ public class Game {
 		return index;
 	}
 
-	public void updatePlayers(String userName, double x, double y, double rotate) {
+	public synchronized void updatePlayers(String userName, double x, double y, double rotate) {
 		int index = getPlayerMPIndex(userName);
 		Platform.runLater(() -> {
 			this.getGameObjects().get(index).setTranslateX(x);
@@ -547,7 +547,7 @@ public class Game {
 				}	
 		}
 	}
-	private void damage(PlayerMP player, int damage){
+	public void damage(PlayerMP player, int damage){
 		player.setLives(player.getLives()-damage);
 		System.out.println(player.getLives());
 		if (player.isAlive())
