@@ -149,7 +149,6 @@ public class Game {
 
 		if (ipAdress.equals(null) || ipAdress.equals(""))
 			ipAdress = "localhost";
-
 		gc = new GameClient(this, ipAdress);
 		gc.start();
 		addPlayer(player);

@@ -89,9 +89,10 @@ public class Main extends Application {
 		start.setOnAction(e->{
 			userName = userTextField.getText();
 			ipAdress = IPTextfield.getText();
+			System.out.println(ipAdress);
 			posX = posXSlide.getValue();
 			posY = posYSlide.getValue();
-			Game game = new Game( ipAdress);
+			Game game = new Game(ipAdress);
 			game.runGame(primaryStage, userName, posX, posY);
 		});	
 	}
