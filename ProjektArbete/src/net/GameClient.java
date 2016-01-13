@@ -12,6 +12,7 @@ import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
 import packets.Packet03Shoot;
+import packets.Packet04Hit;
 import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.PlayerMP;
@@ -88,9 +89,20 @@ public class GameClient extends Thread {
 			packet = new Packet03Shoot(data);
 			handleShoot((Packet03Shoot) packet);
 		}
+		break;
+		case HIT :{ packet = new Packet04Hit(data);
+		handleHit((Packet04Hit)packet);
+		}
+		break;
+	
 		default:
 			break;
 		}
+	}
+
+	private void handleHit(Packet04Hit packet) {
+		this.game.damagePlayer(packet.getUsername(), packet.getDamage());
+		
 	}
 
 	private void handleShoot(Packet03Shoot packet) {
@@ -136,6 +148,10 @@ public class GameClient extends Thread {
 
 	public void setRunning(boolean running) {
 		this.running = running;
+	}
+	public void shotDownClient() throws SocketException{
+		this.socket.close();
+		
 	}
 	
 	

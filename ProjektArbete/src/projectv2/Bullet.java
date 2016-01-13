@@ -17,15 +17,9 @@ public class Bullet extends GameObject {
 		ellipse.setFill(Color.RED);
 		ellipse.setEffect(new Glow(0));
 		ellipse.setEffect(new Bloom(0));
-		this.damage = 20;
+		this.damage = 5;
 	}
 
-	public Bullet(double directionX, double directionY) {
-		super();
-		this.directionX = directionX;
-		this.directionY = directionY;
-
-	}
 	public Bullet(double directionX, double directionY, double rotate) {
 		super();
 		this.ellipse.setTranslateX(directionX);
@@ -34,7 +28,7 @@ public class Bullet extends GameObject {
 		ellipse.setFill(Color.RED);
 		ellipse.setEffect(new Glow(0));
 		ellipse.setEffect(new Bloom(0));
-		this.damage = 20;
+		this.damage = 5;
 
 	}
 

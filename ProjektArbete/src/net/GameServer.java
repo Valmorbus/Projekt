@@ -13,6 +13,7 @@ import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
 import packets.Packet03Shoot;
+import packets.Packet04Hit;
 import projectv2.Bullet;
 import projectv2.Game;
 import projectv2.PlayerMP;
@@ -22,7 +23,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 public class GameServer extends Thread {
-	
+
 	private DatagramSocket socket;
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
 	private ArrayList<Bullet> connectedBullets = new ArrayList<Bullet>();
@@ -70,8 +71,6 @@ public class GameServer extends Thread {
 			sendData(data, p.ipAdress, p.port);
 		}
 	}
-	
-	
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {
 		String message = new String(data).trim();
@@ -83,8 +82,8 @@ public class GameServer extends Thread {
 			break;
 		case LOGIN: {
 			packet = new Packet00Login(data);
-			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login)packet).getX(), ((Packet00Login)packet).getY(), ((Packet00Login)packet).getRotate(),
-					0, adress, port);
+			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(),
+					((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
 			connectedPlayers.add(player);
 
 			System.out.println(player.port + " " + player.getName() + " " + player.ipAdress);
@@ -97,7 +96,7 @@ public class GameServer extends Thread {
 					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
 							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
 			removeConnection((Packet01Disconnect) packet);
-			
+
 		}
 			break;
 		case MOVE: {
@@ -109,6 +108,24 @@ public class GameServer extends Thread {
 			packet = new Packet03Shoot(data);
 			handleShoot((Packet03Shoot) packet);
 		}
+			break;
+		case HIT: {
+			packet = new Packet04Hit(data);
+			handleHit((Packet04Hit) packet);
+		}
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	private void handleHit(Packet04Hit packet) {
+
+		if (getPlayerMP(packet.getUsername()) != null) {
+			int index = getPlayerMPIndex(packet.getUsername());
+			connectedPlayers.get(index).setLives(connectedPlayers.get(index).getLives() - packet.getDamage());
+			packet.writeData(this);
 		}
 	}
 
@@ -119,60 +136,65 @@ public class GameServer extends Thread {
 	}
 
 	private void handleMove(Packet02Move packet) {
-		Platform.runLater(()->{
-				if (getPlayerMP(packet.getUsername()) != null) {
-					int index = getPlayerMPIndex(packet.getUsername());
-					connectedPlayers.get(index).setPosX(packet.getX());
-					connectedPlayers.get(index).setPosY(packet.getY());
-					connectedPlayers.get(index).setRotate(packet.getRotate());
-					packet.writeData(this);
-				}
+		Platform.runLater(() -> {
+			if (getPlayerMP(packet.getUsername()) != null) {
+				int index = getPlayerMPIndex(packet.getUsername());
+				connectedPlayers.get(index).setPosX(packet.getX());
+				connectedPlayers.get(index).setPosY(packet.getY());
+				connectedPlayers.get(index).setRotate(packet.getRotate());
+				packet.writeData(this);
+			}
 		});
-		
-		
+
 	}
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
 		boolean alreadyConnected = false;
-	
-		for (PlayerMP p : connectedPlayers)
-		{
-			if (player2.getName().equals(p.getName())) {
+		System.out.println("addconnection start: " + player2.ipAdress + " port " + player2.port);
+		for (PlayerMP p : connectedPlayers) {
+			if (player2.getName().equalsIgnoreCase(p.getName())) {
 				if (p.ipAdress == null) {
 					p.ipAdress = player2.ipAdress;
+					System.out.println(" i if " + p.ipAdress);
 				}
-				if (p.port == 0) { 
+				if (p.port == 0) {
 					p.port = player2.port;
+					System.out.println(" i if " + p.port);
 				}
+
 				alreadyConnected = true;
-			}
-			else {
+			} else {
 				try {
-					
-					//uppdaterar nya spelaren om gamla spelares positioner
+					System.out.println("addconnection else: " + player2.ipAdress + " port " + player2.port);
+					// uppdaterar nya spelaren om gamla spelares positioner
 					/*
-					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());
+					 * packet = new Packet00Login(p.getName(),
+					 * p.getTranslateX(), p.getTranslateY(), p.getRotate());
+					 * sendData(packet.getData(), p.ipAdress, p.port);
+					 * 
+					 * 
+					 * // skickar att tidigare spelare är connected
+					 * 
+					 * sendData(packet.getData(), player2.ipAdress,
+					 * player2.port);
+					 */
+					// detta ska vara korrekt sätt att skriva på, problemet är
+					// att spelare tilldelas förra connected player och inte
+					// nuvarande
+					packet = new Packet00Login(player2.getName(), player2.getTranslateX(), player2.getTranslateY(),
+							player2.getRotate());
 					sendData(packet.getData(), p.ipAdress, p.port);
-					
-					
-					// skickar att tidigare spelare är connected
-				
+					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());
 					sendData(packet.getData(), player2.ipAdress, player2.port);
-				*/
-					//detta ska vara korrekt sätt att skriva på, problemet är att spelare tilldelas förra connected player och inte nuvarande
-					 packet = new Packet00Login(player2.getName(), player2.getTranslateX(),player2.getTranslateY(),player2.getRotate());
-					 sendData(packet.getData(), p.ipAdress, p.port);
-					 packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());				
-					sendData(packet.getData(), player2.ipAdress, player2.port);
-					 
-					
+					System.out.println("addconnection slut: " + player2.ipAdress + " port " + player2.port);
+
 				} catch (Exception e) {
 					System.out.println("Server cant send packet " + e);
 				}
 			}
 		}
 		if (!alreadyConnected) {
-			this.connectedPlayers.add(player2);	
+			this.connectedPlayers.add(player2);
 		}
 	}
 
@@ -214,7 +236,9 @@ public class GameServer extends Thread {
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
-	
-	
+
+	public void shotDownServer() throws SocketException {
+		this.socket.close();
+	}
 
 }

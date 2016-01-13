@@ -30,6 +30,7 @@ import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
 import packets.Packet03Shoot;
+import packets.Packet04Hit;
 
 public class Game {
 
@@ -124,17 +125,26 @@ public class Game {
 			packet.writeData(gc);
 			musicPlayer.stop();
 			playerLoop.stop();
-			//gc.setRunning(false);
-			/*if (gc.isAlive())
-				try {
-					gc.join();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}*/
+			// gc.setRunning(false);
+			try {
+				gc.shotDownClient();
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
+			/*
+			 * if (gc.isAlive()) try { gc.join(); } catch (Exception e1) { //
+			 * TODO Auto-generated catch block e1.printStackTrace(); }
+			 */
 			System.out.println(gc.isAlive());
 			if (gs != null) {
-			//	gs.setRunning(false);
+				try {
+					gs.shotDownServer();
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+				// gs.setRunning(false);
 
 			}
 			// kolla om det går att stänga ner main på något ev sätt
@@ -161,12 +171,8 @@ public class Game {
 					playerMovements();
 					updateLabels();
 					if (player.isAlive())
-					movePlayer(0.3);
-				//	playerCollition();
-
-					
-					lost();
-					
+						movePlayer(0.3);
+					playerDied();
 				}
 				if (!bulletArray.isEmpty()) {
 					checkHit();
@@ -191,10 +197,11 @@ public class Game {
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(getGameObjects().get(j).getHitbox().getBoundsInParent())) {
 						System.out.println("hit " + getGameObjects().get(j).getName());
-						damage(gameObjects.get(j),bulletArray.get(i).getDamage());
-						//gameObjects.get(j)
-							//	.setLives(getGameObjects().get(j).getLives() - bulletArray.get(i).getDamage());
-						
+						damage(gameObjects.get(j), bulletArray.get(i).getDamage());
+						// gameObjects.get(j)
+						// .setLives(getGameObjects().get(j).getLives() -
+						// bulletArray.get(i).getDamage());
+
 						removeBullet(bulletArray.get(i));
 
 						playEffect(soundEffects[0]);
@@ -254,30 +261,32 @@ public class Game {
 	}
 
 	private void playerMovements() {
-		
+
 		scene.setOnKeyPressed(e -> {
 
 			switch (e.getCode()) {
 			case RIGHT: {
 				if (player.isAlive())
-				movePlayer(5, 10);
+					movePlayer(5, 10);
 				break;
 			}
 			case LEFT: {
 				if (player.isAlive())
-				movePlayer(-5, 10);
+					movePlayer(-5, 10);
 				break;
 			}
 			case UP: {
 				if (player.isAlive())
-				movePlayer(20);
+					movePlayer(20);
 				break;
 			}
 			case SPACE: {
 				if (player.isAlive())
-				shoot();
+					shoot();
 				break;
 			}
+			default:
+				break;
 			}
 		});
 	}
@@ -291,9 +300,9 @@ public class Game {
 			player.setRotate(player.getRotate() + turn);
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
-			
+
 		});
-		//playerCollition();
+		// playerCollition();
 		playerOutOfBounds();
 		updateMovementsToServer(speed);
 	}
@@ -306,9 +315,9 @@ public class Game {
 			double y = player.getTranslateY();
 			player.setTranslateX(x + Math.cos(Math.toRadians(player.getRotate())) * speed);
 			player.setTranslateY(y + Math.sin(Math.toRadians(player.getRotate())) * speed);
-			 //ev parametter av speed för damage
+			// ev parametter av speed för damage
 		});
-		//playerCollition();
+		// playerCollition();
 		playerOutOfBounds();
 		updateMovementsToServer(speed);
 	}
@@ -406,6 +415,8 @@ public class Game {
 			for (PlayerMP p : gameObjects) {
 				p.setEffect(new Glow(0.3));
 			}
+			playerCollition();
+			playerWon();
 
 		}));
 		timeline.setCycleCount(Animation.INDEFINITE);
@@ -432,7 +443,7 @@ public class Game {
 			this.getGameObjects().get(index).setTranslateX(x);
 			this.getGameObjects().get(index).setTranslateY(y);
 			this.getGameObjects().get(index).setRotate(rotate);
-			playerCollition();
+			
 		});
 
 	}
@@ -505,15 +516,32 @@ public class Game {
 
 	}
 
-	private void lost() {
+	private void playerDied() {
 		if (!player.isAlive()) {
 			Label gameOver = new Label("You lost");
 			gameOver.setTextFill(Color.RED);
 			gameOver.setFont(new Font(50));
-			gameOver.setTranslateX(SCREEN_WIDTH/2);
-			gameOver.setTranslateY(SCREEN_HEIGHT/2);
+			gameOver.setTranslateX(SCREEN_WIDTH / 2);
+			gameOver.setTranslateY(SCREEN_HEIGHT / 2);
 			root.getChildren().add(gameOver);
 			playerLoop.stop();
+		}
+	}
+	private void playerWon(){
+		int playersDestroyed = 0;
+		if (getGameObjects().size() >=2){
+			for (PlayerMP p : gameObjects) {
+				if (!p.isAlive())
+					playersDestroyed++;
+			}
+			if (player.isAlive() && playersDestroyed+1 == getGameObjects().size()){
+				Label won = new Label("You Won");
+				won.setTextFill(Color.RED);
+				won.setFont(new Font(50));
+				won.setTranslateX(SCREEN_WIDTH / 2);
+				won.setTranslateY(SCREEN_HEIGHT / 2);
+				root.getChildren().add(won);
+			}
 		}
 	}
 
@@ -542,22 +570,17 @@ public class Game {
 						player.setTranslateY(player.getTranslateY() - 15);
 					else
 						player.setTranslateY(player.getTranslateY() + 15);
-					damage(player, 15);
-				}	
+					damage(player2, 10);
+				}
 		}
 	}
-	public void damage(PlayerMP player, int damage){
-		player.setLives(player.getLives()-damage);
-		System.out.println(player.getLives());
-		if (player.isAlive())
-			player.setEffect(new Glow(1));
-		player.showDamage();
-		
-		if (player.getLives() <= 0){
-			player.setAlive(false);
-			player.showDamage();
-		}
-			
+
+	public void damage(PlayerMP player, int damage) {
+	
+		Packet04Hit packet = new Packet04Hit(player.getName(), damage);
+		packet.writeData(gc);
+	
+
 	}
 
 	public synchronized ArrayList<PlayerMP> getGameObjects() {
@@ -566,6 +589,20 @@ public class Game {
 
 	public synchronized void setGameObjects(ArrayList<PlayerMP> gameObjects) {
 		this.gameObjects = gameObjects;
+	}
+
+	public void damagePlayer(String username, int damage) {
+		System.out.println(username + " takes " +damage + "damage");
+		int index = getPlayerMPIndex(username);
+		getGameObjects().get(index).setLives(getGameObjects().get(index).getLives() - damage);
+		if (getGameObjects().get(index).isAlive())
+			getGameObjects().get(index).setEffect(new Glow(1));
+		getGameObjects().get(index).showDamage();
+
+		if (getGameObjects().get(index).getLives() <= 0) {
+			getGameObjects().get(index).setAlive(false);
+			getGameObjects().get(index).showDamage();
+		}
 	}
 
 }
