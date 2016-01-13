@@ -14,7 +14,6 @@ public class Player extends GameObject {
 	protected Image image;
 	public InetAddress ipAdress;
 	public int port;
-	
 
 	public Player(int lives, String name) {
 		this.image = new Image("/Untitled.png");
@@ -33,8 +32,9 @@ public class Player extends GameObject {
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
-		
+
 	}
+
 	public Player(InetAddress ipAdress, int port) {
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
@@ -42,16 +42,20 @@ public class Player extends GameObject {
 		this.ipAdress = ipAdress;
 		this.port = port;
 	}
-	
-	
-	public Player(double posX, double posY, double rotate, double speed){ //, InetAddress ipAdress, int port) {
+
+	public Player(double posX, double posY, double rotate, double speed) { // ,
+																			// InetAddress
+																			// ipAdress,
+																			// int
+																			// port)
+																			// {
 		super(posX, posY, rotate, speed);
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
 		this.lives = 100;
 		this.setImage(this.image);
-		//this.ipAdress = ipAdress;
-		//this.port = port;
+		// this.ipAdress = ipAdress;
+		// this.port = port;
 	}
 
 	public int getLives() {
@@ -78,15 +82,6 @@ public class Player extends GameObject {
 		this.graphics.setImage(graphics);
 	}
 
-
-	/*
-	public Image getImage() {
-		return image;
-	}
-
-	public void setImage(Image image) {
-		this.image = image;
-	}*/
 	
 
 }
