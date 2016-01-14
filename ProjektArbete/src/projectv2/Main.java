@@ -92,8 +92,8 @@ public class Main extends Application {
 			System.out.println(ipAdress);
 			posX = posXSlide.getValue();
 			posY = posYSlide.getValue();
-			Game game = new Game(ipAdress);
-			game.runGame(primaryStage, userName, posX, posY);
+			Game game = new Game(ipAdress, userName, posX, posY);
+			game.runGame(primaryStage);
 		});	
 	}
 	

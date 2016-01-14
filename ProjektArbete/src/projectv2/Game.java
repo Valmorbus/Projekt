@@ -68,9 +68,6 @@ public class Game {
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
 
-	// Att göra
-	// hit Packet + death
-	// player collition
 	// se till att allt stängs ner korrekt
 
 	/**
@@ -82,7 +79,6 @@ public class Game {
 	public Game(boolean runServer) {
 		startServer(runServer);
 	}
-
 	/**
 	 * Runs the game and gameclient
 	 * 
@@ -90,8 +86,13 @@ public class Game {
 	 *            - The ipadress on witch the client will connect. Default
 	 *            "localhost"
 	 */
-	public Game(String ip) {
+	public Game(String ip, String userName, double posx, double posy) {
 		this.ipAdress = ip;
+		double r = setStartRotate(posx, posy);
+		this.player = new PlayerMP(userName, posx, posy, r, 0, null, 0);   
+		//jag antar att detta bör klassas som komposition, då spelet slutar försvinner spelaren. 
+		//dock lever ju spelaren kvar i de andra spelarnas spel (förvisso under egna kopior av objektet. 
+		// men utan ett spel, ingen spelare. 
 	}
 
 	// kör server från main genom game konstruktor
@@ -102,52 +103,20 @@ public class Game {
 		}
 	}
 
-	public synchronized void runGame(Stage primary, String login, double posx, double posy) {
+	public synchronized void runGame(Stage primary) {
 
 		primaryStage = primary;
-		String userName = login;
 		root = new Pane();
-
-		double r = setStartRotate(posx, posy);
-		player = new PlayerMP(userName, posx, posy, r, 0, null, 0);
-
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
-		primaryStage.setTitle(userName);
+		primaryStage.setTitle("Space game");
 		musicPlayer.play();
 		musicPlayer.setVolume(0.5);
 
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
-			// ska skicka ett disconnectpavket när man stänger ner fönstret
-			Packet01Disconnect packet = new Packet01Disconnect(player.getName());
-			packet.writeData(gc);
-			musicPlayer.stop();
-			playerLoop.stop();
-			// gc.setRunning(false);
-			try {
-				gc.shotDownClient();
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
-			/*
-			 * if (gc.isAlive()) try { gc.join(); } catch (Exception e1) { //
-			 * TODO Auto-generated catch block e1.printStackTrace(); }
-			 */
-			System.out.println(gc.isAlive());
-			if (gs != null) {
-				try {
-					gs.shotDownServer();
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-				// gs.setRunning(false);
-
-			}
-			// kolla om det går att stänga ner main på något ev sätt
+		setOnClose();
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),
 				player.getRotate());
@@ -168,6 +137,7 @@ public class Game {
 
 	}
 
+	
 	private void gameLoop() {
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
@@ -566,6 +536,38 @@ public class Game {
 			getGameObjects().get(index).showDamage();
 		}
 	}
+	private void setOnClose() {
+		// ska skicka ett disconnectpavket när man stänger ner fönstret
+		Packet01Disconnect packet = new Packet01Disconnect(player.getName());
+		packet.writeData(gc);
+		musicPlayer.stop();
+		playerLoop.stop();
+		// gc.setRunning(false);
+		try {
+			gc.shotDownClient();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		/*
+		 * if (gc.isAlive()) try { gc.join(); } catch (Exception e1) { //
+		 * TODO Auto-generated catch block e1.printStackTrace(); }
+		 */
+		System.out.println(gc.isAlive());
+		if (gs != null) {
+			try {
+				gs.shotDownServer();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			// gs.setRunning(false);
+
+		}
+		// kolla om det går att stänga ner main på något ev sätt
+		
+	}
+	
 
 	public synchronized ArrayList<PlayerMP> getGameObjects() {
 		return gameObjects;

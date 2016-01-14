@@ -19,8 +19,6 @@ import projectv2.Game;
 import projectv2.PlayerMP;
 
 import javafx.application.Platform;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 
 public class GameServer extends Thread {
 
