@@ -15,22 +15,18 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import net.GameServer;
 
 public class Main extends Application {
 	private String userName = "Guest";
-	private String ipAdress ="localhost";
-	private boolean runServer;
+	private String ipAdress = "localhost";
 	private double posX, posY;
 	private String LocalIP;
+	private GameServer gs;
 
 	@Override
 	public void start(Stage primaryStage) {
 		getLogin(primaryStage);
-		//System.out.println("run server");
-		//Scanner sc = new Scanner(System.in);
-		//Game game = new Game(sc.nextLine());
-
-		//game.runGame(primaryStage);
 	}
 
 	public static void main(String[] args) {
@@ -38,13 +34,13 @@ public class Main extends Application {
 	}
 
 	private void getLogin(Stage primaryStage) {
-		
-		LocalIP = "This ip is "; 
+
+		LocalIP = "This ip is ";
 		try {
 			LocalIP += InetAddress.getLocalHost().toString();
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("could not identify ip.");
 		}
 		GridPane grid = new GridPane();
 		grid.setAlignment(Pos.CENTER);
@@ -58,35 +54,35 @@ public class Main extends Application {
 
 		TextField userTextField = new TextField();
 		grid.add(userTextField, 1, 1);
-		
+
 		Label ip = new Label("IP Adress:");
 		grid.add(ip, 0, 2);
 		TextField IPTextfield = new TextField();
 		grid.add(IPTextfield, 1, 2);
-		
-		Label slideXLabel = new Label ("Startposition X");
+
+		Label slideXLabel = new Label("Startposition X");
 		Slider posXSlide = new Slider(0, 1500, 500);
 		grid.add(posXSlide, 1, 3);
 		grid.add(slideXLabel, 0, 3);
-		
-		Label slideYLabel = new Label ("Startposition Y");
+
+		Label slideYLabel = new Label("Startposition Y");
 		Slider posYSlide = new Slider(0, 1000, 500);
 		grid.add(posYSlide, 1, 4);
 		grid.add(slideYLabel, 0, 4);
-		
+
 		Button start = new Button("Start");
 		HBox hbox = new HBox(10);
 		hbox.setAlignment(Pos.BOTTOM_RIGHT);
 		hbox.getChildren().add(start);
 		grid.add(hbox, 1, 5);
-		
+
 		Scene scene = new Scene(grid, 300, 275);
 		primaryStage.setScene(scene);
-		primaryStage.setTitle(LocalIP);	
+		primaryStage.setTitle(LocalIP);
 		primaryStage.show();
-		ServerPopUp();		
-		
-		start.setOnAction(e->{
+		ServerPopUp();
+
+		start.setOnAction(e -> {
 			userName = userTextField.getText();
 			ipAdress = IPTextfield.getText();
 			System.out.println(ipAdress);
@@ -94,10 +90,10 @@ public class Main extends Application {
 			posY = posYSlide.getValue();
 			Game game = new Game(ipAdress, userName, posX, posY);
 			game.runGame(primaryStage);
-		});	
+		});
 	}
-	
-	private void ServerPopUp(){
+
+	private void ServerPopUp() {
 		Stage stage = new Stage();
 		FlowPane pane = new FlowPane();
 		Text text = new Text("Do you want to run the server?");
@@ -105,21 +101,35 @@ public class Main extends Application {
 		Button yesButton = new Button("Yes");
 		Button noButton = new Button("No");
 		pane.getChildren().addAll(noButton, yesButton);
-		yesButton.setOnAction(e->{
-			runServer = true;
-			Game game = new Game(runServer);
+		yesButton.setOnAction(e -> {
+			gs = new GameServer(stage);
+			gs.start();
 			pane.getChildren().removeAll(pane.getChildren());
 			Label ipLabel = new Label(LocalIP);
 			pane.getChildren().add(ipLabel);
 		});
-		noButton.setOnAction(e->{
-			runServer = false;
-			//return;
+		noButton.setOnAction(e -> {
 			stage.close();
 		});
 		Scene scene = new Scene(pane);
 		stage.setScene(scene);
 		stage.show();
-		
+		stage.setOnCloseRequest(e -> {
+			closeServer();
+			});
+
+	}
+	private void closeServer(){
+		if (gs != null) {
+			try {
+				gs.setRunning(false);
+				gs.shutDownServer();
+				gs.join();
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+			// gs.setRunning(false);
+
+		}
 	}
 }

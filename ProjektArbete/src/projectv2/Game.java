@@ -25,7 +25,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import net.GameClient;
-import net.GameServer;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
@@ -35,26 +34,24 @@ import packets.Packet04Hit;
 public class Game {
 
 	private Timeline playerLoop;
+	private Timeline timeline;
 	private Bullet bullet;
 	private ArrayList<Bullet> bulletArray = new ArrayList<Bullet>();
 	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
 	private ArrayList<Ellipse> explosions = new ArrayList<Ellipse>();
+	private ArrayList<Text> playerNames = new ArrayList<Text>();
 	private Scene scene;
 	private PlayerMP player;
 	private Pane root;
 	private GameClient gc;
-	private GameServer gs;
 
 	private Media music = new Media(getClass().getResource("/Music.mp3").toString());
 	private Media[] soundEffects = { new Media(getClass().getResource("/Explosion.mp3").toString()),
 			new Media(getClass().getResource("/Laser.mp3").toString()),
 			new Media(getClass().getResource("/Rocket.mp3").toString()) };
 	private MediaPlayer musicPlayer = new MediaPlayer(music);
-	private Stage primaryStage;
 	private String ipAdress = "localhost";
-
-	private ArrayList<Text> playerNames = new ArrayList<Text>();
-
+	
 	/**
 	 * Sätter spelplanen till maxyta för skärmen. Skulle det vara så att
 	 * spelarna har olika upplösning kommer det att bli fel för den med sämst
@@ -67,25 +64,14 @@ public class Game {
 	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
-
-	// se till att allt stängs ner korrekt
-
-	/**
-	 * Runs a dedicated server
-	 * 
-	 * @param runServer
-	 * 
-	 */
-	public Game(boolean runServer) {
-		startServer(runServer);
-	}
-	/**
-	 * Runs the game and gameclient
-	 * 
-	 * @param ip
-	 *            - The ipadress on witch the client will connect. Default
-	 *            "localhost"
-	 */
+	
+/**
+ * 
+ * @param ip
+ * @param userName
+ * @param posx
+ * @param posy
+ */
 	public Game(String ip, String userName, double posx, double posy) {
 		this.ipAdress = ip;
 		double r = setStartRotate(posx, posy);
@@ -95,17 +81,9 @@ public class Game {
 		// men utan ett spel, ingen spelare. 
 	}
 
-	// kör server från main genom game konstruktor
-	private synchronized void startServer(boolean server) {
-		if (server) {
-			gs = new GameServer(this);
-			gs.start();
-		}
-	}
-
 	public synchronized void runGame(Stage primary) {
 
-		primaryStage = primary;
+		Stage primaryStage = primary;
 		root = new Pane();
 		root.setStyle("-fx-background-color: black;");
 		scene = new Scene(root);
@@ -120,9 +98,6 @@ public class Game {
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),
 				player.getRotate());
-		if (gs != null) {
-			gs.addConnection((PlayerMP) player, loginPacket);
-		}
 		primaryStage.setFullScreen(true);
 		primaryStage.setFullScreenExitKeyCombination(KeyCombination.keyCombination("ESCAPE"));
 
@@ -159,7 +134,7 @@ public class Game {
 	}
 
 	private synchronized void updateLocalGraphics() {
-		Timeline timeline = new Timeline(new KeyFrame(Duration.millis(1000 / 2), ev -> {
+		timeline = new Timeline(new KeyFrame(Duration.millis(1000 / 2), ev -> {
 			if (!explosions.isEmpty())
 				removeExplosions();
 			if (player.getAmmo() < 8)
@@ -294,7 +269,6 @@ public class Game {
 				for (int j = 0; j < getGameObjects().size(); j++) {
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
 							.intersects(getGameObjects().get(j).getHitbox().getBoundsInParent())) {
-						System.out.println("hit " + getGameObjects().get(j).getName());
 						damage(gameObjects.get(j), bulletArray.get(i).getDamage());
 						removeBullet(bulletArray.get(i));
 						playEffect(soundEffects[0]);
@@ -524,7 +498,6 @@ public class Game {
 	}
 
 	public void damagePlayer(String username, int damage) {
-		System.out.println(username + " takes " + damage + "damage");
 		int index = getPlayerMPIndex(username);
 		getGameObjects().get(index).setLives(getGameObjects().get(index).getLives() - damage);
 		if (getGameObjects().get(index).isAlive())
@@ -540,35 +513,18 @@ public class Game {
 		// ska skicka ett disconnectpavket när man stänger ner fönstret
 		Packet01Disconnect packet = new Packet01Disconnect(player.getName());
 		packet.writeData(gc);
-		musicPlayer.stop();
-		playerLoop.stop();
-		// gc.setRunning(false);
+		musicPlayer.stop();	
 		try {
-			gc.shotDownClient();
+			playerLoop.stop();  //avslutar alla loopar, kastar exceptions
+			timeline.stop();
+			gc.setRunning(false);
+			gc.shutDownClient();
+			gc.join();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-
-		/*
-		 * if (gc.isAlive()) try { gc.join(); } catch (Exception e1) { //
-		 * TODO Auto-generated catch block e1.printStackTrace(); }
-		 */
-		System.out.println(gc.isAlive());
-		if (gs != null) {
-			try {
-				gs.shotDownServer();
-			} catch (Exception e1) {
-				e1.printStackTrace();
-			}
-			// gs.setRunning(false);
-
-		}
-		// kolla om det går att stänga ner main på något ev sätt
-		
 	}
 	
-
 	public synchronized ArrayList<PlayerMP> getGameObjects() {
 		return gameObjects;
 	}

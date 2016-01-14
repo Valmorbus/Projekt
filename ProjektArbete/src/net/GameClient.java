@@ -149,7 +149,7 @@ public class GameClient extends Thread {
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
-	public void shotDownClient() throws SocketException{
+	public void shutDownClient() throws SocketException{
 		this.socket.close();
 		
 	}

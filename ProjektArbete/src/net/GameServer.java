@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import packets.Packet;
@@ -19,19 +20,25 @@ import projectv2.Game;
 import projectv2.PlayerMP;
 
 import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.control.TextArea;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 public class GameServer extends Thread {
 
 	private DatagramSocket socket;
 	private ArrayList<PlayerMP> connectedPlayers = new ArrayList<PlayerMP>();
 	private ArrayList<Bullet> connectedBullets = new ArrayList<Bullet>();
-	private Game game;
 	private boolean running = true;
+	private Stage stage;
+	private TextArea output;
 
-	public GameServer(Game game) {
-		this.game = game;
+	public GameServer(Stage stage) {
 		try {
 			this.socket = new DatagramSocket(5005);
+			this.stage = stage;
+			setServerStage();
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -39,7 +46,11 @@ public class GameServer extends Thread {
 	}
 
 	public void run() {
-		System.out.println("serverStart");
+		try {
+			output.setText("Server starts " + InetAddress.getLocalHost().toString() + "\n");
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+		}
 		while (running) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -66,13 +77,12 @@ public class GameServer extends Thread {
 
 	public void sendDataToAllClients(byte[] data) {
 		for (PlayerMP p : connectedPlayers) {
-			sendData(data, p.ipAdress, p.port);
+			sendData(data, p.getIpAdress(), p.getPort());
 		}
 	}
 
 	private void parsePacket(byte[] data, InetAddress adress, int port) {
 		String message = new String(data).trim();
-
 		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
 		Packet packet = null;
 		switch (type) {
@@ -83,16 +93,16 @@ public class GameServer extends Thread {
 			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(),
 					((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
 			connectedPlayers.add(player);
-
-			System.out.println(player.port + " " + player.getName() + " " + player.ipAdress);
+			output.setText(output.getText() + "Port: " + player.getPort() + " Playername: " + player.getName() + " IP "
+					+ player.getIpAdress() + "\n");
 			addConnection(player, (Packet00Login) packet);
 		}
 			break;
 		case DISCONNECT: {
 			packet = new Packet01Disconnect(data);
-			System.out.println(
-					"User " + ((Packet01Disconnect) packet).getUsername() + " " + adress.getHostAddress().toString()
-							+ " port " + port + " Has left " + ((Packet01Disconnect) packet).getUsername());
+			output.setText(output.getText() + "User " + ((Packet01Disconnect) packet).getUsername() + " "
+					+ adress.getHostAddress().toString() + " port " + port + " Has left " + "\n");
+
 			removeConnection((Packet01Disconnect) packet);
 
 		}
@@ -148,46 +158,37 @@ public class GameServer extends Thread {
 
 	public void addConnection(PlayerMP player2, Packet00Login packet) {
 		boolean alreadyConnected = false;
-		System.out.println("addconnection start: " + player2.ipAdress + " port " + player2.port);
+		try {
+			output.setText(output.getText() + " " + "client is reachable" + player2.getIpAdress() + " reached: "
+					+ player2.getIpAdress().isReachable(5000) + "\n");
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+
 		for (PlayerMP p : connectedPlayers) {
 			if (player2.getName().equalsIgnoreCase(p.getName())) {
-				if (p.ipAdress == null) {
-					p.ipAdress = player2.ipAdress;
-					System.out.println(" i if " + p.ipAdress);
+				if (p.getIpAdress() == null) {
+					p.setIpAdress(player2.getIpAdress());
+					System.out.println(" i if " + p.getIpAdress());
 				}
-				if (p.port == 0) {
-					p.port = player2.port;
-					System.out.println(" i if " + p.port);
+				if (p.getPort() == 0) {
+					p.setPort(player2.getPort());
+					System.out.println(" i if " + p.getPort());
 				}
 
 				alreadyConnected = true;
 			} else {
 				try {
-					System.out.println("addconnection else: " + player2.ipAdress + " port " + player2.port);
 					// uppdaterar nya spelaren om gamla spelares positioner
-					/*
-					 * packet = new Packet00Login(p.getName(),
-					 * p.getTranslateX(), p.getTranslateY(), p.getRotate());
-					 * sendData(packet.getData(), p.ipAdress, p.port);
-					 * 
-					 * 
-					 * // skickar att tidigare spelare är connected
-					 * 
-					 * sendData(packet.getData(), player2.ipAdress,
-					 * player2.port);
-					 */
-					// detta ska vara korrekt sätt att skriva på, problemet är
-					// att spelare tilldelas förra connected player och inte
-					// nuvarande
 					packet = new Packet00Login(player2.getName(), player2.getTranslateX(), player2.getTranslateY(),
 							player2.getRotate());
-					sendData(packet.getData(), p.ipAdress, p.port);
+					sendData(packet.getData(), p.getIpAdress(), p.getPort());
+					// skickar att tidigare spelare är connected
 					packet = new Packet00Login(p.getName(), p.getTranslateX(), p.getTranslateY(), p.getRotate());
-					sendData(packet.getData(), player2.ipAdress, player2.port);
-					System.out.println("addconnection slut: " + player2.ipAdress + " port " + player2.port);
+					sendData(packet.getData(), player2.getIpAdress(), player2.getPort());
 
 				} catch (Exception e) {
-					System.out.println("Server cant send packet " + e);
+					output.setText(output.getText() + " " + "Server cant send packet " + e + "\n");
 				}
 			}
 		}
@@ -235,8 +236,16 @@ public class GameServer extends Thread {
 		this.running = running;
 	}
 
-	public void shotDownServer() throws SocketException {
+	public void shutDownServer() throws SocketException {
 		this.socket.close();
+	}
+
+	private void setServerStage() {
+		Pane pane = new Pane();
+		this.output = new TextArea();
+		pane.getChildren().add(output);
+		Scene serverScene = new Scene(pane);
+		this.stage.setScene(serverScene);
 	}
 
 }

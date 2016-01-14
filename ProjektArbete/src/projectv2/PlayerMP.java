@@ -10,9 +10,9 @@ import javafx.scene.text.Text;
 
 public class PlayerMP extends Player {
 
-	public InetAddress ipAdress;
-	public int port;
-	private ImageView graphics = new ImageView();
+	private InetAddress ipAdress;
+	private int port;
+//	private ImageView graphics = new ImageView();
 	private String name;
 	private int ammo;
 	private Ellipse hitbox; 
