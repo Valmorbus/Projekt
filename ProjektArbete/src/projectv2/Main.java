@@ -15,6 +15,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import net.GameServer;
 
 public class Main extends Application {
@@ -95,7 +96,9 @@ public class Main extends Application {
 
 	private void ServerPopUp() {
 		Stage stage = new Stage();
-		FlowPane pane = new FlowPane();
+		stage.initStyle(StageStyle.UTILITY);
+		stage.sizeToScene();
+		FlowPane pane = new FlowPane(50,50);
 		Text text = new Text("Do you want to run the server?");
 		pane.getChildren().add(text);
 		Button yesButton = new Button("Yes");

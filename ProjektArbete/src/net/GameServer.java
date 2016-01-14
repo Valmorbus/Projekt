@@ -23,6 +23,7 @@ import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 public class GameServer extends Thread {
@@ -38,9 +39,9 @@ public class GameServer extends Thread {
 		try {
 			this.socket = new DatagramSocket(5005);
 			this.stage = stage;
+		//	stage.setOpacity(0.5);
 			setServerStage();
 		} catch (SocketException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -243,8 +244,12 @@ public class GameServer extends Thread {
 	private void setServerStage() {
 		Pane pane = new Pane();
 		this.output = new TextArea();
-		pane.getChildren().add(output);
 		Scene serverScene = new Scene(pane);
+		serverScene.getStylesheets().add("/net/Server.css");
+		pane.setStyle("-fx-background-color: black;");
+		output.setId("text-area");
+		pane.getChildren().add(output);
+		
 		this.stage.setScene(serverScene);
 	}
 
