@@ -25,6 +25,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class GameServer extends Thread {
 
@@ -248,6 +249,7 @@ public class GameServer extends Thread {
 		serverScene.getStylesheets().add("/net/Server.css");
 		pane.setStyle("-fx-background-color: black;");
 		output.setId("text-area");
+		output.setWrapText(true);
 		pane.getChildren().add(output);
 		
 		this.stage.setScene(serverScene);
