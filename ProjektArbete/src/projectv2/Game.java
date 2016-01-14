@@ -168,17 +168,17 @@ public class Game {
 			switch (e.getCode()) {
 			case RIGHT: {
 				if (player.isAlive())
-					movePlayer(5, 10);
+					movePlayer(5, 15);
 				break;
 			}
 			case LEFT: {
 				if (player.isAlive())
-					movePlayer(-5, 10);
+					movePlayer(-5, 15);
 				break;
 			}
 			case UP: {
 				if (player.isAlive())
-					movePlayer(20);
+					movePlayer(25);
 				break;
 			}
 			case SPACE: {

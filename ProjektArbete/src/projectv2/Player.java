@@ -1,11 +1,8 @@
 package projectv2;
 
 import java.net.InetAddress;
-import java.net.URL;
-
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.shape.Polygon;
 
 public class Player extends GameObject {
 	private int lives;
@@ -43,12 +40,7 @@ public class Player extends GameObject {
 		this.port = port;
 	}
 
-	public Player(double posX, double posY, double rotate, double speed) { // ,
-																			// InetAddress
-																			// ipAdress,
-																			// int
-																			// port)
-																			// {
+	public Player(double posX, double posY, double rotate, double speed) {
 		super(posX, posY, rotate, speed);
 		this.image = new Image("/Untitled.png"); // "resource/Untitled.png";
 		this.graphics.setImage(image);
