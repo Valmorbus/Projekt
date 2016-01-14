@@ -16,16 +16,13 @@ import packets.Packet02Move;
 import packets.Packet03Shoot;
 import packets.Packet04Hit;
 import projectv2.Bullet;
-import projectv2.Game;
 import projectv2.PlayerMP;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 
 public class GameServer extends Thread {
 
