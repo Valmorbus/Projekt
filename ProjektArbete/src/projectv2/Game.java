@@ -31,13 +31,26 @@ import packets.Packet02Move;
 import packets.Packet03Shoot;
 import packets.Packet04Hit;
 
+/**
+ * The Game class sets the game background and creates a local player on that background.
+ * It contains all the elements for running a network client for this specific multiplayer game. 
+ * The game class is mainly used to run the graphic contents of this game, as well as input from local player,
+ * which is then forwarded to the client.  
+ * At the moment it only works when connected to a server, since, for example bullets are spawned by the server. 
+ * 
+ * @author Simon Borgström
+ * @version 1.0
+ * @since 2015-01-15
+ *
+ */
+
 public class Game {
 
 	private Timeline playerLoop;
 	private Timeline timeline;
 	private Bullet bullet;
 	private ArrayList<Bullet> bulletArray = new ArrayList<Bullet>();
-	private ArrayList<PlayerMP> gameObjects = new ArrayList<PlayerMP>();
+	private ArrayList<PlayerMP> playerArray = new ArrayList<PlayerMP>();
 	private ArrayList<Ellipse> explosions = new ArrayList<Ellipse>();
 	private ArrayList<Text> playerNames = new ArrayList<Text>();
 	private Scene scene;
@@ -65,22 +78,29 @@ public class Game {
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
 	
 /**
+ * Constructs a Game instance. This is the only way to start the game. 
+ * Requires an ip adress to with the client will be connected, an username for the player
+ * and a starting position of said player represented by the posx and posy values. 
  * 
- * @param ip
- * @param userName
- * @param posx
- * @param posy
+ * @param ip - The IP-address to which the client are to connect
+ * @param userName - The username of the player
+ * @param posx - the X coordinate of the players start position
+ * @param posy - the Y coordinate of the players start position
  */
 	public Game(String ip, String userName, double posx, double posy) {
 		this.ipAdress = ip;
 		double r = setStartRotate(posx, posy);
 		this.player = new PlayerMP(userName, posx, posy, r, 0, null, 0);   
 		this.music = new Media(getClass().getResource("/Music.mp3").toString());
-		 musicPlayer = new MediaPlayer(music);
+		musicPlayer = new MediaPlayer(music);
 		//jag antar att detta bör klassas som komposition, då spelet slutar försvinner spelaren. 
 		//dock lever ju spelaren kvar i de andra spelarnas spel (förvisso under egna kopior av objektet. 
 		// men utan ett spel, ingen spelare. 
 	}
+	/**
+	 * Instantiates the game. Takes a stage on which to setup the game.
+	 * @param primary - the Stage on which to setup the game
+	 */
 
 	public synchronized void runGame(Stage primary) {
 
@@ -118,7 +138,7 @@ public class Game {
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if (!getGameObjects().isEmpty()) {
+				if (!getPlayerArray().isEmpty()) {
 					playerMovements();
 					updateLabels();
 					if (player.isAlive())
@@ -140,7 +160,7 @@ public class Game {
 				removeExplosions();
 			if (player.getAmmo() < 8)
 				player.setAmmo(player.getAmmo() + 1);
-			for (PlayerMP p : gameObjects) {
+			for (PlayerMP p : playerArray) {
 				p.setEffect(new Glow(0.3));
 			}
 			playerCollition();
@@ -152,7 +172,7 @@ public class Game {
 
 	private synchronized void updateLabels() {
 		for (Text name : playerNames) {
-			for (PlayerMP player : gameObjects) {
+			for (PlayerMP player : playerArray) {
 				if (name.getText().equals(player.getName())) {
 					name.setTranslateX(player.getTranslateX() + 25);
 					name.setLayoutY(player.getTranslateY() + 100);
@@ -207,7 +227,7 @@ public class Game {
 		playerOutOfBounds();
 		updateMovementsToServer(speed);
 	}
-
+// overloaded to only take one parameter since the movement is only to propel forward to turn parameter is necessary
 	private void movePlayer(double speed) {
 
 		Platform.runLater(() -> {
@@ -267,10 +287,10 @@ public class Game {
 						|| bulletArray.get(i).getEllipse().getTranslateY() >= SCREEN_HEIGHT + 100) {
 					removeBullet(bulletArray.get(i));
 				}
-				for (int j = 0; j < getGameObjects().size(); j++) {
+				for (int j = 0; j < getPlayerArray().size(); j++) {
 					if (bulletArray.get(i).getEllipse().getBoundsInParent()
-							.intersects(getGameObjects().get(j).getHitbox().getBoundsInParent())) {
-						damage(gameObjects.get(j), bulletArray.get(i).getDamage());
+							.intersects(getPlayerArray().get(j).getHitbox().getBoundsInParent())) {
+						damage(playerArray.get(j), bulletArray.get(i).getDamage());
 						removeBullet(bulletArray.get(i));
 						playEffect(soundEffects[0]);
 					}
@@ -311,9 +331,13 @@ public class Game {
 			explosions.removeAll(explosions);
 		}
 	}
-
+/**
+ * Adds a player to the game. This could be used by the client to add a player connected to the server
+ * or used by the local player to get added in the game. 
+ * @param player2 - the PlayerMP to be connected
+ */
 	public void addPlayer(PlayerMP player2) {
-		getGameObjects().add(player2);
+		getPlayerArray().add(player2);
 		addLocalPlayer(player2);
 	}
 
@@ -353,7 +377,7 @@ public class Game {
 	// synchronize?
 	private int getPlayerMPIndex(String username) {
 		int index = 0;// -1
-		for (PlayerMP p : getGameObjects()) {
+		for (PlayerMP p : getPlayerArray()) {
 			if (p instanceof PlayerMP && p.getName().equals(username)) {
 				break;
 			}
@@ -361,21 +385,31 @@ public class Game {
 		}
 		return index;
 	}
-
+/**
+ * Update the connected players position as mandated by the game server
+ * @param userName - The connected PlayerMP to be moved
+ * @param x - Sets the players TranslateX 
+ * @param y - Sets the players TranslateY
+ * @param rotate - Sets the players Rotate
+ */
 	public synchronized void updatePlayers(String userName, double x, double y, double rotate) {
 		int index = getPlayerMPIndex(userName);
 		Platform.runLater(() -> {
-			this.getGameObjects().get(index).setTranslateX(x);
-			this.getGameObjects().get(index).setTranslateY(y);
-			this.getGameObjects().get(index).setRotate(rotate);
+			this.getPlayerArray().get(index).setTranslateX(x);
+			this.getPlayerArray().get(index).setTranslateY(y);
+			this.getPlayerArray().get(index).setRotate(rotate);
 		});
 	}
-
+/**
+ * Finds the graphics of a PlayerMP added to the games Pane 
+ * @param username - the PlayerMP to be found
+ * @return - The Panes added children index of the wanted player
+ */
 	public int getRootPlayer(String username) {
 		int PlayerIndex = getPlayerMPIndex(username);
 		int index = 0;
 		for (Node p : root.getChildren()) {
-			if (p.equals(getGameObjects().get(PlayerIndex))) {
+			if (p.equals(getPlayerArray().get(PlayerIndex))) {
 				break;
 			}
 			index++;
@@ -383,10 +417,14 @@ public class Game {
 		return index;
 	}
 
+	/**
+	 * Removes a player from the game
+	 * @param username - The username of the player who are to be removed
+	 */
 	public synchronized void removePlayerMP(String username) {
 		Platform.runLater(() -> {
 			int index = 0;
-			for (PlayerMP p : getGameObjects()) {
+			for (PlayerMP p : getPlayerArray()) {
 				if (p instanceof PlayerMP && p.getName().equals(username)) {
 					break;
 				}
@@ -395,11 +433,18 @@ public class Game {
 			int rootIndex = getRootPlayer(username);
 			root.getChildren().remove(rootIndex);
 			root.getChildren().remove(rootIndex); // tar bort playername text
-			gameObjects.get(index).setHitbox(null);
-			getGameObjects().remove(index);
+			playerArray.get(index).setHitbox(null);
+			getPlayerArray().remove(index);
 		});
 	}
-
+/**
+ * Creates a bullet instance to be added to the game. 
+ * The bullet spawns when the server communicates to the client that a connected
+ * player has fired a shot.  
+ * @param x - The bullets TranslateX position
+ * @param y - The bullets TranslateY position
+ * @param rotate - The bullets rotation
+ */
 	public synchronized void updateShoots(double x, double y, double rotate) {
 		Bullet bullet = new Bullet(x, y, rotate);
 		moveBulletFirst(bullet);
@@ -447,12 +492,12 @@ public class Game {
 
 	private void playerWon() {
 		int playersDestroyed = 0;
-		if (getGameObjects().size() >= 2) {
-			for (PlayerMP p : gameObjects) {
+		if (getPlayerArray().size() >= 2) {
+			for (PlayerMP p : playerArray) {
 				if (!p.isAlive())
 					playersDestroyed++;
 			}
-			if (player.isAlive() && playersDestroyed + 1 == getGameObjects().size()) {
+			if (player.isAlive() && playersDestroyed + 1 == getPlayerArray().size()) {
 				Label won = new Label("You Won");
 				won.setTextFill(Color.RED);
 				won.setFont(new Font(50));
@@ -477,7 +522,7 @@ public class Game {
 	}
 
 	private void playerCollition() {
-		for (PlayerMP player2 : gameObjects) {
+		for (PlayerMP player2 : playerArray) {
 			if (!player.getName().equals(player2.getName()))
 				if (player.getBoundsInParent().intersects(player2.getBoundsInParent())) {
 					if (player2.getTranslateX() > player.getTranslateX())
@@ -492,22 +537,31 @@ public class Game {
 				}
 		}
 	}
-
+/**
+ * Notifies the server that this player has hit another connected player
+ * @param player - The player who has been damaged
+ * @param damage - The amount of damage the player takes
+ */
 	public void damage(PlayerMP player, int damage) {
 		Packet04Hit packet = new Packet04Hit(player.getName(), damage);
 		packet.writeData(gc);
 	}
-
+/**
+ * Notifies the local player if another player has been hit and adjusts that 
+ * players hit points and graphics accordingly.  
+ * @param username - The connected player that has been hit
+ * @param damage - The amount of damage the player takes 
+ */
 	public void damagePlayer(String username, int damage) {
 		int index = getPlayerMPIndex(username);
-		getGameObjects().get(index).setLives(getGameObjects().get(index).getLives() - damage);
-		if (getGameObjects().get(index).isAlive())
-			getGameObjects().get(index).setEffect(new Glow(1));
-		getGameObjects().get(index).showDamage();
+		getPlayerArray().get(index).setLives(getPlayerArray().get(index).getLives() - damage);
+		if (getPlayerArray().get(index).isAlive())
+			getPlayerArray().get(index).setEffect(new Glow(1));
+		getPlayerArray().get(index).showDamage();
 
-		if (getGameObjects().get(index).getLives() <= 0) {
-			getGameObjects().get(index).setAlive(false);
-			getGameObjects().get(index).showDamage();
+		if (getPlayerArray().get(index).getLives() <= 0) {
+			getPlayerArray().get(index).setAlive(false);
+			getPlayerArray().get(index).showDamage();
 		}
 	}
 	private void setOnClose() {
@@ -525,13 +579,13 @@ public class Game {
 			e1.printStackTrace();
 		}
 	}
+	/**
+	 * A synchronized instance of the ArrayList of connected players
+	 * @return -The ArrayList of connected PlayerMP
+	 */
+	public synchronized ArrayList<PlayerMP> getPlayerArray() {
+		return playerArray;
+	}
 	
-	public synchronized ArrayList<PlayerMP> getGameObjects() {
-		return gameObjects;
-	}
-
-	public synchronized void setGameObjects(ArrayList<PlayerMP> gameObjects) {
-		this.gameObjects = gameObjects;
-	}
 
 }

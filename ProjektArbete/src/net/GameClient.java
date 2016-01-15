@@ -29,6 +29,7 @@ public class GameClient extends Thread {
 			this.socket = new DatagramSocket();
 			this.ipAdress = InetAddress.getByName(ipAdress);
 			this.game = game;
+			System.out.println(ipAdress.toString());
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

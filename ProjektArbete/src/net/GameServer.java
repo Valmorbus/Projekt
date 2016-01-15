@@ -1,10 +1,15 @@
 package net;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.SocketException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 
@@ -46,6 +51,7 @@ public class GameServer extends Thread {
 	public void run() {
 		try {
 			output.setText("Server starts " + InetAddress.getLocalHost().toString() + "\n");
+			output.setText(output.getText() +"Public IP: "+getPublicIP()+"\n");
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 		}
@@ -87,7 +93,7 @@ public class GameServer extends Thread {
 		case INVALID:
 			break;
 		case LOGIN: {
-			packet = new Packet00Login(data);
+			packet = new Packet00Login(data);   //exempel på polymorphism. packet00Login är ett packet då den ärver packet. 
 			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(),
 					((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
 			connectedPlayers.add(player);
@@ -247,8 +253,28 @@ public class GameServer extends Thread {
 		output.setId("text-area");
 		output.setWrapText(true);
 		pane.getChildren().add(output);
-		
+
 		this.stage.setScene(serverScene);
+	}
+
+	private String getPublicIP() {
+
+		URL connection;
+		String str = null;
+		try {
+			connection = new URL("http://checkip.amazonaws.com/");
+			URLConnection con = connection.openConnection();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+			str = reader.readLine();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return str;
+
 	}
 
 }
