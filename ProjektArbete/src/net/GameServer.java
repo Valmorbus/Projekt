@@ -37,7 +37,6 @@ public class GameServer extends Thread {
 		try {
 			this.socket = new DatagramSocket(5005);
 			this.stage = stage;
-		//	stage.setOpacity(0.5);
 			setServerStage();
 		} catch (SocketException e) {
 			e.printStackTrace();

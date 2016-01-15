@@ -33,8 +33,12 @@ public class GameClient extends Thread {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			try {
+				this.ipAdress = InetAddress.getByName("localhost");
+			} catch (UnknownHostException e1) {
+				e1.printStackTrace();
+			}
+			System.out.println("Not a valid IP");
 		}
 
 	}
@@ -89,12 +93,13 @@ public class GameClient extends Thread {
 			packet = new Packet03Shoot(data);
 			handleShoot((Packet03Shoot) packet);
 		}
-		break;
-		case HIT :{ packet = new Packet04Hit(data);
-		handleHit((Packet04Hit)packet);
+			break;
+		case HIT: {
+			packet = new Packet04Hit(data);
+			handleHit((Packet04Hit) packet);
 		}
-		break;
-	
+			break;
+
 		default:
 			break;
 		}
@@ -102,7 +107,7 @@ public class GameClient extends Thread {
 
 	private void handleHit(Packet04Hit packet) {
 		this.game.damagePlayer(packet.getUsername(), packet.getDamage());
-		
+
 	}
 
 	private void handleShoot(Packet03Shoot packet) {
@@ -149,10 +154,10 @@ public class GameClient extends Thread {
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
-	public void shutDownClient() throws SocketException{
+
+	public void shutDownClient() throws SocketException {
 		this.socket.close();
-		
+
 	}
-	
-	
+
 }

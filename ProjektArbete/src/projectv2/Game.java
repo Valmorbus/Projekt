@@ -44,13 +44,12 @@ public class Game {
 	private PlayerMP player;
 	private Pane root;
 	private GameClient gc;
-
-	private Media music = new Media(getClass().getResource("/Music.mp3").toString());
+	private Media music;
 	private Media[] soundEffects = { new Media(getClass().getResource("/Explosion.mp3").toString()),
 			new Media(getClass().getResource("/Laser.mp3").toString()),
 			new Media(getClass().getResource("/Rocket.mp3").toString()) };
-	private MediaPlayer musicPlayer = new MediaPlayer(music);
-	private String ipAdress = "localhost";
+	private MediaPlayer musicPlayer;
+	private String ipAdress;
 	
 	/**
 	 * Sätter spelplanen till maxyta för skärmen. Skulle det vara så att
@@ -76,6 +75,8 @@ public class Game {
 		this.ipAdress = ip;
 		double r = setStartRotate(posx, posy);
 		this.player = new PlayerMP(userName, posx, posy, r, 0, null, 0);   
+		this.music = new Media(getClass().getResource("/Music.mp3").toString());
+		 musicPlayer = new MediaPlayer(music);
 		//jag antar att detta bör klassas som komposition, då spelet slutar försvinner spelaren. 
 		//dock lever ju spelaren kvar i de andra spelarnas spel (förvisso under egna kopior av objektet. 
 		// men utan ett spel, ingen spelare. 
