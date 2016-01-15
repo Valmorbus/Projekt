@@ -17,6 +17,17 @@ import packets.Packet.PacketTypes;
 import projectv2.Game;
 import projectv2.PlayerMP;
 
+/**
+ * A client with which the {@link Game} connects to the {@link GameServer}. This
+ * class uses User Datagram Protocol to send and receive {@link Packet}s to and
+ * from the {@link GameServer}. The GameClient extends {@link Thread}.
+ * 
+ * @author Simon Borgström
+ * @version 1.0
+ * @see Thread
+ *
+ */
+
 public class GameClient extends Thread {
 
 	private InetAddress ipAdress;
@@ -24,6 +35,18 @@ public class GameClient extends Thread {
 	private Game game;
 	private boolean running = true;
 
+	/**
+	 * Instantiates the GameClient. The client takes a {@link Game} as parameter
+	 * as well as a {@link String} which is converted to an {@link InetAddress}.
+	 * If the {@link InetAddress} can't convert the {@link String} it will
+	 * default to "localhost".
+	 * 
+	 * @param game
+	 *            - The game on which this GameClient is run.
+	 * @param ipAdress
+	 *            - The String which will be converted to an {@link InetAddress}
+	 *            .
+	 */
 	public GameClient(Game game, String ipAdress) {
 		try {
 			this.socket = new DatagramSocket();
@@ -44,6 +67,11 @@ public class GameClient extends Thread {
 
 	}
 
+	/**
+	 * Runs the {@link GameClient}. Tries to send {@link Packet}s to the
+	 * {@link GameServer} as well as receive them.
+	 */
+	@Override
 	public void run() {
 		System.out.println("Client start");
 		while (running) {
@@ -121,6 +149,21 @@ public class GameClient extends Thread {
 
 	}
 
+	private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
+
+		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(),
+				packet.getRotate(), 0, adress, port);
+		this.game.addPlayer(player);
+
+	}
+
+	/**
+	 * Sends {@link Packet} to {@link GameServer}.
+	 * 
+	 * @param data
+	 *            - The array of bytes to send.
+	 */
+
 	public void sendData(byte[] data) {
 		DatagramPacket packet = new DatagramPacket(data, data.length, ipAdress, 5005);
 		try {
@@ -132,30 +175,52 @@ public class GameClient extends Thread {
 
 	}
 
-	private void handleLogin(Packet00Login packet, InetAddress adress, int port) {
-
-		PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), packet.getX(), packet.getY(),
-				packet.getRotate(), 0, adress, port);
-		this.game.addPlayer(player);
-
-	}
+	/**
+	 * Returns {@link GameClient}s {@link DatagramSocket}.
+	 * 
+	 * @return {@link DatagramSocket} socket
+	 */
 
 	public DatagramSocket getSocket() {
 		return socket;
 	}
 
+	/**
+	 * Sets the {@link DatagramSocket} of the {@link GameClient}.
+	 * 
+	 * @param {@link
+	 * 			DatagramSocket} socket
+	 */
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
 	}
 
+	/**
+	 * Used to check if the loop in run() method in {@link GameClient} is still
+	 * running.
+	 * 
+	 * @return true if running
+	 */
 	public boolean isRunning() {
 		return running;
 	}
 
+	/**
+	 * Used to turn on or of the loop in {@link GameClient}s method run().
+	 * 
+	 * @param running
+	 *            - set false to shut down the loop
+	 */
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
 
+	/**
+	 * Used to shut down the {@link DatagramSocket} of {@link GameClient}.
+	 * 
+	 * @throws SocketException
+	 *             error accessing the Socket
+	 */
 	public void shutDownClient() throws SocketException {
 		this.socket.close();
 

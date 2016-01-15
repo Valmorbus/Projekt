@@ -102,7 +102,7 @@ public class Game {
 	 * @param primary - the Stage on which to setup the game
 	 */
 
-	public synchronized void runGame(Stage primary) {
+	public void runGame(Stage primary) {
 
 		Stage primaryStage = primary;
 		root = new Pane();
@@ -134,7 +134,7 @@ public class Game {
 	}
 
 	
-	private void gameLoop() {
+	private synchronized void gameLoop() {
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -249,10 +249,10 @@ public class Game {
 			if (!(player.getAmmo() <= 0)) {
 				playEffect(soundEffects[1]);
 				bullet = new Bullet();
-				root.getChildren().add(bullet.getEllipse());
-				bullet.getEllipse().setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
-				bullet.getEllipse().setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
-				bullet.getEllipse().setRotate(player.getRotate());
+				root.getChildren().add(bullet);
+				bullet.setTranslateX(player.getTranslateX() + (player.getImage().getWidth()) / 2);
+				bullet.setTranslateY(player.getTranslateY() + (player.getImage().getHeight() / 2));
+				bullet.setRotate(player.getRotate());
 				bulletArray.add(bullet);
 
 				moveBulletFirst(bullet);
@@ -264,31 +264,31 @@ public class Game {
 	
 	private void moveBullet(Bullet bullet) {
 	
-		double bulletX = bullet.getEllipse().getTranslateX();
-		double bulletY = bullet.getEllipse().getTranslateY();
-		bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
-		bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 25);
+		double bulletX = bullet.getTranslateX();
+		double bulletY = bullet.getTranslateY();
+		bullet.setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getRotate())) * 25);
+		bullet.setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getRotate())) * 25);
 	
 	}
 
 	private void moveBulletFirst(Bullet bullet) {
-		double bulletX = bullet.getEllipse().getTranslateX();
-		double bulletY = bullet.getEllipse().getTranslateY();
-		bullet.getEllipse().setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getEllipse().getRotate())) * 30);
-		bullet.getEllipse().setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getEllipse().getRotate())) * 30);
+		double bulletX = bullet.getTranslateX();
+		double bulletY = bullet.getTranslateY();
+		bullet.setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getRotate())) * 30);
+		bullet.setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getRotate())) * 30);
 	}
 	
 	private void checkHit() {
 		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
-				if (bulletArray.get(i).getEllipse().getTranslateX() <= -SCREEN_WIDTH - 100
-						|| bulletArray.get(i).getEllipse().getTranslateX() >= SCREEN_WIDTH + 100
-						|| bulletArray.get(i).getEllipse().getTranslateY() <= -SCREEN_HEIGHT - 100
-						|| bulletArray.get(i).getEllipse().getTranslateY() >= SCREEN_HEIGHT + 100) {
+				if (bulletArray.get(i).getTranslateX() <= -SCREEN_WIDTH - 100
+						|| bulletArray.get(i).getTranslateX() >= SCREEN_WIDTH + 100
+						|| bulletArray.get(i).getTranslateY() <= -SCREEN_HEIGHT - 100
+						|| bulletArray.get(i).getTranslateY() >= SCREEN_HEIGHT + 100) {
 					removeBullet(bulletArray.get(i));
 				}
 				for (int j = 0; j < getPlayerArray().size(); j++) {
-					if (bulletArray.get(i).getEllipse().getBoundsInParent()
+					if (bulletArray.get(i).getBoundsInParent()
 							.intersects(getPlayerArray().get(j).getHitbox().getBoundsInParent())) {
 						damage(playerArray.get(j), bulletArray.get(i).getDamage());
 						removeBullet(bulletArray.get(i));
@@ -304,7 +304,7 @@ public class Game {
 	private void removeBullet(Bullet bullet) {
 		createExplosion(bullet);
 		Platform.runLater(() -> {
-			root.getChildren().remove(bullet.getEllipse());
+			root.getChildren().remove(bullet);
 			bulletArray.remove(bullet);
 		});
 	}
@@ -317,8 +317,8 @@ public class Game {
 		ellipse.setEffect(new Bloom(0));
 		Platform.runLater(() -> {
 			root.getChildren().add(ellipse);
-			ellipse.setTranslateX(bullet.getEllipse().getTranslateX());
-			ellipse.setTranslateY(bullet.getEllipse().getTranslateY());
+			ellipse.setTranslateX(bullet.getTranslateX());
+			ellipse.setTranslateY(bullet.getTranslateY());
 			explosions.add(ellipse);
 		});
 	}
@@ -336,12 +336,12 @@ public class Game {
  * or used by the local player to get added in the game. 
  * @param player2 - the PlayerMP to be connected
  */
-	public void addPlayer(PlayerMP player2) {
+	public synchronized void addPlayer(PlayerMP player2) {
 		getPlayerArray().add(player2);
-		addLocalPlayer(player2);
+		addPlayerLocally(player2);
 	}
 
-	private void addLocalPlayer(PlayerMP player) {
+	private void addPlayerLocally(PlayerMP player) {
 		Platform.runLater(() -> {
 			root.getChildren().add(player);
 			Text playerLabel = new Text(player.getName());
@@ -369,8 +369,8 @@ public class Game {
 
 	private synchronized void updateShootsToServer(Bullet bullet) {
 		moveBulletFirst(bullet);
-		Packet03Shoot packet = new Packet03Shoot(null, bullet.getEllipse().getTranslateX(),
-				bullet.getEllipse().getTranslateY(), bullet.getEllipse().getRotate());
+		Packet03Shoot packet = new Packet03Shoot(null, bullet.getTranslateX(),
+				bullet.getTranslateY(), bullet.getRotate());
 		packet.writeData(gc);
 		removeExplosions();
 	}
@@ -450,10 +450,10 @@ public class Game {
 		moveBulletFirst(bullet);
 		bulletArray.add(bullet);
 		Platform.runLater(() -> {
-			root.getChildren().add(bullet.getEllipse());
-			bullet.getEllipse().setTranslateX(x);
-			bullet.getEllipse().setTranslateY(y);
-			bullet.getEllipse().setRotate(rotate);
+			root.getChildren().add(bullet);
+			bullet.setTranslateX(x);
+			bullet.setTranslateY(y);
+			bullet.setRotate(rotate);
 			playEffect(soundEffects[1]);
 
 			removeExplosions();

@@ -17,7 +17,11 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import net.GameServer;
-
+/**
+ * This class is used to instantiate GameServer and/or the Game.
+ * @author Simon Borgström
+ *@version 1.0
+ */
 public class Main extends Application {
 	private String userName = "Guest";
 	private String ipAdress = "localhost";

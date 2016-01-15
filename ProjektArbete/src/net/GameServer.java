@@ -21,6 +21,7 @@ import packets.Packet02Move;
 import packets.Packet03Shoot;
 import packets.Packet04Hit;
 import projectv2.Bullet;
+import projectv2.Game;
 import projectv2.PlayerMP;
 
 import javafx.application.Platform;
@@ -28,6 +29,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+
+/**
+ * A Server with which the {@link Game} connects to with the {@link GameClient}.
+ * This class uses User Datagram Protocol to send and receive {@link Packet}s to
+ * and from the {@link GameClient}. The GameClient extends {@link Thread}. In
+ * order to use the GameServer over anything else than a local network make sure
+ * that the firewall isn't blocking the server and that the router port-forwards
+ * to the local IP of the computer on which the server is run. The GameServer
+ * extends {@link Thread}.
+ * 
+ * @author Simon Borgström
+ * @version 1.0
+ * @see Thread
+ */
 
 public class GameServer extends Thread {
 
@@ -38,6 +53,14 @@ public class GameServer extends Thread {
 	private Stage stage;
 	private TextArea output;
 
+	/**
+	 * Constructor for the GameServer. It initialises a {@link DatagramSocket}
+	 * set to listen on port 5005. It takes a {@link Stage} as a parameter on
+	 * which it will set up a {@link TextArea} for data output.
+	 * 
+	 * @param stage
+	 *            - The Stage which will be transformed for the GameServer.
+	 */
 	public GameServer(Stage stage) {
 		try {
 			this.socket = new DatagramSocket(5005);
@@ -48,10 +71,15 @@ public class GameServer extends Thread {
 		}
 	}
 
+	/**
+	 * Runs the {@link GameServer}. Tries to send {@link Packet}s to connected
+	 * {@link GameClients} as well as receive them.
+	 */
+	@Override
 	public void run() {
 		try {
 			output.setText("Server starts " + InetAddress.getLocalHost().toString() + "\n");
-			output.setText(output.getText() +"Public IP: "+getPublicIP()+"\n");
+			output.setText(output.getText() + "Public IP: " + getPublicIP() + "\n");
 		} catch (UnknownHostException e1) {
 			e1.printStackTrace();
 		}
@@ -69,6 +97,17 @@ public class GameServer extends Thread {
 		}
 	}
 
+	/**
+	 * Used to send data to a specific {@link GameClient}. Used when the data is
+	 * not intended for all connected {@link GameClient}s.
+	 * 
+	 * @param data
+	 *            - the byte array of data to be sent.
+	 * @param ipAdress
+	 *            - The {@link InetAddress} of the client.
+	 * @param port
+	 *            - the port which the client listens to.
+	 */
 	public void sendData(byte[] data, InetAddress ipAdress, int port) {
 		DatagramPacket packet = new DatagramPacket(data, data.length, ipAdress, port);
 		try {
@@ -79,6 +118,13 @@ public class GameServer extends Thread {
 		}
 	}
 
+	/**
+	 * Used by {@link Packet}s to send data to all connected {@link GameClient}
+	 * s. Or you could say used to send the {@link Packet}.
+	 * 
+	 * @param data
+	 *            - The byte array of data to be sent.
+	 */
 	public void sendDataToAllClients(byte[] data) {
 		for (PlayerMP p : connectedPlayers) {
 			sendData(data, p.getIpAdress(), p.getPort());
@@ -93,7 +139,9 @@ public class GameServer extends Thread {
 		case INVALID:
 			break;
 		case LOGIN: {
-			packet = new Packet00Login(data);   //exempel på polymorphism. packet00Login är ett packet då den ärver packet. 
+			packet = new Packet00Login(data); // exempel på polymorphism.
+												// packet00Login är ett packet
+												// då den ärver packet.
 			PlayerMP player = new PlayerMP(((Packet00Login) packet).getUsername(), ((Packet00Login) packet).getX(),
 					((Packet00Login) packet).getY(), ((Packet00Login) packet).getRotate(), 0, adress, port);
 			connectedPlayers.add(player);
@@ -151,8 +199,8 @@ public class GameServer extends Thread {
 		Platform.runLater(() -> {
 			if (getPlayerMP(packet.getUsername()) != null) {
 				int index = getPlayerMPIndex(packet.getUsername());
-				connectedPlayers.get(index).setPosX(packet.getX());
-				connectedPlayers.get(index).setPosY(packet.getY());
+				connectedPlayers.get(index).setTranslateX(packet.getX());
+				connectedPlayers.get(index).setTranslateY(packet.getY());
 				connectedPlayers.get(index).setRotate(packet.getRotate());
 				packet.writeData(this);
 			}
@@ -160,7 +208,7 @@ public class GameServer extends Thread {
 
 	}
 
-	public void addConnection(PlayerMP player2, Packet00Login packet) {
+	private void addConnection(PlayerMP player2, Packet00Login packet) {
 		boolean alreadyConnected = false;
 		try {
 			output.setText(output.getText() + " " + "client is reachable" + player2.getIpAdress() + " reached: "
@@ -219,27 +267,56 @@ public class GameServer extends Thread {
 		return index;
 	}
 
-	public void removeConnection(Packet01Disconnect packet) {
+	private void removeConnection(Packet01Disconnect packet) {
 		connectedPlayers.remove(getPlayerMPIndex(packet.getUsername()));
 		packet.writeData(this);
 	}
 
+	/**
+	 * Returns {@link GameServer}s {@link DatagramSocket}.
+	 * 
+	 * @return {@link DatagramSocket} socket
+	 */
 	public DatagramSocket getSocket() {
 		return socket;
 	}
 
+	/**
+	 * Sets the {@link DatagramSocket} of the {@link GameServer}.
+	 * 
+	 * @param {@link
+	 * 			DatagramSocket} socket
+	 */
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
 	}
 
+	/**
+	 * Used to check if the loop in run() method in {@link GameServer} is still
+	 * running.
+	 * 
+	 * @return true if running
+	 */
 	public boolean isRunning() {
 		return running;
 	}
 
+	/**
+	 * Used to turn on or of the loop in {@link GameServer}s method run().
+	 * 
+	 * @param running
+	 *            - set false to shut down the loop
+	 */
 	public void setRunning(boolean running) {
 		this.running = running;
 	}
 
+	/**
+	 * Used to shut down the {@link DatagramSocket} of {@link GameServer}.
+	 * 
+	 * @throws SocketException
+	 *             error accessing the Socket
+	 */
 	public void shutDownServer() throws SocketException {
 		this.socket.close();
 	}
