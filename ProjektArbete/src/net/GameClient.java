@@ -14,8 +14,8 @@ import packets.Packet02Move;
 import packets.Packet03Shoot;
 import packets.Packet04Hit;
 import packets.Packet.PacketTypes;
-import projectv2.Game;
-import projectv2.PlayerMP;
+import spacegame.Game;
+import spacegame.PlayerMP;
 
 /**
  * A client with which the {@link Game} connects to the {@link GameServer}. This

@@ -1,4 +1,4 @@
-package projectv2;
+package spacegame;
 
 /**
  * For the moment an unused Interface ment to bind all the games objects together

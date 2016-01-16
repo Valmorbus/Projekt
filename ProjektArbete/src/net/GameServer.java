@@ -15,15 +15,13 @@ import java.util.ArrayList;
 
 import packets.Packet;
 import packets.Packet.PacketTypes;
+import spacegame.Bullet;
+import spacegame.PlayerMP;
 import packets.Packet00Login;
 import packets.Packet01Disconnect;
 import packets.Packet02Move;
 import packets.Packet03Shoot;
 import packets.Packet04Hit;
-import projectv2.Bullet;
-import projectv2.Game;
-import projectv2.PlayerMP;
-
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;

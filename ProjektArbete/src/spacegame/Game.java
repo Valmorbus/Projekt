@@ -1,4 +1,4 @@
-package projectv2;
+package spacegame;
 
 import java.util.ArrayList;
 import javafx.animation.Animation;

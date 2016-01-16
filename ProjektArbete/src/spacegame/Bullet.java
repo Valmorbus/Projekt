@@ -1,4 +1,4 @@
-package projectv2;
+package spacegame;
 
 import javafx.scene.effect.Bloom;
 import javafx.scene.effect.Glow;

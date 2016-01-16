@@ -1,4 +1,4 @@
-package projectv2;
+package spacegame;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -22,7 +22,7 @@ import net.GameServer;
  * @author Simon Borgström
  *@version 1.0
  */
-public class Main extends Application {
+public class SpaceGameMultiplayer extends Application {
 	private String userName = "Guest";
 	private String ipAdress = "localhost";
 	private double posX, posY;
