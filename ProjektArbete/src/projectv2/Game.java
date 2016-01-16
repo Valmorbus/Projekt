@@ -369,7 +369,7 @@ public class Game {
 
 	private synchronized void updateShootsToServer(Bullet bullet) {
 		moveBulletFirst(bullet);
-		Packet03Shoot packet = new Packet03Shoot(null, bullet.getTranslateX(),
+		Packet03Shoot packet = new Packet03Shoot(bullet.getTranslateX(),
 				bullet.getTranslateY(), bullet.getRotate());
 		packet.writeData(gc);
 		removeExplosions();

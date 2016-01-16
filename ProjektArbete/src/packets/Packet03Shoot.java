@@ -3,76 +3,140 @@ package packets;
 import net.GameClient;
 import net.GameServer;
 
-public class Packet03Shoot extends Packet{
+/**
+ * A Shoot Packet to enable players to update the server that it has fired a
+ * shot, which will then be created by the server to all connected clients.
+ * 
+ * @author Simon Borgström
+ * @version 1.0
+ */
+public class Packet03Shoot extends Packet {
 
-	private String username;
 	private double x, y, rotate;
 
+	/**
+	 * Constructor for Packet03Shoot. Creates a Shoot packet which creates a
+	 * bullet forwarded by the server to connected clients with the x
+	 * coordinate, the y coordinate and the rotation as a byte array for the
+	 * bullet being created.
+	 * 
+	 * @param data
+	 *            - byte array of data
+	 */
 	public Packet03Shoot(byte[] data) {
 		super(03);
 		String[] dataArray = readData(data).split(",");
-		this.username = dataArray[0];
-		this.x =Double.parseDouble(dataArray[1]);
-		this.y =Double.parseDouble(dataArray[2]);;
-		this.rotate = Double.parseDouble(dataArray[3]);;
-		// TODO Auto-generated constructor stub
+		this.x = Double.parseDouble(dataArray[0]);
+		this.y = Double.parseDouble(dataArray[1]);
+		this.rotate = Double.parseDouble(dataArray[2]);
+
 	}
-	public Packet03Shoot(String username, double x, double y, double rotate) {
+
+	/**
+	 * Constructor for Packet03Shoot. Creates a Shoot packet which creates a
+	 * bullet forwarded by the server to connected clients with the x
+	 * coordinate, the y coordinate and the rotation for the bullet being
+	 * created.
+	 * 
+	 * @param x
+	 *            - x coordinate
+	 * @param y
+	 *            - y coordinate
+	 * @param rotate
+	 *            - rotation
+	 */
+	public Packet03Shoot(double x, double y, double rotate) {
 		super(03);
-		this.username = username;
-		this.x =x;
-		this.y =y;
+		this.x = x;
+		this.y = y;
 		this.rotate = rotate;
-		// TODO Auto-generated constructor stub
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 
 	@Override
 	public void writeData(GameClient client) {
 		client.sendData(getData());
-		
+
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 
 	@Override
 	public void writeData(GameServer server) {
 		server.sendDataToAllClients(getData());
-		
+
 	}
-	//skickar argument. Lägg till i konstruktor för andra/fler argument
+
+	/**
+	 * {@inheritDoc}
+	 */
+
 	@Override
 	public byte[] getData() {
-		return ("03" + this.username+","+this.x+","+this.y+","+this.rotate).getBytes();
-	
+		return ("03" + this.x + "," + this.y + "," + this.rotate).getBytes();
+
 	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
+
+	/**
+	 * Returns the x coordinate of the player login in
+	 * 
+	 * @return x double
+	 */
 	public double getX() {
 		return x;
 	}
+
+	/**
+	 * Sets the x coordinate of the player login in
+	 * 
+	 * @param x
+	 *            - double
+	 */
 	public void setX(double x) {
 		this.x = x;
 	}
+
+	/**
+	 * Returns the y coordinate of the player login in
+	 * 
+	 * @return y double
+	 */
 	public double getY() {
 		return y;
 	}
+
+	/**
+	 * Sets the y coordinate of the player login in
+	 * 
+	 * @param y
+	 *            - double
+	 */
 	public void setY(double y) {
 		this.y = y;
 	}
+
+	/**
+	 * Returns the rotation of the player login in
+	 * 
+	 * @return rotation double
+	 */
 	public double getRotate() {
 		return rotate;
 	}
+
+	/**
+	 * Sets the rotation of the player login in
+	 * 
+	 * @param rotate
+	 *            - double
+	 */
 	public void setRotate(double rotate) {
 		this.rotate = rotate;
 	}
-	
-	
-	
-	
-	
-	
 
 }
-
