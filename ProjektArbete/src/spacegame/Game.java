@@ -353,7 +353,6 @@ public class Game {
 		});
 	}
 
-	// synchronize?
 	private synchronized void updateMovementsToServer(double speed) {
 		Platform.runLater(() -> {
 			player.setRotate(player.getRotate());
@@ -374,7 +373,7 @@ public class Game {
 		packet.writeData(gc);
 		removeExplosions();
 	}
-	// synchronize?
+	
 	private int getPlayerMPIndex(String username) {
 		int index = 0;// -1
 		for (PlayerMP p : getPlayerArray()) {
@@ -405,7 +404,7 @@ public class Game {
  * @param username - the PlayerMP to be found
  * @return - The Panes added children index of the wanted player
  */
-	public int getRootPlayer(String username) {
+	private int getRootPlayer(String username) {
 		int PlayerIndex = getPlayerMPIndex(username);
 		int index = 0;
 		for (Node p : root.getChildren()) {
@@ -583,7 +582,7 @@ public class Game {
 	 * A synchronized instance of the ArrayList of connected players
 	 * @return -The ArrayList of connected PlayerMP
 	 */
-	public synchronized ArrayList<PlayerMP> getPlayerArray() {
+	private synchronized ArrayList<PlayerMP> getPlayerArray() {
 		return playerArray;
 	}
 	
