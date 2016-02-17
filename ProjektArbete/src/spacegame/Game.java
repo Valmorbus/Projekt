@@ -32,11 +32,12 @@ import packets.Packet03Shoot;
 import packets.Packet04Hit;
 
 /**
- * The Game class sets the game background and creates a local player on that background.
- * It contains all the elements for running a network client for this specific multiplayer game. 
- * The game class is mainly used to run the graphic contents of this game, as well as input from local player,
- * which is then forwarded to the client.  
- * At the moment it only works when connected to a server, since, for example bullets are spawned by the server. 
+ * The Game class sets the game background and creates a local player on that
+ * background. It contains all the elements for running a network client for
+ * this specific multiplayer game. The game class is mainly used to run the
+ * graphic contents of this game, as well as input from local player, which is
+ * then forwarded to the client. At the moment it only works when connected to a
+ * server, since, for example bullets are spawned by the server.
  * 
  * @author Simon Borgström
  * @version 1.0
@@ -49,10 +50,10 @@ public class Game {
 	private Timeline playerLoop;
 	private Timeline timeline;
 	private Bullet bullet;
-	private ArrayList<Bullet> bulletArray = new ArrayList<Bullet>();
-	private ArrayList<PlayerMP> playerArray = new ArrayList<PlayerMP>();
-	private ArrayList<Ellipse> explosions = new ArrayList<Ellipse>();
-	private ArrayList<Text> playerNames = new ArrayList<Text>();
+	private ArrayList<Bullet> bulletArray;
+	private ArrayList<PlayerMP> playerArray;
+	private ArrayList<Ellipse> explosions;
+	private ArrayList<Text> playerNames;
 	private Scene scene;
 	private PlayerMP player;
 	private Pane root;
@@ -63,7 +64,7 @@ public class Game {
 			new Media(getClass().getResource("/Rocket.mp3").toString()) };
 	private MediaPlayer musicPlayer;
 	private String ipAdress;
-	
+
 	/**
 	 * Sätter spelplanen till maxyta för skärmen. Skulle det vara så att
 	 * spelarna har olika upplösning kommer det att bli fel för den med sämst
@@ -76,30 +77,44 @@ public class Game {
 	private final Rectangle2D GAME_MAP = Screen.getPrimary().getBounds();
 	private final double SCREEN_WIDTH = GAME_MAP.getWidth();
 	private final double SCREEN_HEIGHT = GAME_MAP.getHeight();
-	
-/**
- * Constructs a Game instance. This is the only way to start the game. 
- * Requires an ip adress to with the client will be connected, an username for the player
- * and a starting position of said player represented by the posx and posy values. 
- * 
- * @param ip - The IP-address to which the client are to connect
- * @param userName - The username of the player
- * @param posx - the X coordinate of the players start position
- * @param posy - the Y coordinate of the players start position
- */
+
+	/**
+	 * Constructs a Game instance. This is the only way to start the game.
+	 * Requires an ip adress to with the client will be connected, an username
+	 * for the player and a starting position of said player represented by the
+	 * posx and posy values.
+	 * 
+	 * @param ip
+	 *            - The IP-address to which the client are to connect
+	 * @param userName
+	 *            - The username of the player
+	 * @param posx
+	 *            - the X coordinate of the players start position
+	 * @param posy
+	 *            - the Y coordinate of the players start position
+	 */
 	public Game(String ip, String userName, double posx, double posy) {
 		this.ipAdress = ip;
 		double r = setStartRotate(posx, posy);
-		this.player = new PlayerMP(userName, posx, posy, r, 0, null, 0);   
+		this.player = new PlayerMP(userName, posx, posy, r, 0, null, 0);
 		this.music = new Media(getClass().getResource("/Music.mp3").toString());
 		musicPlayer = new MediaPlayer(music);
-		//jag antar att detta bör klassas som komposition, då spelet slutar försvinner spelaren. 
-		//dock lever ju spelaren kvar i de andra spelarnas spel (förvisso under egna kopior av objektet. 
-		// men utan ett spel, ingen spelare. 
+		bulletArray = new ArrayList<Bullet>();
+		playerArray = new ArrayList<PlayerMP>();
+		explosions = new ArrayList<Ellipse>();
+		playerNames = new ArrayList<Text>();
+		// jag antar att detta bör klassas som komposition, då spelet slutar
+		// försvinner spelaren.
+		// dock lever ju spelaren kvar i de andra spelarnas spel (förvisso under
+		// egna kopior av objektet.
+		// men utan ett spel, ingen spelare.
 	}
+
 	/**
 	 * Instantiates the game. Takes a stage on which to setup the game.
-	 * @param primary - the Stage on which to setup the game
+	 * 
+	 * @param primary
+	 *            - the Stage on which to setup the game
 	 */
 
 	public void runGame(Stage primary) {
@@ -115,7 +130,7 @@ public class Game {
 		primaryStage.setScene(scene);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
-		setOnClose();
+			setOnClose();
 		});
 		Packet00Login loginPacket = new Packet00Login(player.getName(), player.getTranslateX(), player.getTranslateY(),
 				player.getRotate());
@@ -133,7 +148,6 @@ public class Game {
 
 	}
 
-	
 	private synchronized void gameLoop() {
 		playerLoop = new Timeline(new KeyFrame(Duration.millis(1000 / 60), new EventHandler<ActionEvent>() {
 			@Override
@@ -227,7 +241,9 @@ public class Game {
 		playerOutOfBounds();
 		updateMovementsToServer(speed);
 	}
-// overloaded to only take one parameter since the movement is only to propel forward to turn parameter is necessary
+
+	// overloaded to only take one parameter since the movement is only to
+	// propel forward to turn parameter is necessary
 	private void movePlayer(double speed) {
 
 		Platform.runLater(() -> {
@@ -261,14 +277,14 @@ public class Game {
 			}
 		});
 	}
-	
+
 	private void moveBullet(Bullet bullet) {
-	
+
 		double bulletX = bullet.getTranslateX();
 		double bulletY = bullet.getTranslateY();
 		bullet.setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getRotate())) * 25);
 		bullet.setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getRotate())) * 25);
-	
+
 	}
 
 	private void moveBulletFirst(Bullet bullet) {
@@ -277,7 +293,7 @@ public class Game {
 		bullet.setTranslateX(bulletX + Math.cos(Math.toRadians(bullet.getRotate())) * 30);
 		bullet.setTranslateY(bulletY + Math.sin(Math.toRadians(bullet.getRotate())) * 30);
 	}
-	
+
 	private void checkHit() {
 		if (!bulletArray.isEmpty()) {
 			for (int i = 0; i < bulletArray.size(); i++) {
@@ -300,7 +316,6 @@ public class Game {
 		}
 	}
 
-	
 	private void removeBullet(Bullet bullet) {
 		createExplosion(bullet);
 		Platform.runLater(() -> {
@@ -331,11 +346,15 @@ public class Game {
 			explosions.removeAll(explosions);
 		}
 	}
-/**
- * Adds a player to the game. This could be used by the client to add a player connected to the server
- * or used by the local player to get added in the game. 
- * @param player2 - the PlayerMP to be connected
- */
+
+	/**
+	 * Adds a player to the game. This could be used by the client to add a
+	 * player connected to the server or used by the local player to get added
+	 * in the game.
+	 * 
+	 * @param player2
+	 *            - the PlayerMP to be connected
+	 */
 	public synchronized void addPlayer(PlayerMP player2) {
 		getPlayerArray().add(player2);
 		addPlayerLocally(player2);
@@ -368,12 +387,11 @@ public class Game {
 
 	private synchronized void updateShootsToServer(Bullet bullet) {
 		moveBulletFirst(bullet);
-		Packet03Shoot packet = new Packet03Shoot(bullet.getTranslateX(),
-				bullet.getTranslateY(), bullet.getRotate());
+		Packet03Shoot packet = new Packet03Shoot(bullet.getTranslateX(), bullet.getTranslateY(), bullet.getRotate());
 		packet.writeData(gc);
 		removeExplosions();
 	}
-	
+
 	private int getPlayerMPIndex(String username) {
 		int index = 0;// -1
 		for (PlayerMP p : getPlayerArray()) {
@@ -384,13 +402,19 @@ public class Game {
 		}
 		return index;
 	}
-/**
- * Update the connected players position as mandated by the game server
- * @param userName - The connected PlayerMP to be moved
- * @param x - Sets the players TranslateX 
- * @param y - Sets the players TranslateY
- * @param rotate - Sets the players Rotate
- */
+
+	/**
+	 * Update the connected players position as mandated by the game server
+	 * 
+	 * @param userName
+	 *            - The connected PlayerMP to be moved
+	 * @param x
+	 *            - Sets the players TranslateX
+	 * @param y
+	 *            - Sets the players TranslateY
+	 * @param rotate
+	 *            - Sets the players Rotate
+	 */
 	public synchronized void updatePlayers(String userName, double x, double y, double rotate) {
 		int index = getPlayerMPIndex(userName);
 		Platform.runLater(() -> {
@@ -399,11 +423,14 @@ public class Game {
 			this.getPlayerArray().get(index).setRotate(rotate);
 		});
 	}
-/**
- * Finds the graphics of a PlayerMP added to the games Pane 
- * @param username - the PlayerMP to be found
- * @return - The Panes added children index of the wanted player
- */
+
+	/**
+	 * Finds the graphics of a PlayerMP added to the games Pane
+	 * 
+	 * @param username
+	 *            - the PlayerMP to be found
+	 * @return - The Panes added children index of the wanted player
+	 */
 	private int getRootPlayer(String username) {
 		int PlayerIndex = getPlayerMPIndex(username);
 		int index = 0;
@@ -418,7 +445,9 @@ public class Game {
 
 	/**
 	 * Removes a player from the game
-	 * @param username - The username of the player who are to be removed
+	 * 
+	 * @param username
+	 *            - The username of the player who are to be removed
 	 */
 	public synchronized void removePlayerMP(String username) {
 		Platform.runLater(() -> {
@@ -436,14 +465,19 @@ public class Game {
 			getPlayerArray().remove(index);
 		});
 	}
-/**
- * Creates a bullet instance to be added to the game. 
- * The bullet spawns when the server communicates to the client that a connected
- * player has fired a shot.  
- * @param x - The bullets TranslateX position
- * @param y - The bullets TranslateY position
- * @param rotate - The bullets rotation
- */
+
+	/**
+	 * Creates a bullet instance to be added to the game. The bullet spawns when
+	 * the server communicates to the client that a connected player has fired a
+	 * shot.
+	 * 
+	 * @param x
+	 *            - The bullets TranslateX position
+	 * @param y
+	 *            - The bullets TranslateY position
+	 * @param rotate
+	 *            - The bullets rotation
+	 */
 	public synchronized void updateShoots(double x, double y, double rotate) {
 		Bullet bullet = new Bullet(x, y, rotate);
 		moveBulletFirst(bullet);
@@ -536,21 +570,29 @@ public class Game {
 				}
 		}
 	}
-/**
- * Notifies the server that this player has hit another connected player
- * @param player - The player who has been damaged
- * @param damage - The amount of damage the player takes
- */
+
+	/**
+	 * Notifies the server that this player has hit another connected player
+	 * 
+	 * @param player
+	 *            - The player who has been damaged
+	 * @param damage
+	 *            - The amount of damage the player takes
+	 */
 	public void damage(PlayerMP player, int damage) {
 		Packet04Hit packet = new Packet04Hit(player.getName(), damage);
 		packet.writeData(gc);
 	}
-/**
- * Notifies the local player if another player has been hit and adjusts that 
- * players hit points and graphics accordingly.  
- * @param username - The connected player that has been hit
- * @param damage - The amount of damage the player takes 
- */
+
+	/**
+	 * Notifies the local player if another player has been hit and adjusts that
+	 * players hit points and graphics accordingly.
+	 * 
+	 * @param username
+	 *            - The connected player that has been hit
+	 * @param damage
+	 *            - The amount of damage the player takes
+	 */
 	public void damagePlayer(String username, int damage) {
 		int index = getPlayerMPIndex(username);
 		getPlayerArray().get(index).setLives(getPlayerArray().get(index).getLives() - damage);
@@ -563,13 +605,14 @@ public class Game {
 			getPlayerArray().get(index).showDamage();
 		}
 	}
+
 	private void setOnClose() {
 		// ska skicka ett disconnectpavket när man stänger ner fönstret
 		Packet01Disconnect packet = new Packet01Disconnect(player.getName());
 		packet.writeData(gc);
-		musicPlayer.stop();	
+		musicPlayer.stop();
 		try {
-			playerLoop.stop();  //avslutar alla loopar, kastar exceptions
+			playerLoop.stop(); // avslutar alla loopar, kastar exceptions
 			timeline.stop();
 			gc.setRunning(false);
 			gc.shutDownClient();
@@ -578,13 +621,14 @@ public class Game {
 			e1.printStackTrace();
 		}
 	}
+
 	/**
 	 * A synchronized instance of the ArrayList of connected players
+	 * 
 	 * @return -The ArrayList of connected PlayerMP
 	 */
 	private synchronized ArrayList<PlayerMP> getPlayerArray() {
 		return playerArray;
 	}
-	
 
 }
